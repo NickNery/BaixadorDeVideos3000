@@ -85,6 +85,8 @@ Esse comando atualiza `yt-dlp` e instala/atualiza `certifi`.
 
 ## Personalizacao dentro do app
 
+A interface padrao segue o visual da Edge Solutions: fundo escuro, cards em vidro escuro, azul intenso como cor de acao e fonte Poppins.
+
 Abra a aba `Personalizar` dentro do proprio aplicativo para mudar:
 
 - titulo do app;

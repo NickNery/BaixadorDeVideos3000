@@ -40,25 +40,27 @@ except Exception:
 
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.1"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
+DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
 
 
 DEFAULT_CONFIG = {
-    "title": "Gerenciador de Downloads Master",
+    "design_system": DESIGN_SYSTEM_VERSION,
+    "title": "Edge Solutions Downloader",
     "yt_dlp_path": "yt-dlp.exe",
     "default_folder": str(Path.home() / "Downloads"),
-    "background_color": "#101820",
-    "panel_color": "#182430",
-    "text_color": "#f4f7fb",
-    "muted_text_color": "#a9b4c0",
-    "button_color": "#1d9bf0",
+    "background_color": "#171717",
+    "panel_color": "#1f1f1f",
+    "text_color": "#f7f7f7",
+    "muted_text_color": "#999999",
+    "button_color": "#0000ff",
     "button_text_color": "#ffffff",
-    "entry_bg": "#ffffff",
-    "entry_fg": "#101820",
+    "entry_bg": "#262626",
+    "entry_fg": "#f7f7f7",
     "background_image": "",
-    "background_mode": "banner",
+    "background_mode": "none",
     "background_fit": "cover",
     "background_size": "100",
     "background_height": "170",
@@ -68,8 +70,31 @@ DEFAULT_CONFIG = {
 }
 
 
-FONT_REGULAR = "Montserrat"
-FONT_MEDIUM = "Montserrat Medium"
+THEME_CONFIG_KEYS = [
+    "design_system",
+    "title",
+    "background_color",
+    "panel_color",
+    "text_color",
+    "muted_text_color",
+    "button_color",
+    "button_text_color",
+    "entry_bg",
+    "entry_fg",
+    "background_image",
+    "background_mode",
+    "background_fit",
+    "background_size",
+    "background_height",
+    "font_size",
+]
+
+
+FONT_REGULAR = "Poppins"
+FONT_MEDIUM = "Poppins SemiBold"
+EDGE_BORDER = "#383838"
+EDGE_MUTED_SURFACE = "#2e2e2e"
+EDGE_BLUE_LIGHT = "#3333ff"
 
 
 def load_config():
@@ -77,7 +102,11 @@ def load_config():
         try:
             with CONFIG_FILE.open("r", encoding="utf-8") as file:
                 loaded = json.load(file)
-            return {**DEFAULT_CONFIG, **loaded}
+            config = {**DEFAULT_CONFIG, **loaded}
+            if loaded.get("design_system") != DESIGN_SYSTEM_VERSION:
+                for key in THEME_CONFIG_KEYS:
+                    config[key] = DEFAULT_CONFIG[key]
+            return config
         except Exception:
             return DEFAULT_CONFIG.copy()
     return DEFAULT_CONFIG.copy()
@@ -396,7 +425,7 @@ class DownloaderApp:
         self.title_label.pack(anchor="w")
         ttk.Label(
             title_stack,
-            text="Baixe videos e audios com yt-dlp, com visual personalizavel.",
+            text="Downloads de video e audio com visual premium Edge Solutions.",
             style="AppSubtitle.TLabel",
         ).pack(anchor="w", pady=(3, 0))
 
@@ -565,31 +594,36 @@ class DownloaderApp:
         font_size = self.safe_font_size()
         self.root.configure(bg=cfg["background_color"])
         self.style.configure("Main.TFrame", background=cfg["background_color"])
-        self.style.configure("Panel.TFrame", background=cfg["panel_color"], borderwidth=1, relief="solid")
+        self.style.configure("Panel.TFrame", background=cfg["panel_color"], borderwidth=1, relief="solid", bordercolor=EDGE_BORDER)
         if hasattr(self, "download_scroll"):
             self.download_scroll.set_colors(cfg["background_color"])
         if hasattr(self, "customize_scroll"):
             self.customize_scroll.set_colors(cfg["background_color"])
-        self.style.configure("Title.TLabel", background=cfg["background_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 22, "normal"))
+        self.style.configure("Title.TLabel", background=cfg["background_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 23, "normal"))
         self.style.configure("AppSubtitle.TLabel", background=cfg["background_color"], foreground=cfg["muted_text_color"], font=(FONT_REGULAR, 10, "normal"))
-        self.style.configure("Section.TLabel", background=cfg["panel_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 11, "normal"))
+        self.style.configure("Section.TLabel", background=cfg["panel_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 12, "normal"))
         self.style.configure("Hint.TLabel", background=cfg["panel_color"], foreground=cfg["muted_text_color"], font=(FONT_REGULAR, 9, "normal"))
         self.style.configure("Status.TLabel", background=cfg["panel_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 10, "normal"))
         self.style.configure("PreviewTitle.TLabel", background=cfg["panel_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 14, "normal"))
         self.style.configure("PreviewText.TLabel", background=cfg["panel_color"], foreground=cfg["muted_text_color"], font=(FONT_REGULAR, font_size, "normal"))
         self.style.configure("Main.TCheckbutton", background=cfg["background_color"], foreground=cfg["text_color"])
         self.style.configure("Main.TRadiobutton", background=cfg["panel_color"], foreground=cfg["text_color"])
-        self.style.configure("Panel.TLabelframe", background=cfg["panel_color"], foreground=cfg["text_color"])
+        self.style.map("Main.TCheckbutton", background=[("active", cfg["background_color"])], foreground=[("active", cfg["text_color"])])
+        self.style.map("Main.TRadiobutton", background=[("active", cfg["panel_color"])], foreground=[("active", cfg["text_color"])])
+        self.style.configure("Panel.TLabelframe", background=cfg["panel_color"], foreground=cfg["text_color"], bordercolor=EDGE_BORDER, relief="solid")
         self.style.configure("Panel.TLabelframe.Label", background=cfg["panel_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 10, "normal"))
         self.style.configure("Image.TLabel", background=cfg["background_color"])
-        self.style.configure("TButton", padding=(11, 8), font=(FONT_REGULAR, 9, "normal"))
-        self.style.configure("Accent.TButton", background=cfg["button_color"], foreground=cfg["button_text_color"], padding=(14, 9), font=(FONT_MEDIUM, 9, "normal"))
-        self.style.map("Accent.TButton", background=[("active", cfg["button_color"])])
-        self.style.configure("Nav.TButton", background=cfg["panel_color"], foreground=cfg["muted_text_color"], padding=(16, 8), font=(FONT_REGULAR, 10, "normal"))
-        self.style.configure("ActiveNav.TButton", background=cfg["button_color"], foreground=cfg["button_text_color"], padding=(26, 13), font=(FONT_MEDIUM, 12, "normal"))
-        self.style.map("Nav.TButton", background=[("active", cfg["panel_color"])])
-        self.style.map("ActiveNav.TButton", background=[("active", cfg["button_color"])])
-        self.style.configure("TEntry", fieldbackground=cfg["entry_bg"], foreground=cfg["entry_fg"], padding=6)
+        self.style.configure("TButton", background=EDGE_MUTED_SURFACE, foreground=cfg["text_color"], padding=(12, 8), font=(FONT_REGULAR, 9, "normal"), bordercolor=EDGE_BORDER)
+        self.style.map("TButton", background=[("active", "#363636"), ("disabled", "#242424")], foreground=[("disabled", cfg["muted_text_color"])])
+        self.style.configure("Accent.TButton", background=cfg["button_color"], foreground=cfg["button_text_color"], padding=(15, 10), font=(FONT_MEDIUM, 9, "normal"), bordercolor=cfg["button_color"])
+        self.style.map("Accent.TButton", background=[("active", EDGE_BLUE_LIGHT), ("disabled", "#242424")], foreground=[("disabled", cfg["muted_text_color"])])
+        self.style.configure("Nav.TButton", background=EDGE_MUTED_SURFACE, foreground=cfg["muted_text_color"], padding=(16, 8), font=(FONT_REGULAR, 10, "normal"), bordercolor=EDGE_BORDER)
+        self.style.configure("ActiveNav.TButton", background=cfg["button_color"], foreground=cfg["button_text_color"], padding=(28, 13), font=(FONT_MEDIUM, 12, "normal"), bordercolor=cfg["button_color"])
+        self.style.map("Nav.TButton", background=[("active", "#363636")], foreground=[("active", cfg["text_color"])])
+        self.style.map("ActiveNav.TButton", background=[("active", EDGE_BLUE_LIGHT)])
+        self.style.configure("TEntry", fieldbackground=cfg["entry_bg"], foreground=cfg["entry_fg"], padding=7, bordercolor=EDGE_BORDER, lightcolor=EDGE_BORDER, darkcolor=EDGE_BORDER, insertcolor=cfg["entry_fg"])
+        self.style.configure("TCombobox", fieldbackground=cfg["entry_bg"], background=cfg["entry_bg"], foreground=cfg["entry_fg"], arrowcolor=cfg["text_color"], bordercolor=EDGE_BORDER)
+        self.style.map("TCombobox", fieldbackground=[("readonly", cfg["entry_bg"])], foreground=[("readonly", cfg["entry_fg"])])
 
         for text_widget in [self.url_text]:
             text_widget.configure(

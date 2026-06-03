@@ -1,6 +1,6 @@
 {
-  "version": "1.3.0",
-  "notes": "Corrige erro SSL CERTIFICATE_VERIFY_FAILED no macOS usando certifi como pacote de certificados confiaveis para o yt-dlp.",
+  "version": "1.3.1",
+  "notes": "Atualiza o design system para o visual Edge Solutions: fundo escuro, cards premium, azul intenso e fonte Poppins.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
