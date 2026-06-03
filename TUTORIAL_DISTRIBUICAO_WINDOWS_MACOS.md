@@ -1,0 +1,258 @@
+# Tutorial de distribuicao - Windows e macOS
+
+Este tutorial explica como instalar o Baixador YT-DLP em outros computadores Windows e Mac, e como preparar atualizacoes para todos os usuarios.
+
+## 1. Arquivos que voce deve enviar
+
+Crie um `.zip` com estes arquivos da pasta do programa:
+
+- `ytdlp_gui_downloader.py`
+- `requirements.txt`
+- `Abrir_Baixador_YTDLP.bat`
+- `Abrir_Baixador_YTDLP.command`
+- `Instalar_Dependencias_Windows.bat`
+- `Instalar_Dependencias_macOS.command`
+- `README_ytdlp_gui.md`
+- `update_manifest_example.json`
+
+Opcional no Windows:
+
+- `yt-dlp.exe`
+
+Se voce enviar `yt-dlp.exe` junto, o usuario Windows nao precisa instalar o yt-dlp por pip. Mesmo assim, ainda precisa do Python.
+
+## 2. Instalacao no Windows
+
+### Passo 1 - Instalar Python
+
+1. Baixe o Python em `https://www.python.org/downloads/windows/`.
+2. Durante a instalacao, marque a opcao `Add python.exe to PATH`.
+3. Conclua a instalacao.
+
+### Passo 2 - Extrair o programa
+
+1. Extraia o `.zip` do programa em uma pasta simples, por exemplo:
+
+```text
+C:\Baixador-YTDLP
+```
+
+Evite colocar dentro de pastas protegidas como `C:\Program Files`.
+
+### Passo 3 - Instalar dependencias
+
+1. Abra a pasta do programa.
+2. Clique duas vezes em:
+
+```text
+Instalar_Dependencias_Windows.bat
+```
+
+Esse arquivo instala:
+
+- `Pillow`, para imagem de fundo e redimensionamento;
+- `yt-dlp`, caso voce nao esteja usando `yt-dlp.exe` na pasta.
+
+### Passo 4 - Instalar ffmpeg
+
+Para MP3 e MP4 em alta qualidade, instale o `ffmpeg`.
+
+Opcoes:
+
+- baixar o `ffmpeg.exe` e colocar na mesma pasta do programa;
+- ou instalar pelo gerenciador de pacotes do Windows;
+- ou adicionar o ffmpeg ao PATH do Windows.
+
+### Passo 5 - Abrir o programa
+
+Clique duas vezes em:
+
+```text
+Abrir_Baixador_YTDLP.bat
+```
+
+Para criar atalho:
+
+1. Clique com o botao direito no `Abrir_Baixador_YTDLP.bat`.
+2. Escolha `Enviar para > Area de trabalho (criar atalho)`.
+
+## 3. Instalacao no macOS
+
+### Passo 1 - Instalar Python
+
+Instale Python 3 pelo site:
+
+```text
+https://www.python.org/downloads/macos/
+```
+
+Ou pelo Homebrew:
+
+```zsh
+brew install python
+```
+
+### Passo 2 - Instalar ffmpeg
+
+No Mac, o jeito mais facil e pelo Homebrew:
+
+```zsh
+brew install ffmpeg
+```
+
+### Passo 3 - Extrair o programa
+
+Extraia o `.zip` em uma pasta, por exemplo:
+
+```text
+/Users/SEU_USUARIO/Applications/Baixador-YTDLP
+```
+
+Ou:
+
+```text
+/Users/SEU_USUARIO/Desktop/Baixador-YTDLP
+```
+
+### Passo 4 - Liberar os arquivos `.command`
+
+Abra o Terminal dentro da pasta do programa e rode:
+
+```zsh
+chmod +x Abrir_Baixador_YTDLP.command
+chmod +x Instalar_Dependencias_macOS.command
+```
+
+### Passo 5 - Instalar dependencias
+
+Clique duas vezes em:
+
+```text
+Instalar_Dependencias_macOS.command
+```
+
+Ou rode no Terminal:
+
+```zsh
+python3 -m pip install -r requirements.txt
+```
+
+### Passo 6 - Abrir o programa
+
+Clique duas vezes em:
+
+```text
+Abrir_Baixador_YTDLP.command
+```
+
+Se o macOS bloquear por seguranca:
+
+1. Clique com o botao direito no arquivo.
+2. Escolha `Abrir`.
+3. Confirme que deseja abrir.
+
+## 4. Como configurar atualizacao para todos os PCs
+
+O programa agora tem um atualizador interno baseado em um arquivo online chamado manifesto.
+
+A ideia e:
+
+1. Voce hospeda os arquivos atualizados em algum lugar online.
+2. Voce hospeda um `update_manifest.json`.
+3. Todos os computadores configuram a mesma URL desse manifesto.
+4. Quando voce publicar uma versao nova, qualquer usuario pode clicar em `Verificar atualizacao`.
+5. O app baixa os arquivos novos, substitui os antigos e reinicia.
+
+### Onde hospedar
+
+Use um lugar com links diretos HTTPS, por exemplo:
+
+- GitHub Releases;
+- GitHub Pages;
+- servidor proprio;
+- storage publico com links diretos.
+
+Evite links que abrem uma pagina HTML em vez de baixar o arquivo diretamente.
+
+## 5. Exemplo de manifesto
+
+Use o arquivo:
+
+```text
+update_manifest_example.json
+```
+
+Modelo:
+
+```json
+{
+  "version": "1.2.0",
+  "notes": "Resumo das mudancas desta versao.",
+  "files": [
+    {
+      "path": "ytdlp_gui_downloader.py",
+      "url": "https://SEU-SITE-OU-GITHUB/ytdlp_gui_downloader.py"
+    },
+    {
+      "path": "README_ytdlp_gui.md",
+      "url": "https://SEU-SITE-OU-GITHUB/README_ytdlp_gui.md"
+    },
+    {
+      "path": "requirements.txt",
+      "url": "https://SEU-SITE-OU-GITHUB/requirements.txt"
+    }
+  ]
+}
+```
+
+### Campos
+
+- `version`: versao mais nova disponivel.
+- `notes`: texto mostrado para o usuario antes de atualizar.
+- `files`: lista de arquivos que serao baixados.
+- `path`: caminho onde o arquivo sera salvo dentro da pasta do app.
+- `url`: link direto para baixar o arquivo novo.
+
+## 6. Como publicar uma nova atualizacao
+
+Sempre que voce quiser atualizar todos os computadores:
+
+1. Edite o programa.
+2. Aumente a versao dentro do arquivo `ytdlp_gui_downloader.py`:
+
+```python
+APP_VERSION = "1.3.0"
+```
+
+3. Envie os arquivos novos para o seu GitHub/site.
+4. Atualize o manifesto:
+
+```json
+"version": "1.3.0"
+```
+
+5. Atualize as URLs dos arquivos se necessario.
+6. Nos computadores dos usuarios, abra o app e clique em:
+
+```text
+Verificar atualizacao
+```
+
+## 7. Como configurar a URL de atualizacao no app
+
+Dentro do programa:
+
+1. Abra a tela `Baixar`.
+2. Procure a secao `yt-dlp`.
+3. No campo `URL de atualizacao do app`, cole a URL do seu manifesto.
+4. Clique em `Verificar atualizacao`.
+
+O app salva essa URL no arquivo `ytdlp_gui_config.json`.
+
+## 8. Importante sobre atualizacao automatica
+
+O app esta preparado para buscar atualizacoes online, mas ele precisa de uma URL publica para o manifesto.
+
+Sem essa URL, ele nao tem como saber onde buscar a nova versao.
+
+Use sempre HTTPS e hospede apenas arquivos seus, porque o atualizador substitui arquivos do programa.

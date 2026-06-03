@@ -1,0 +1,42 @@
+{
+  "version": "1.2.7",
+  "notes": "Move os botoes de download para o painel esquerdo e adiciona argumentosExtras.txt.",
+  "files": [
+    {
+      "path": "ytdlp_gui_downloader.py",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/ytdlp_gui_downloader.py"
+    },
+    {
+      "path": "README_ytdlp_gui.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/README_ytdlp_gui.md"
+    },
+    {
+      "path": "TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md"
+    },
+    {
+      "path": "requirements.txt",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/requirements.txt"
+    },
+    {
+      "path": "argumentosExtras.txt",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/argumentosExtras.txt"
+    },
+    {
+      "path": "Abrir_Baixador_YTDLP.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Abrir_Baixador_YTDLP.bat"
+    },
+    {
+      "path": "Abrir_Baixador_YTDLP.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Abrir_Baixador_YTDLP.command"
+    },
+    {
+      "path": "Instalar_Dependencias_Windows.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Instalar_Dependencias_Windows.bat"
+    },
+    {
+      "path": "Instalar_Dependencias_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Instalar_Dependencias_macOS.command"
+    }
+  ]
+}

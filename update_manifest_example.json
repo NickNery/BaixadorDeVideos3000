@@ -1,0 +1,22 @@
+{
+  "version": "1.2.7",
+  "notes": "Move os botoes de download para o painel esquerdo e adiciona argumentosExtras.txt.",
+  "files": [
+    {
+      "path": "ytdlp_gui_downloader.py",
+      "url": "https://SEU-SITE-OU-GITHUB/ytdlp_gui_downloader.py"
+    },
+    {
+      "path": "README_ytdlp_gui.md",
+      "url": "https://SEU-SITE-OU-GITHUB/README_ytdlp_gui.md"
+    },
+    {
+      "path": "requirements.txt",
+      "url": "https://SEU-SITE-OU-GITHUB/requirements.txt"
+    },
+    {
+      "path": "argumentosExtras.txt",
+      "url": "https://SEU-SITE-OU-GITHUB/argumentosExtras.txt"
+    }
+  ]
+}

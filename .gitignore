@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+_apply_update.py
+ytdlp_gui_config.json
+deno.exe
