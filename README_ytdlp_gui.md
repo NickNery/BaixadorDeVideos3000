@@ -73,7 +73,7 @@ No macOS, nao use `yt-dlp.exe`. Esse arquivo e apenas para Windows. Se aparecer 
 
 ## Erro de certificado SSL no macOS
 
-Se aparecer `CERTIFICATE_VERIFY_FAILED`, `unable to get local issuer certificate` ou erro parecido, o Python do Mac nao esta encontrando certificados SSL confiaveis.
+Se aparecer `CERTIFICATE_VERIFY_FAILED`, `unable to get local issuer certificate` ou erro parecido ao baixar videos ou verificar atualizacao, o Python do Mac nao esta encontrando certificados SSL confiaveis.
 
 A partir da versao `1.3.0`, o app tenta usar automaticamente os certificados do pacote `certifi`. Para corrigir em computadores Mac, rode novamente:
 

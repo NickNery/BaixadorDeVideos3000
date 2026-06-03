@@ -5,6 +5,7 @@ import queue
 import re
 import shlex
 import shutil
+import ssl
 import subprocess
 import sys
 import tempfile
@@ -41,10 +42,11 @@ except Exception:
 
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.3.2"
+APP_VERSION = "1.3.3"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
+SSL_CERT_ERROR_HINT = "Erro de certificado SSL no macOS. Rode Instalar_Dependencias_macOS.command para atualizar certifi e depois abra o app de novo."
 
 
 DEFAULT_CONFIG = {
@@ -206,6 +208,23 @@ def find_certifi_bundle():
             pass
 
     return ""
+
+
+def ssl_context_with_certifi():
+    certifi_bundle = find_certifi_bundle()
+    if certifi_bundle:
+        try:
+            return ssl.create_default_context(cafile=certifi_bundle)
+        except Exception:
+            pass
+    return ssl.create_default_context()
+
+
+def urlopen_with_certifi(request, timeout):
+    url = getattr(request, "full_url", str(request))
+    if str(url).lower().startswith("https://"):
+        return urllib.request.urlopen(request, timeout=timeout, context=ssl_context_with_certifi())
+    return urllib.request.urlopen(request, timeout=timeout)
 
 
 def subprocess_environment():
@@ -1335,7 +1354,7 @@ class DownloaderApp:
     def fetch_update_manifest(self, manifest_url, check_id):
         try:
             request = urllib.request.Request(manifest_url, headers={"User-Agent": f"YTDLP-GUI/{APP_VERSION}"})
-            with urllib.request.urlopen(request, timeout=12) as response:
+            with urlopen_with_certifi(request, timeout=12) as response:
                 status = getattr(response, "status", 200)
                 if status >= 400:
                     raise urllib.error.HTTPError(manifest_url, status, "Erro HTTP ao abrir manifesto", response.headers, None)
@@ -1346,7 +1365,11 @@ class DownloaderApp:
             message = f"Nao consegui verificar atualizacao: erro HTTP {exc.code}."
             self.root.after(0, lambda message=message, check_id=check_id: self.handle_update_check_error(message, check_id))
         except urllib.error.URLError as exc:
-            message = f"Nao consegui verificar atualizacao: {exc.reason}."
+            reason = str(getattr(exc, "reason", exc))
+            message = SSL_CERT_ERROR_HINT if self.has_ssl_certificate_error(reason) else f"Nao consegui verificar atualizacao: {reason}."
+            self.root.after(0, lambda message=message, check_id=check_id: self.handle_update_check_error(message, check_id))
+        except ssl.SSLError as exc:
+            message = SSL_CERT_ERROR_HINT if self.has_ssl_certificate_error(str(exc)) else f"Nao consegui verificar atualizacao: {exc}."
             self.root.after(0, lambda message=message, check_id=check_id: self.handle_update_check_error(message, check_id))
         except json.JSONDecodeError:
             message = "Nao consegui verificar atualizacao: a URL nao retornou um JSON valido."
@@ -1390,7 +1413,7 @@ class DownloaderApp:
                 target = temp_dir / relative_path
                 target.parent.mkdir(parents=True, exist_ok=True)
                 request = urllib.request.Request(url, headers={"User-Agent": f"YTDLP-GUI/{APP_VERSION}"})
-                with urllib.request.urlopen(request, timeout=60) as response:
+                with urlopen_with_certifi(request, timeout=60) as response:
                     target.write_bytes(response.read())
 
             updater_path = APP_DIR / "_apply_update.py"
@@ -1399,7 +1422,7 @@ class DownloaderApp:
             self.root.after(0, lambda: self.show_toast("Atualizacao baixada. Reiniciando...", "success", duration=1800))
             self.root.after(1900, self.root.destroy)
         except Exception as exc:
-            message = f"Falha na atualizacao: {exc}"
+            message = SSL_CERT_ERROR_HINT if self.has_ssl_certificate_error(str(exc)) else f"Falha na atualizacao: {exc}"
             self.root.after(0, lambda message=message: self.show_toast(message, "error"))
 
     def drain_output_queue(self):
@@ -1441,7 +1464,7 @@ class DownloaderApp:
         clean_message = message.replace("[ERRO] ", "").strip()
         details = "\n".join([part for part in [clean_message, "\n".join(self.last_process_lines[-5:]).strip()] if part]).strip()
         if self.has_ssl_certificate_error(details):
-            ssl_message = "Erro de certificado SSL no macOS. Rode Instalar_Dependencias_macOS.command novamente para atualizar certifi e yt-dlp, depois abra o app de novo."
+            ssl_message = SSL_CERT_ERROR_HINT
             self.status_text.set(ssl_message)
             self.show_toast(ssl_message, "error", duration=10000)
             return

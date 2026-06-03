@@ -1,6 +1,6 @@
 {
-  "version": "1.3.2",
-  "notes": "Melhora os botoes de selecao/check e troca o scroll para um estilo escuro mais condizente com o design Edge Solutions.",
+  "version": "1.3.3",
+  "notes": "Corrige erro SSL CERTIFICATE_VERIFY_FAILED ao verificar atualizacoes no macOS usando certifi no urllib.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
