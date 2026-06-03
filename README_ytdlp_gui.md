@@ -27,6 +27,20 @@ Se o Windows usar o launcher `py`, tambem pode funcionar:
 py ytdlp_gui_downloader.py
 ```
 
+Importante: os arquivos `Instalar_Dependencias_Windows.bat` e `Instalar_Dependencias_macOS.command` nao instalam o Python. Eles so instalam as bibliotecas depois que o Python ja esta instalado.
+
+Para testar se o Python esta instalado no Windows:
+
+```powershell
+python --version
+```
+
+Para testar no macOS:
+
+```zsh
+python3 --version
+```
+
 ## Biblioteca opcional para imagem de fundo
 
 Para usar redimensionamento de imagem com qualidade, JPG, WEBP e os modos avancados de fundo, instale o Pillow:

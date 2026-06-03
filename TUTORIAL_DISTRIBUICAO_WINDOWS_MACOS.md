@@ -25,9 +25,24 @@ Se voce enviar `yt-dlp.exe` junto, o usuario Windows nao precisa instalar o yt-d
 
 ### Passo 1 - Instalar Python
 
+O arquivo `Instalar_Dependencias_Windows.bat` nao instala o Python. Ele so instala as bibliotecas do programa depois que o Python ja existe no computador.
+
+Se o computador ainda nao tiver Python instalado:
+
 1. Baixe o Python em `https://www.python.org/downloads/windows/`.
 2. Durante a instalacao, marque a opcao `Add python.exe to PATH`.
 3. Conclua a instalacao.
+4. Feche e abra novamente a pasta/terminal antes de continuar.
+
+Para testar se deu certo, abra o Prompt de Comando ou PowerShell e rode:
+
+```powershell
+python --version
+```
+
+Se aparecer uma versao, por exemplo `Python 3.14.0`, pode continuar.
+
+Se aparecer que `python` nao e reconhecido, reinstale o Python marcando `Add python.exe to PATH`.
 
 ### Passo 2 - Extrair o programa
 
@@ -52,6 +67,8 @@ Esse arquivo instala:
 
 - `Pillow`, para imagem de fundo e redimensionamento;
 - `yt-dlp`, caso voce nao esteja usando `yt-dlp.exe` na pasta.
+
+Se esse arquivo abrir e fechar rapido, ou mostrar erro dizendo que `python` nao foi encontrado, volte ao Passo 1 e instale o Python corretamente.
 
 ### Passo 4 - Instalar ffmpeg
 
@@ -80,6 +97,8 @@ Para criar atalho:
 
 ### Passo 1 - Instalar Python
 
+O arquivo `Instalar_Dependencias_macOS.command` nao instala o Python. Ele so instala as bibliotecas do programa depois que o Python ja existe no Mac.
+
 Instale Python 3 pelo site:
 
 ```text
@@ -91,6 +110,14 @@ Ou pelo Homebrew:
 ```zsh
 brew install python
 ```
+
+Para testar se deu certo, abra o Terminal e rode:
+
+```zsh
+python3 --version
+```
+
+Se aparecer uma versao, por exemplo `Python 3.14.0`, pode continuar.
 
 ### Passo 2 - Instalar ffmpeg
 
