@@ -1,6 +1,6 @@
 {
-  "version": "1.2.7",
-  "notes": "Move os botoes de download para o painel esquerdo e adiciona argumentosExtras.txt.",
+  "version": "1.2.8",
+  "notes": "Corrige Errno 8 no macOS ignorando yt-dlp.exe e usando yt-dlp/python3 -m yt_dlp.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",

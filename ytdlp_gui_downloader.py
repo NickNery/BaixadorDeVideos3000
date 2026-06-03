@@ -39,7 +39,7 @@ except Exception:
 
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.2.7"
+APP_VERSION = "1.2.8"
 
 
 DEFAULT_CONFIG = {
@@ -86,17 +86,28 @@ def save_config(config):
 
 
 def find_yt_dlp(configured_path):
-    candidates = [
-        configured_path,
-        str(APP_DIR / "yt-dlp.exe"),
-        str(APP_DIR / "yt-dlp"),
-        shutil.which("yt-dlp.exe"),
-        shutil.which("yt-dlp"),
-    ]
+    if os.name == "nt":
+        candidates = [
+            configured_path,
+            str(APP_DIR / "yt-dlp.exe"),
+            str(APP_DIR / "yt-dlp"),
+            shutil.which("yt-dlp.exe"),
+            shutil.which("yt-dlp"),
+        ]
+    else:
+        candidates = []
+        if configured_path and not str(configured_path).lower().endswith(".exe"):
+            candidates.append(configured_path)
+        candidates.extend(
+            [
+                str(APP_DIR / "yt-dlp"),
+                shutil.which("yt-dlp"),
+            ]
+        )
     for candidate in candidates:
         if candidate and Path(candidate).exists():
             return str(Path(candidate))
-    if configured_path and configured_path not in {"yt-dlp.exe", "yt-dlp"}:
+    if configured_path and configured_path not in {"yt-dlp.exe", "yt-dlp"} and not str(configured_path).lower().endswith(".exe"):
         return configured_path
     return "yt-dlp.exe" if os.name == "nt" else "yt-dlp"
 
@@ -116,6 +127,38 @@ def resolve_executable_path(value):
 
     found = shutil.which(value)
     return found or value
+
+
+def resolve_ytdlp_command(value):
+    if os.name == "nt":
+        return [resolve_executable_path(value)]
+
+    value = (value or "").strip()
+    if value and not value.lower().endswith(".exe"):
+        path = Path(value)
+        if path.is_absolute() and path.exists():
+            return [str(path)]
+
+        app_relative = APP_DIR / value
+        if app_relative.exists():
+            return [str(app_relative)]
+
+        found = shutil.which(value)
+        if found:
+            return [found]
+
+        if value not in {"yt-dlp", "yt-dlp.exe"}:
+            return [value]
+
+    app_ytdlp = APP_DIR / "yt-dlp"
+    if app_ytdlp.exists():
+        return [str(app_ytdlp)]
+
+    found = shutil.which("yt-dlp")
+    if found:
+        return [found]
+
+    return [sys.executable, "-m", "yt_dlp"]
 
 
 def version_tuple(version):
@@ -774,7 +817,7 @@ class DownloaderApp:
 
     def choose_ytdlp(self):
         path = filedialog.askopenfilename(
-            title="Selecionar yt-dlp.exe",
+            title="Selecionar yt-dlp",
             filetypes=[("yt-dlp", ("yt-dlp.exe", "yt-dlp")), ("Executaveis", "*.exe"), ("Todos os arquivos", "*.*")],
         )
         if path:
@@ -915,10 +958,7 @@ class DownloaderApp:
     def build_command(self):
         urls = self.urls()
         destino = Path(self.destino.get()).expanduser()
-        ytdlp = resolve_executable_path(self.yt_dlp_path.get())
-
-        command = [
-            ytdlp,
+        command = resolve_ytdlp_command(self.yt_dlp_path.get()) + [
             "--newline",
             "--progress",
             "--windows-filenames",
@@ -1028,7 +1068,7 @@ class DownloaderApp:
             else:
                 self.output_queue.put({"type": "process_done", "code": code, "message": f"[ERRO] O yt-dlp terminou com codigo {code}."})
         except FileNotFoundError:
-            self.output_queue.put({"type": "process_done", "code": -1, "message": "[ERRO] yt-dlp nao encontrado. Selecione o yt-dlp.exe ou coloque-o na mesma pasta deste app."})
+            self.output_queue.put({"type": "process_done", "code": -1, "message": "[ERRO] yt-dlp nao encontrado. No Windows, selecione o yt-dlp.exe. No macOS, rode Instalar_Dependencias_macOS.command."})
         except Exception as exc:
             self.output_queue.put({"type": "process_done", "code": -1, "message": f"[ERRO] {exc}"})
         finally:
@@ -1045,8 +1085,7 @@ class DownloaderApp:
     def update_ytdlp(self):
         if self.process:
             return
-        ytdlp = resolve_executable_path(self.yt_dlp_path.get())
-        command = [ytdlp, "-U"]
+        command = resolve_ytdlp_command(self.yt_dlp_path.get()) + ["-U"]
         self.log("Atualizando yt-dlp...")
         self.download_button.configure(state="disabled")
         self.cancel_button.configure(state="normal")

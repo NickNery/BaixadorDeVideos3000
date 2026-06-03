@@ -43,3 +43,7 @@ Veja exemplos em:
 ```text
 argumentosExtras.txt
 ```
+
+## macOS
+
+No macOS, rode `Instalar_Dependencias_macOS.command` antes de abrir o app. O arquivo `yt-dlp.exe` e apenas para Windows; se aparecer `Errno 8`, o Mac tentou abrir esse executavel de Windows.

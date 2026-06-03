@@ -21,6 +21,8 @@ Opcional no Windows:
 
 Se voce enviar `yt-dlp.exe` junto, o usuario Windows nao precisa instalar o yt-dlp por pip. Mesmo assim, ainda precisa do Python.
 
+No macOS, o arquivo `yt-dlp.exe` nao deve ser executado. Ele e um executavel de Windows. O app no Mac usa o `yt-dlp` instalado pelas dependencias, ou roda `python3 -m yt_dlp`.
+
 ## 2. Instalacao no Windows
 
 ### Passo 1 - Instalar Python
@@ -163,6 +165,8 @@ Ou rode no Terminal:
 ```zsh
 python3 -m pip install -r requirements.txt
 ```
+
+Esse passo instala tambem o `yt-dlp` para Mac. Se voce tentar usar o `yt-dlp.exe` no macOS, pode aparecer `Errno 8`, porque esse arquivo e de Windows.
 
 ### Passo 6 - Abrir o programa
 

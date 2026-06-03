@@ -69,6 +69,8 @@ Se usar cookies do navegador, deixe o navegador fechado caso o `yt-dlp` reclame 
 Para converter audio em MP3 ou juntar video + audio em MP4 de alta qualidade, o `yt-dlp` normalmente precisa do `ffmpeg`.
 Se aparecer erro relacionado a `ffmpeg`, baixe o `ffmpeg.exe` e deixe ele no PATH do Windows ou na mesma pasta do `yt-dlp.exe`.
 
+No macOS, nao use `yt-dlp.exe`. Esse arquivo e apenas para Windows. Se aparecer `Errno 8` no Mac, normalmente significa que o sistema tentou abrir um `.exe`. Rode `Instalar_Dependencias_macOS.command` para instalar o `yt-dlp` correto para macOS.
+
 ## Personalizacao dentro do app
 
 Abra a aba `Personalizar` dentro do proprio aplicativo para mudar:
