@@ -10,6 +10,7 @@ import sys
 import tempfile
 import threading
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 from tkinter import (
@@ -39,7 +40,9 @@ except Exception:
 
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.2.8"
+APP_VERSION = "1.2.9"
+DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
+UPDATE_CHECK_TIMEOUT_SECONDS = 25
 
 
 DEFAULT_CONFIG = {
@@ -61,7 +64,7 @@ DEFAULT_CONFIG = {
     "background_height": "170",
     "font_size": "10",
     "extra_args": "",
-    "update_manifest_url": "",
+    "update_manifest_url": DEFAULT_UPDATE_MANIFEST_URL,
 }
 
 
@@ -303,6 +306,9 @@ class DownloaderApp:
         self.current_process_kind = None
         self.download_watchdog_job = None
         self.last_output_time = None
+        self.update_check_running = False
+        self.update_check_id = 0
+        self.update_check_timeout_job = None
 
         self.destino = StringVar(value=self.config["default_folder"])
         self.formato = StringVar(value="mp4")
@@ -312,7 +318,7 @@ class DownloaderApp:
         self.cookies_file = StringVar()
         self.yt_dlp_path = StringVar(value=find_yt_dlp(self.config["yt_dlp_path"]))
         self.extra_args = StringVar(value=self.config["extra_args"])
-        self.update_manifest_url = StringVar(value=self.config["update_manifest_url"])
+        self.update_manifest_url = StringVar(value=self.config.get("update_manifest_url") or DEFAULT_UPDATE_MANIFEST_URL)
         self.keep_window_on_top = BooleanVar(value=False)
         self.status_text = StringVar(value="Pronto para baixar.")
         self.current_screen = "download"
@@ -501,7 +507,8 @@ class DownloaderApp:
         ttk.Button(tool_box, text="Atualizar yt-dlp", command=self.update_ytdlp, style="Accent.TButton").grid(row=1, column=0, columnspan=2, sticky="ew", pady=(10, 0))
         ttk.Label(tool_box, text="URL de atualizacao do app", style="Hint.TLabel").grid(row=2, column=0, columnspan=2, sticky="w", pady=(12, 4))
         ttk.Entry(tool_box, textvariable=self.update_manifest_url).grid(row=3, column=0, sticky="ew")
-        ttk.Button(tool_box, text="Verificar atualizacao", command=self.check_app_update).grid(row=3, column=1, padx=(8, 0))
+        self.update_app_button = ttk.Button(tool_box, text="Verificar atualizacao", command=self.check_app_update)
+        self.update_app_button.grid(row=3, column=1, padx=(8, 0))
 
         extra_box = ttk.LabelFrame(right, text="Argumentos extras", style="Panel.TLabelframe", padding=12)
         extra_box.grid(row=3, column=0, sticky="ew", pady=(0, 14))
@@ -1096,23 +1103,86 @@ class DownloaderApp:
         if not manifest_url:
             self.show_toast("Informe a URL do manifesto de atualizacao.", "error")
             return
+        if not manifest_url.lower().startswith(("http://", "https://")):
+            self.show_toast("A URL de atualizacao precisa comecar com http:// ou https://.", "error")
+            return
+        if self.update_check_running:
+            self.show_toast("Ja estou verificando atualizacao. Aguarde terminar.", "error")
+            return
 
         self.config["update_manifest_url"] = manifest_url
         save_config(self.config)
-        self.show_toast("Verificando atualizacao do aplicativo...", "info")
-        threading.Thread(target=self.fetch_update_manifest, args=(manifest_url,), daemon=True).start()
+        self.update_check_id += 1
+        check_id = self.update_check_id
+        self.start_update_check(check_id)
+        threading.Thread(target=self.fetch_update_manifest, args=(manifest_url, check_id), daemon=True).start()
 
-    def fetch_update_manifest(self, manifest_url):
+    def start_update_check(self, check_id):
+        self.update_check_running = True
+        if hasattr(self, "update_app_button"):
+            self.update_app_button.configure(text="Verificando...", state="disabled")
+        self.status_text.set("Verificando atualizacao do aplicativo...")
+        if self.update_check_timeout_job:
+            self.root.after_cancel(self.update_check_timeout_job)
+        self.update_check_timeout_job = self.root.after(
+            UPDATE_CHECK_TIMEOUT_SECONDS * 1000,
+            lambda: self.on_update_check_timeout(check_id),
+        )
+
+    def finish_update_check(self, check_id):
+        if check_id != self.update_check_id or not self.update_check_running:
+            return False
+        self.update_check_running = False
+        if self.update_check_timeout_job:
+            self.root.after_cancel(self.update_check_timeout_job)
+            self.update_check_timeout_job = None
+        if hasattr(self, "update_app_button"):
+            self.update_app_button.configure(text="Verificar atualizacao", state="normal")
+        return True
+
+    def on_update_check_timeout(self, check_id):
+        if check_id != self.update_check_id or not self.update_check_running:
+            return
+        self.update_check_running = False
+        self.update_check_timeout_job = None
+        if hasattr(self, "update_app_button"):
+            self.update_app_button.configure(text="Verificar atualizacao", state="normal")
+        message = "A verificacao demorou demais. Confira se a URL esta publica e se a internet consegue acessar o GitHub."
+        self.status_text.set(message)
+        self.show_toast(message, "error", duration=8000)
+
+    def handle_update_check_error(self, message, check_id):
+        if not self.finish_update_check(check_id):
+            return
+        self.status_text.set(message)
+        self.show_toast(message, "error", duration=8000)
+
+    def fetch_update_manifest(self, manifest_url, check_id):
         try:
             request = urllib.request.Request(manifest_url, headers={"User-Agent": f"YTDLP-GUI/{APP_VERSION}"})
-            with urllib.request.urlopen(request, timeout=20) as response:
-                data = response.read().decode("utf-8")
+            with urllib.request.urlopen(request, timeout=12) as response:
+                status = getattr(response, "status", 200)
+                if status >= 400:
+                    raise urllib.error.HTTPError(manifest_url, status, "Erro HTTP ao abrir manifesto", response.headers, None)
+                data = response.read(2_000_000).decode("utf-8-sig")
             manifest = json.loads(data)
-            self.root.after(0, lambda: self.handle_update_manifest(manifest))
+            self.root.after(0, lambda manifest=manifest, check_id=check_id: self.handle_update_manifest(manifest, check_id))
+        except urllib.error.HTTPError as exc:
+            message = f"Nao consegui verificar atualizacao: erro HTTP {exc.code}."
+            self.root.after(0, lambda message=message, check_id=check_id: self.handle_update_check_error(message, check_id))
+        except urllib.error.URLError as exc:
+            message = f"Nao consegui verificar atualizacao: {exc.reason}."
+            self.root.after(0, lambda message=message, check_id=check_id: self.handle_update_check_error(message, check_id))
+        except json.JSONDecodeError:
+            message = "Nao consegui verificar atualizacao: a URL nao retornou um JSON valido."
+            self.root.after(0, lambda message=message, check_id=check_id: self.handle_update_check_error(message, check_id))
         except Exception as exc:
-            self.root.after(0, lambda: self.show_toast(f"Nao consegui verificar atualizacao: {exc}", "error"))
+            message = f"Nao consegui verificar atualizacao: {exc}."
+            self.root.after(0, lambda message=message, check_id=check_id: self.handle_update_check_error(message, check_id))
 
-    def handle_update_manifest(self, manifest):
+    def handle_update_manifest(self, manifest, check_id):
+        if not self.finish_update_check(check_id):
+            return
         latest_version = str(manifest.get("version", "")).strip()
         files = manifest.get("files", [])
         if not latest_version or not files:
@@ -1154,7 +1224,8 @@ class DownloaderApp:
             self.root.after(0, lambda: self.show_toast("Atualizacao baixada. Reiniciando...", "success", duration=1800))
             self.root.after(1900, self.root.destroy)
         except Exception as exc:
-            self.root.after(0, lambda: self.show_toast(f"Falha na atualizacao: {exc}", "error"))
+            message = f"Falha na atualizacao: {exc}"
+            self.root.after(0, lambda message=message: self.show_toast(message, "error"))
 
     def drain_output_queue(self):
         try:

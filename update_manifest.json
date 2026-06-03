@@ -1,6 +1,6 @@
 {
-  "version": "1.2.8",
-  "notes": "Corrige Errno 8 no macOS ignorando yt-dlp.exe e usando yt-dlp/python3 -m yt_dlp.",
+  "version": "1.2.9",
+  "notes": "Corrige a verificacao de atualizacao que podia ficar presa quando a URL falhava ou nao retornava JSON valido.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
