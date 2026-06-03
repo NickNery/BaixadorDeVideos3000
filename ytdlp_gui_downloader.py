@@ -17,6 +17,7 @@ from tkinter import (
     BooleanVar,
     Canvas,
     END,
+    Frame,
     Label,
     Toplevel,
     StringVar,
@@ -40,7 +41,7 @@ except Exception:
 
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.3.1"
+APP_VERSION = "1.3.2"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
@@ -279,14 +280,14 @@ class ScrollableFrame(ttk.Frame):
     def __init__(self, parent, frame_style="Main.TFrame"):
         super().__init__(parent, style=frame_style)
         self.canvas = Canvas(self, highlightthickness=0, bd=0)
-        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview, style="Edge.Vertical.TScrollbar")
         self.content = ttk.Frame(self.canvas, style=frame_style)
 
         self.content_window = self.canvas.create_window((0, 0), window=self.content, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
         self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
+        self.scrollbar.pack(side="right", fill="y", padx=(8, 0))
 
         self.content.bind("<Configure>", self.update_scroll_region)
         self.canvas.bind("<Configure>", self.resize_content_width)
@@ -310,6 +311,81 @@ class ScrollableFrame(ttk.Frame):
 
     def set_colors(self, background_color):
         self.canvas.configure(bg=background_color)
+
+
+class SelectionPill(Frame):
+    def __init__(self, parent, text, variable, value=None, mode="radio", command=None):
+        super().__init__(parent, bd=0, highlightthickness=0, padx=1, pady=1, cursor="hand2")
+        self.text = text
+        self.variable = variable
+        self.value = value
+        self.mode = mode
+        self.command = command
+        self.hovered = False
+        self.config_ref = DEFAULT_CONFIG.copy()
+
+        self.inner = Frame(self, bd=0, highlightthickness=0, cursor="hand2")
+        self.inner.pack(fill="both", expand=True, padx=1, pady=1)
+        self.indicator = Canvas(self.inner, width=16, height=16, highlightthickness=0, bd=0, cursor="hand2")
+        self.indicator.pack(side="left", padx=(11, 8), pady=9)
+        self.label = Label(self.inner, text=text, bd=0, anchor="w", cursor="hand2")
+        self.label.pack(side="left", fill="x", expand=True, padx=(0, 11), pady=9)
+
+        for widget in (self, self.inner, self.indicator, self.label):
+            widget.bind("<Button-1>", self.activate)
+            widget.bind("<Enter>", self.on_enter)
+            widget.bind("<Leave>", self.on_leave)
+
+        self.variable.trace_add("write", lambda *_: self.refresh())
+        self.refresh()
+
+    def is_selected(self):
+        if self.mode == "check":
+            return bool(self.variable.get())
+        return self.variable.get() == self.value
+
+    def activate(self, event=None):
+        if self.mode == "check":
+            self.variable.set(not bool(self.variable.get()))
+        else:
+            self.variable.set(self.value)
+        if self.command:
+            self.command()
+
+    def on_enter(self, event=None):
+        self.hovered = True
+        self.refresh()
+
+    def on_leave(self, event=None):
+        self.hovered = False
+        self.refresh()
+
+    def set_theme(self, config):
+        self.config_ref = config
+        self.refresh()
+
+    def refresh(self):
+        cfg = self.config_ref
+        selected = self.is_selected()
+        border = cfg["button_color"] if selected else ("#4a4a4a" if self.hovered else EDGE_BORDER)
+        surface = "#151535" if selected else ("#363636" if self.hovered else EDGE_MUTED_SURFACE)
+        fg = cfg["button_text_color"] if selected else cfg["text_color"]
+        indicator_fill = cfg["button_color"] if selected else surface
+
+        self.configure(bg=border)
+        self.inner.configure(bg=surface)
+        self.indicator.configure(bg=surface)
+        self.label.configure(bg=surface, fg=fg, font=(FONT_MEDIUM if selected else FONT_REGULAR, 9, "normal"))
+
+        self.indicator.delete("all")
+        if self.mode == "check":
+            self.indicator.create_rectangle(2, 2, 14, 14, outline=border, width=2, fill=indicator_fill)
+            if selected:
+                self.indicator.create_line(4, 8, 7, 11, 13, 4, fill="#ffffff", width=2)
+        else:
+            self.indicator.create_oval(2, 2, 14, 14, outline=border, width=2, fill=indicator_fill)
+            if selected:
+                self.indicator.create_oval(6, 6, 10, 10, outline="#ffffff", fill="#ffffff")
 
 
 UPDATER_SCRIPT = r'''
@@ -375,6 +451,7 @@ class DownloaderApp:
         self.update_check_running = False
         self.update_check_id = 0
         self.update_check_timeout_job = None
+        self.selection_pills = []
 
         self.destino = StringVar(value=self.config["default_folder"])
         self.formato = StringVar(value="mp4")
@@ -405,6 +482,11 @@ class DownloaderApp:
         self.style = ttk.Style()
         self.style.theme_use("clam")
 
+    def make_selection_pill(self, parent, text, variable, value=None, mode="radio", command=None):
+        pill = SelectionPill(parent, text=text, variable=variable, value=value, mode=mode, command=command)
+        self.selection_pills.append(pill)
+        return pill
+
     def build_ui(self):
         self.root_bg_label = Label(self.root, bd=0)
 
@@ -429,13 +511,14 @@ class DownloaderApp:
             style="AppSubtitle.TLabel",
         ).pack(anchor="w", pady=(3, 0))
 
-        ttk.Checkbutton(
+        self.always_on_top_pill = self.make_selection_pill(
             header,
             text="Sempre no topo",
             variable=self.keep_window_on_top,
             command=lambda: self.root.attributes("-topmost", self.keep_window_on_top.get()),
-            style="Main.TCheckbutton",
-        ).pack(side="right")
+            mode="check",
+        )
+        self.always_on_top_pill.pack(side="right")
 
         self.nav_frame = ttk.Frame(header, style="Main.TFrame")
         self.nav_frame.pack(side="right", padx=(0, 14))
@@ -522,13 +605,13 @@ class DownloaderApp:
 
         format_box = ttk.LabelFrame(options_grid, text="Formato", style="Panel.TLabelframe", padding=12)
         format_box.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
-        ttk.Radiobutton(format_box, text="Video MP4 - alta qualidade", value="mp4", variable=self.formato, style="Main.TRadiobutton").pack(anchor="w")
-        ttk.Radiobutton(format_box, text="Audio MP3 - musicas", value="mp3", variable=self.formato, style="Main.TRadiobutton").pack(anchor="w", pady=(8, 0))
+        self.make_selection_pill(format_box, "Video MP4 - alta qualidade", self.formato, "mp4").pack(fill="x")
+        self.make_selection_pill(format_box, "Audio MP3 - musicas", self.formato, "mp3").pack(fill="x", pady=(8, 0))
 
         name_box = ttk.LabelFrame(options_grid, text="Nome do arquivo", style="Panel.TLabelframe", padding=12)
         name_box.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
-        ttk.Radiobutton(name_box, text="Manter nome original", value="original", variable=self.nome_modo, style="Main.TRadiobutton").pack(anchor="w")
-        ttk.Radiobutton(name_box, text="Usar nome personalizado", value="custom", variable=self.nome_modo, style="Main.TRadiobutton").pack(anchor="w", pady=(8, 0))
+        self.make_selection_pill(name_box, "Manter nome original", self.nome_modo, "original").pack(fill="x")
+        self.make_selection_pill(name_box, "Usar nome personalizado", self.nome_modo, "custom").pack(fill="x", pady=(8, 0))
         ttk.Entry(name_box, textvariable=self.nome_custom).pack(fill="x", pady=(10, 0))
 
         actions = ttk.Frame(left, style="Panel.TFrame")
@@ -559,7 +642,7 @@ class DownloaderApp:
             ("Usar cookies do Firefox", "firefox"),
             ("Usar arquivo cookies.txt", "file"),
         ]:
-            ttk.Radiobutton(cookies_box, text=text, value=value, variable=self.cookies_mode, style="Main.TRadiobutton").pack(anchor="w", pady=2)
+            self.make_selection_pill(cookies_box, text, self.cookies_mode, value).pack(fill="x", pady=3)
         cookies_file_row = ttk.Frame(cookies_box, style="Panel.TFrame")
         cookies_file_row.pack(fill="x", pady=(8, 0))
         ttk.Entry(cookies_file_row, textvariable=self.cookies_file).pack(side="left", fill="x", expand=True)
@@ -624,6 +707,26 @@ class DownloaderApp:
         self.style.configure("TEntry", fieldbackground=cfg["entry_bg"], foreground=cfg["entry_fg"], padding=7, bordercolor=EDGE_BORDER, lightcolor=EDGE_BORDER, darkcolor=EDGE_BORDER, insertcolor=cfg["entry_fg"])
         self.style.configure("TCombobox", fieldbackground=cfg["entry_bg"], background=cfg["entry_bg"], foreground=cfg["entry_fg"], arrowcolor=cfg["text_color"], bordercolor=EDGE_BORDER)
         self.style.map("TCombobox", fieldbackground=[("readonly", cfg["entry_bg"])], foreground=[("readonly", cfg["entry_fg"])])
+        self.style.configure(
+            "Edge.Vertical.TScrollbar",
+            gripcount=0,
+            background=EDGE_MUTED_SURFACE,
+            darkcolor=cfg["background_color"],
+            lightcolor=cfg["background_color"],
+            troughcolor=cfg["background_color"],
+            bordercolor=cfg["background_color"],
+            arrowcolor=cfg["muted_text_color"],
+            width=10,
+            relief="flat",
+        )
+        self.style.map(
+            "Edge.Vertical.TScrollbar",
+            background=[("active", cfg["button_color"]), ("pressed", cfg["button_color"])],
+            arrowcolor=[("active", cfg["button_text_color"]), ("pressed", cfg["button_text_color"])],
+        )
+
+        for pill in self.selection_pills:
+            pill.set_theme(cfg)
 
         for text_widget in [self.url_text]:
             text_widget.configure(

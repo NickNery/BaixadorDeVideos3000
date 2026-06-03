@@ -1,6 +1,6 @@
 {
-  "version": "1.3.1",
-  "notes": "Atualiza o design system para o visual Edge Solutions: fundo escuro, cards premium, azul intenso e fonte Poppins.",
+  "version": "1.3.2",
+  "notes": "Melhora os botoes de selecao/check e troca o scroll para um estilo escuro mais condizente com o design Edge Solutions.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
