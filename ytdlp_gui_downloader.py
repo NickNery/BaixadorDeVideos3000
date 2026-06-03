@@ -40,7 +40,7 @@ except Exception:
 
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.2.9"
+APP_VERSION = "1.3.0"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 
@@ -164,6 +164,30 @@ def resolve_ytdlp_command(value):
     return [sys.executable, "-m", "yt_dlp"]
 
 
+def find_certifi_bundle():
+    certifi_modules = ("certifi", "pip._vendor.certifi")
+    for module_name in certifi_modules:
+        try:
+            module = __import__(module_name, fromlist=["where"])
+            bundle = Path(module.where())
+            if bundle.exists():
+                return str(bundle)
+        except Exception:
+            pass
+
+    return ""
+
+
+def subprocess_environment():
+    env = os.environ.copy()
+    certifi_bundle = find_certifi_bundle()
+    if certifi_bundle:
+        env["SSL_CERT_FILE"] = certifi_bundle
+        env["REQUESTS_CA_BUNDLE"] = certifi_bundle
+        env["CURL_CA_BUNDLE"] = certifi_bundle
+    return env
+
+
 def version_tuple(version):
     return tuple(int(part) for part in re.findall(r"\d+", str(version))[:4])
 
@@ -282,6 +306,19 @@ def main():
             target = app_dir / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
+
+    requirements = app_dir / "requirements.txt"
+    if requirements.exists():
+        try:
+            subprocess.run(
+                [python_exe, "-m", "pip", "install", "--upgrade", "-r", str(requirements)],
+                cwd=str(app_dir),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=180,
+            )
+        except Exception:
+            pass
 
     shutil.rmtree(temp_dir, ignore_errors=True)
     subprocess.Popen([python_exe, str(app_file)], cwd=str(app_dir))
@@ -1066,6 +1103,7 @@ class DownloaderApp:
                 errors="replace",
                 startupinfo=self.startupinfo_for_subprocess(),
                 cwd=str(APP_DIR),
+                env=subprocess_environment(),
             )
             for line in self.process.stdout:
                 self.output_queue.put(line.rstrip())
@@ -1252,6 +1290,10 @@ class DownloaderApp:
         self.last_output_time = time.time()
         self.status_text.set(cleaned)
 
+    def has_ssl_certificate_error(self, text):
+        lower = text.lower()
+        return "certificate_verify_failed" in lower or "unable to get local issuer certificate" in lower
+
     def handle_process_done(self, code, message):
         self.cancel_download_watchdog()
         if code == 0:
@@ -1261,6 +1303,11 @@ class DownloaderApp:
 
         clean_message = message.replace("[ERRO] ", "").strip()
         details = "\n".join([part for part in [clean_message, "\n".join(self.last_process_lines[-5:]).strip()] if part]).strip()
+        if self.has_ssl_certificate_error(details):
+            ssl_message = "Erro de certificado SSL no macOS. Rode Instalar_Dependencias_macOS.command novamente para atualizar certifi e yt-dlp, depois abra o app de novo."
+            self.status_text.set(ssl_message)
+            self.show_toast(ssl_message, "error", duration=10000)
+            return
         if details:
             self.status_text.set("Download falhou. Veja o aviso vermelho.")
             self.show_toast(f"Download falhou.\n{details}", "error", duration=9000)

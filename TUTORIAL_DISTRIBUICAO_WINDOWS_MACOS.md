@@ -163,10 +163,12 @@ Instalar_Dependencias_macOS.command
 Ou rode no Terminal:
 
 ```zsh
-python3 -m pip install -r requirements.txt
+python3 -m pip install --upgrade -r requirements.txt
 ```
 
 Esse passo instala tambem o `yt-dlp` para Mac. Se voce tentar usar o `yt-dlp.exe` no macOS, pode aparecer `Errno 8`, porque esse arquivo e de Windows.
+
+Esse passo tambem instala/atualiza `certifi`, que fornece certificados SSL confiaveis para o Python. Se aparecer `CERTIFICATE_VERIFY_FAILED` ou `unable to get local issuer certificate`, rode `Instalar_Dependencias_macOS.command` novamente e depois abra o app de novo.
 
 ### Passo 6 - Abrir o programa
 

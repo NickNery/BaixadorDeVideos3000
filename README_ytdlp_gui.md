@@ -71,6 +71,18 @@ Se aparecer erro relacionado a `ffmpeg`, baixe o `ffmpeg.exe` e deixe ele no PAT
 
 No macOS, nao use `yt-dlp.exe`. Esse arquivo e apenas para Windows. Se aparecer `Errno 8` no Mac, normalmente significa que o sistema tentou abrir um `.exe`. Rode `Instalar_Dependencias_macOS.command` para instalar o `yt-dlp` correto para macOS.
 
+## Erro de certificado SSL no macOS
+
+Se aparecer `CERTIFICATE_VERIFY_FAILED`, `unable to get local issuer certificate` ou erro parecido, o Python do Mac nao esta encontrando certificados SSL confiaveis.
+
+A partir da versao `1.3.0`, o app tenta usar automaticamente os certificados do pacote `certifi`. Para corrigir em computadores Mac, rode novamente:
+
+```text
+Instalar_Dependencias_macOS.command
+```
+
+Esse comando atualiza `yt-dlp` e instala/atualiza `certifi`.
+
 ## Personalizacao dentro do app
 
 Abra a aba `Personalizar` dentro do proprio aplicativo para mudar:
