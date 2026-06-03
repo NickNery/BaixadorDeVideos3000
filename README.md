@@ -16,6 +16,12 @@ Depois siga o tutorial:
 TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md
 ```
 
+Tambem existe uma versao formatada em PDF:
+
+```text
+Tutorial_BaixadorDeVideos3000.pdf
+```
+
 ## Arquivo principal
 
 ```text

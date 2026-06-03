@@ -7,6 +7,7 @@ Este pacote tem uma interface grafica em Python/Tkinter para baixar videos ou au
 - `ytdlp_gui_downloader.py`: aplicativo principal.
 - `ytdlp_gui_config.json`: criado automaticamente quando voce salva preferencias.
 - `TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md`: guia para instalar em Windows/macOS e configurar atualizacoes.
+- `Tutorial_BaixadorDeVideos3000.pdf`: versao em PDF formatada do tutorial de instalacao.
 - `update_manifest_example.json`: modelo do arquivo online usado para atualizar todos os computadores.
 - `argumentosExtras.txt`: lista de argumentos extras uteis do `yt-dlp` e exemplos de uso.
 
