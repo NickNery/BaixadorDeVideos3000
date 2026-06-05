@@ -1,6 +1,6 @@
 {
-  "version": "1.3.7",
-  "notes": "Atualiza o tutorial PDF para o design system Edge e ajusta a capa para Uberlandia.",
+  "version": "1.3.8",
+  "notes": "Simplifica o tutorial PDF com explicacoes passo a passo para usuarios iniciantes.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
