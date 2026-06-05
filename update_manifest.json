@@ -1,6 +1,6 @@
 {
-  "version": "1.3.6",
-  "notes": "Formata o tutorial PDF em padrao ABNT e adiciona script de sincronizacao para a pasta do servidor.",
+  "version": "1.3.7",
+  "notes": "Atualiza o tutorial PDF para o design system Edge e ajusta a capa para Uberlandia.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
