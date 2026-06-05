@@ -12,6 +12,7 @@ import tempfile
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from tkinter import (
@@ -240,6 +241,13 @@ def subprocess_environment():
 
 def version_tuple(version):
     return tuple(int(part) for part in re.findall(r"\d+", str(version))[:4])
+
+
+def cache_busted_url(url):
+    parsed = urllib.parse.urlsplit(url)
+    query = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+    query.append(("_", str(int(time.time() * 1000))))
+    return urllib.parse.urlunsplit(parsed._replace(query=urllib.parse.urlencode(query)))
 
 
 def sanitize_filename(name):
@@ -1354,11 +1362,12 @@ class DownloaderApp:
 
     def fetch_update_manifest(self, manifest_url, check_id):
         try:
-            request = urllib.request.Request(manifest_url, headers={"User-Agent": f"YTDLP-GUI/{APP_VERSION}"})
+            request_url = cache_busted_url(manifest_url)
+            request = urllib.request.Request(request_url, headers={"User-Agent": f"YTDLP-GUI/{APP_VERSION}"})
             with urlopen_with_certifi(request, timeout=12) as response:
                 status = getattr(response, "status", 200)
                 if status >= 400:
-                    raise urllib.error.HTTPError(manifest_url, status, "Erro HTTP ao abrir manifesto", response.headers, None)
+                    raise urllib.error.HTTPError(request_url, status, "Erro HTTP ao abrir manifesto", response.headers, None)
                 data = response.read(2_000_000).decode("utf-8-sig")
             manifest = json.loads(data)
             self.root.after(0, lambda manifest=manifest, check_id=check_id: self.handle_update_manifest(manifest, check_id))
