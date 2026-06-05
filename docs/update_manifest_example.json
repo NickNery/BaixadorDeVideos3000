@@ -1,6 +1,7 @@
 {
-  "version": "1.3.9",
+  "version": "1.4.0",
   "notes": "Descreva aqui o que mudou nesta versao.",
+  "installer_windows_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
@@ -49,6 +50,22 @@
     {
       "path": "scripts/Sincronizar_Release_Servidor_Windows.bat",
       "url": "https://SEU-SITE-OU-GITHUB/scripts/Sincronizar_Release_Servidor_Windows.bat"
+    },
+    {
+      "path": "scripts/Instalador_Automatico_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/scripts/Instalador_Automatico_macOS.command"
+    },
+    {
+      "path": "scripts/Build_Instalador_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/scripts/Build_Instalador_macOS.command"
+    },
+    {
+      "path": "scripts/Build_Instalador_Windows.ps1",
+      "url": "https://SEU-SITE-OU-GITHUB/scripts/Build_Instalador_Windows.ps1"
+    },
+    {
+      "path": "release/BaixadorDeVideos3000_Setup_Windows.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Setup_Windows.exe"
     }
   ]
 }

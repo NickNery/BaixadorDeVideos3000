@@ -14,6 +14,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import webbrowser
 from pathlib import Path
 from tkinter import (
     BooleanVar,
@@ -41,10 +42,14 @@ except Exception:
     PIL_AVAILABLE = False
 
 
-SOURCE_DIR = Path(__file__).resolve().parent
-APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
+if getattr(sys, "frozen", False):
+    SOURCE_DIR = Path(sys.executable).resolve().parent
+    APP_DIR = SOURCE_DIR
+else:
+    SOURCE_DIR = Path(__file__).resolve().parent
+    APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.3.9"
+APP_VERSION = "1.4.0"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
@@ -196,6 +201,19 @@ def resolve_ytdlp_command(value):
         return [found]
 
     return [sys.executable, "-m", "yt_dlp"]
+
+
+def bundled_ffmpeg_location():
+    names = ["ffmpeg.exe"] if os.name == "nt" else ["ffmpeg"]
+    for name in names:
+        path = APP_DIR / name
+        if path.exists():
+            return str(APP_DIR)
+    return ""
+
+
+def running_frozen():
+    return bool(getattr(sys, "frozen", False))
 
 
 def find_certifi_bundle():
@@ -1192,6 +1210,10 @@ class DownloaderApp:
             template = f"{name}.%(ext)s" if len(urls) == 1 else f"{name}_%(autonumber)03d.%(ext)s"
             command += ["-o", template]
 
+        ffmpeg_location = bundled_ffmpeg_location()
+        if ffmpeg_location:
+            command += ["--ffmpeg-location", ffmpeg_location]
+
         cookies_mode = self.cookies_mode.get()
         if cookies_mode in {"chrome", "edge", "firefox"}:
             command += ["--cookies-from-browser", cookies_mode]
@@ -1408,6 +1430,15 @@ class DownloaderApp:
         message += "\n\nDeseja atualizar agora?"
 
         if messagebox.askyesno("Atualizacao disponivel", message):
+            if running_frozen():
+                installer_key = "installer_windows_url" if os.name == "nt" else "installer_macos_url"
+                installer_url = str(manifest.get(installer_key, "")).strip()
+                if installer_url:
+                    webbrowser.open(installer_url)
+                    self.show_toast("Baixe e execute o instalador novo para concluir a atualizacao.", "info", duration=7000)
+                else:
+                    self.show_toast("Baixe a versao nova pelo GitHub ou pela pasta do servidor.", "info", duration=7000)
+                return
             self.show_toast("Baixando atualizacao...", "info")
             threading.Thread(target=self.download_and_apply_update, args=(manifest,), daemon=True).start()
 

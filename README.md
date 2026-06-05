@@ -15,7 +15,23 @@ Existe apenas este `README.md` na raiz do projeto.
 
 ## Download rapido
 
-Baixe o pacote final:
+No Windows, o jeito mais simples e baixar e abrir o instalador:
+
+```text
+release/BaixadorDeVideos3000_Setup_Windows.exe
+```
+
+Esse instalador ja leva o aplicativo, Python embutido no executavel, `yt-dlp.exe` e `ffmpeg.exe`. A pessoa nao precisa entrar no site do Python.
+
+No macOS, enquanto o `.dmg` final nao for gerado em um Mac, use o instalador automatico:
+
+```text
+scripts/Instalador_Automatico_macOS.command
+```
+
+Ele instala Python, ffmpeg e dependencias automaticamente quando estiverem faltando.
+
+Tambem existe o pacote final em ZIP:
 
 ```text
 release/Baixador_YTDLP_Windows_macOS.zip
@@ -25,6 +41,22 @@ Dentro do ZIP:
 
 1. Rode `scripts/Instalar_Dependencias_Windows.bat` no Windows ou `scripts/Instalar_Dependencias_macOS.command` no macOS.
 2. Abra com `scripts/Abrir_Baixador_YTDLP.bat` no Windows ou `scripts/Abrir_Baixador_YTDLP.command` no macOS.
+
+## Gerar instaladores
+
+Windows:
+
+```powershell
+scripts\Build_Instalador_Windows.ps1
+```
+
+macOS:
+
+```zsh
+scripts/Build_Instalador_macOS.command
+```
+
+Observacao: o `.dmg` do macOS precisa ser gerado em um Mac. O Windows nao consegue compilar um aplicativo macOS nativo.
 
 ## Rodar pelo codigo fonte
 
