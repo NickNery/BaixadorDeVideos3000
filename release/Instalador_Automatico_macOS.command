@@ -45,6 +45,8 @@ if ! command -v ffmpeg >/dev/null 2>&1; then
     brew install ffmpeg
 fi
 
+ensure_chocolate_doom
+
 echo "Instalando dependencias do aplicativo..."
 install_app_dependencies "$PYTHON_BIN"
 chmod_app_commands "$APP_DIR"

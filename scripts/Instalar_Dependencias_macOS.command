@@ -19,6 +19,7 @@ source "$RUNTIME_HELPERS"
 
 PYTHON_BIN="$(ensure_app_venv "$APP_DIR")"
 install_app_dependencies "$PYTHON_BIN"
+ensure_chocolate_doom
 
 "$PYTHON_BIN" - <<'PY'
 try:

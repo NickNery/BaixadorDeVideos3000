@@ -16,6 +16,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import webbrowser
+import zipfile
 from pathlib import Path
 from tkinter import (
     BooleanVar,
@@ -50,11 +51,19 @@ else:
     SOURCE_DIR = Path(__file__).resolve().parent
     APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.4.3"
+APP_VERSION = "1.4.4"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
 SSL_CERT_ERROR_HINT = "Erro de certificado SSL no macOS. Rode Instalar_Dependencias_macOS.command para atualizar certifi e depois abra o app de novo."
+DOOM_DIR = APP_DIR / "doom"
+FREEDOOM_VERSION = "0.13.0"
+FREEDOOM_URL = f"https://github.com/freedoom/freedoom/releases/download/v{FREEDOOM_VERSION}/freedoom-{FREEDOOM_VERSION}.zip"
+CHOCOLATE_DOOM_VERSION = "3.1.1"
+CHOCOLATE_DOOM_WINDOWS_URL = (
+    f"https://github.com/chocolate-doom/chocolate-doom/releases/download/"
+    f"chocolate-doom-{CHOCOLATE_DOOM_VERSION}/chocolate-doom-{CHOCOLATE_DOOM_VERSION}-win64.zip"
+)
 
 
 def get_app_icon_path():
@@ -742,6 +751,307 @@ class DoomE1M1Window:
         self.window.after(33, self.tick)
 
 
+class FreedoomLauncherWindow:
+    def __init__(self, master):
+        self.master = master
+        self.running = True
+        self.process = None
+
+        self.window = Toplevel(master)
+        self.window.title("Freedoom - #DOOM")
+        self.window.geometry("560x330")
+        self.window.minsize(500, 300)
+        self.window.configure(bg="#171717")
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
+
+        self.status = StringVar(value="Preparando Freedoom...")
+        self.detail = StringVar(value="Na primeira vez eu baixo os arquivos livres do jogo e preparo o motor.")
+
+        shell = Frame(self.window, bg="#171717", padx=24, pady=24)
+        shell.pack(fill="both", expand=True)
+
+        Label(
+            shell,
+            text="#DOOM",
+            bg="#171717",
+            fg="#f7f7f7",
+            font=(FONT_MEDIUM, 28, "normal"),
+            anchor="w",
+        ).pack(fill="x")
+        Label(
+            shell,
+            text="Freedoom + Chocolate Doom",
+            bg="#171717",
+            fg="#999999",
+            font=(FONT_REGULAR, 11, "normal"),
+            anchor="w",
+        ).pack(fill="x", pady=(0, 20))
+        Label(
+            shell,
+            textvariable=self.status,
+            bg="#171717",
+            fg="#ffffff",
+            font=(FONT_MEDIUM, 12, "normal"),
+            anchor="w",
+            justify="left",
+            wraplength=500,
+        ).pack(fill="x")
+        Label(
+            shell,
+            textvariable=self.detail,
+            bg="#171717",
+            fg="#c7c7c7",
+            font=(FONT_REGULAR, 10, "normal"),
+            anchor="w",
+            justify="left",
+            wraplength=500,
+        ).pack(fill="x", pady=(8, 20))
+
+        self.progress = ttk.Progressbar(shell, orient="horizontal", mode="indeterminate")
+        self.progress.pack(fill="x")
+        self.progress.start(12)
+
+        self.controls = Label(
+            shell,
+            text="Controles: W/S andar, A/D esquerda/direita, mouse para mirar, clique esquerdo para atirar.",
+            bg="#171717",
+            fg="#999999",
+            font=(FONT_REGULAR, 9, "normal"),
+            anchor="w",
+            justify="left",
+            wraplength=500,
+        )
+        self.controls.pack(fill="x", pady=(18, 0))
+
+        self.close_button = ttk.Button(shell, text="Fechar", command=self.close, style="Secondary.TButton")
+        self.close_button.pack(anchor="e", pady=(18, 0))
+
+        self.window.after(120, self.focus)
+        threading.Thread(target=self.prepare_and_launch, daemon=True).start()
+
+    def focus(self):
+        try:
+            self.window.focus_force()
+            self.window.lift()
+        except Exception:
+            pass
+
+    def close(self):
+        self.running = False
+        try:
+            self.window.destroy()
+        except Exception:
+            pass
+
+    def ui(self, callback):
+        try:
+            self.window.after(0, callback)
+        except Exception:
+            pass
+
+    def set_status(self, status, detail=None):
+        def update():
+            self.status.set(status)
+            if detail is not None:
+                self.detail.set(detail)
+
+        self.ui(update)
+
+    def finish(self, status, detail, close_delay=None):
+        def update():
+            try:
+                self.progress.stop()
+                self.progress.pack_forget()
+            except Exception:
+                pass
+            self.status.set(status)
+            self.detail.set(detail)
+            if close_delay:
+                self.window.after(close_delay, self.close)
+
+        self.ui(update)
+
+    def prepare_and_launch(self):
+        try:
+            DOOM_DIR.mkdir(parents=True, exist_ok=True)
+            wad_path = self.ensure_freedoom()
+            engine_path = self.ensure_engine()
+            config_path = self.ensure_control_config()
+
+            self.set_status("Abrindo Freedoom...", "Se o mouse ficar preso na janela do jogo, use Esc para abrir o menu.")
+            command = self.build_command(engine_path, wad_path, config_path)
+            self.process = subprocess.Popen(command, cwd=str(DOOM_DIR), env=subprocess_environment())
+            self.finish(
+                "Freedoom aberto.",
+                "O jogo iniciou em uma janela do motor Doom. Volte ao app quando terminar.",
+                close_delay=3200,
+            )
+        except Exception as exc:
+            self.finish("Nao consegui abrir o Freedoom.", str(exc))
+
+    def ensure_freedoom(self):
+        existing = self.find_file(DOOM_DIR, "freedoom1.wad")
+        if existing:
+            return existing
+
+        archive_path = DOOM_DIR / f"freedoom-{FREEDOOM_VERSION}.zip"
+        self.download_file(
+            FREEDOOM_URL,
+            archive_path,
+            "Baixando Freedoom...",
+            "Isso baixa somente dados livres do jogo, sem usar arquivos originais pagos do DOOM.",
+        )
+        extract_dir = DOOM_DIR / "freedoom"
+        extract_dir.mkdir(parents=True, exist_ok=True)
+        self.set_status("Extraindo Freedoom...", "Preparando o arquivo freedoom1.wad.")
+        self.safe_extract_zip(archive_path, extract_dir)
+
+        wad_path = self.find_file(extract_dir, "freedoom1.wad") or self.find_file(DOOM_DIR, "freedoom1.wad")
+        if not wad_path:
+            raise RuntimeError("O arquivo freedoom1.wad nao foi encontrado depois da extracao.")
+        return wad_path
+
+    def ensure_engine(self):
+        if os.name == "nt":
+            return self.ensure_windows_engine()
+        return self.ensure_macos_engine()
+
+    def ensure_windows_engine(self):
+        existing = self.find_file(DOOM_DIR, "chocolate-doom.exe")
+        if existing:
+            return existing
+
+        archive_path = DOOM_DIR / f"chocolate-doom-{CHOCOLATE_DOOM_VERSION}-win64.zip"
+        self.download_file(
+            CHOCOLATE_DOOM_WINDOWS_URL,
+            archive_path,
+            "Baixando Chocolate Doom...",
+            "O motor e usado para rodar o Freedoom no Windows.",
+        )
+        extract_dir = DOOM_DIR / "chocolate-doom"
+        extract_dir.mkdir(parents=True, exist_ok=True)
+        self.set_status("Extraindo Chocolate Doom...", "Preparando o motor do jogo.")
+        self.safe_extract_zip(archive_path, extract_dir)
+
+        engine_path = self.find_file(extract_dir, "chocolate-doom.exe") or self.find_file(DOOM_DIR, "chocolate-doom.exe")
+        if not engine_path:
+            raise RuntimeError("O motor chocolate-doom.exe nao foi encontrado depois da extracao.")
+        return engine_path
+
+    def ensure_macos_engine(self):
+        existing = self.find_macos_chocolate_doom()
+        if existing:
+            return existing
+
+        brew_path = self.find_homebrew()
+        if brew_path:
+            self.set_status(
+                "Instalando Chocolate Doom pelo Homebrew...",
+                "Isso pode demorar alguns minutos na primeira vez.",
+            )
+            subprocess.run([brew_path, "install", "chocolate-doom"], check=True, timeout=900, env=subprocess_environment())
+            existing = self.find_macos_chocolate_doom()
+            if existing:
+                return existing
+
+        raise RuntimeError(
+            "Chocolate Doom nao foi encontrado no Mac. Rode o Instalador_Automatico_macOS.command atualizado "
+            "ou instale com: brew install chocolate-doom"
+        )
+
+    def ensure_control_config(self):
+        config_dir = DOOM_DIR / "config"
+        config_dir.mkdir(parents=True, exist_ok=True)
+        config_path = config_dir / "default.cfg"
+        config_path.write_text(
+            "\n".join(
+                [
+                    "use_mouse 1",
+                    "mouseb_fire 0",
+                    "mouseb_strafe -1",
+                    "mouseb_forward -1",
+                    "mouse_sensitivity 7",
+                    "key_up 17",
+                    "key_down 31",
+                    "key_strafeleft 30",
+                    "key_straferight 32",
+                    "key_fire 29",
+                    "key_use 18",
+                    "key_speed 54",
+                    "screenblocks 10",
+                    "show_messages 1",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        return config_path
+
+    def build_command(self, engine_path, wad_path, config_path):
+        command = [
+            str(engine_path),
+            "-iwad",
+            str(wad_path),
+            "-config",
+            str(config_path),
+            "-warp",
+            "1",
+            "1",
+            "-skill",
+            "3",
+            "-window",
+        ]
+        return command
+
+    def download_file(self, url, destination, status, detail):
+        self.set_status(status, detail)
+        request = urllib.request.Request(url, headers={"User-Agent": f"YTDLP-GUI/{APP_VERSION}"})
+        temp_path = destination.with_suffix(destination.suffix + ".tmp")
+
+        with urlopen_with_certifi(request, timeout=180) as response, temp_path.open("wb") as file:
+            while True:
+                chunk = response.read(1024 * 256)
+                if not chunk:
+                    break
+                file.write(chunk)
+
+        temp_path.replace(destination)
+
+    def safe_extract_zip(self, archive_path, destination):
+        root = destination.resolve()
+        with zipfile.ZipFile(archive_path) as archive:
+            for member in archive.infolist():
+                target = (destination / member.filename).resolve()
+                if target != root and root not in target.parents:
+                    raise RuntimeError("Arquivo ZIP invalido: caminho fora da pasta de destino.")
+                archive.extract(member, destination)
+
+    def find_file(self, root, filename):
+        try:
+            for candidate in root.rglob(filename):
+                if candidate.is_file():
+                    return candidate
+        except Exception:
+            return None
+        return None
+
+    def find_homebrew(self):
+        for candidate in (shutil.which("brew"), "/opt/homebrew/bin/brew", "/usr/local/bin/brew"):
+            if candidate and Path(candidate).exists():
+                return candidate
+        return None
+
+    def find_macos_chocolate_doom(self):
+        for candidate in (
+            shutil.which("chocolate-doom"),
+            "/opt/homebrew/bin/chocolate-doom",
+            "/usr/local/bin/chocolate-doom",
+        ):
+            if candidate and Path(candidate).exists():
+                return Path(candidate)
+        return None
+
+
 UPDATER_SCRIPT = r'''
 import os
 import shutil
@@ -1259,7 +1569,7 @@ class DownloaderApp:
         if background_secret and background_secret.get().strip().upper() == "#DOOM":
             background_secret.set(self.config.get("background_color", DEFAULT_CONFIG["background_color"]))
             self.launch_doom_easter_egg()
-            self.show_toast("#DOOM ativado. Abrindo E1M1 dentro do app.", "success")
+            self.show_toast("#DOOM ativado. Preparando Freedoom...", "info")
             return
 
         color_keys = {
@@ -1313,7 +1623,7 @@ class DownloaderApp:
                 return
         except Exception:
             pass
-        self.doom_window = DoomE1M1Window(self.root)
+        self.doom_window = FreedoomLauncherWindow(self.root)
 
     def clear_background_image(self):
         if hasattr(self, "theme_vars"):

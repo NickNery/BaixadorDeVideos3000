@@ -185,6 +185,18 @@ install_app_dependencies() {
     "$python_bin" -m pip install --upgrade -r requirements.txt
 }
 
+ensure_chocolate_doom() {
+    load_brew_shellenv
+
+    if command -v chocolate-doom >/dev/null 2>&1; then
+        return
+    fi
+
+    ensure_homebrew
+    echo "Instalando Chocolate Doom para o easter egg #DOOM..." >&2
+    brew install chocolate-doom
+}
+
 chmod_app_commands() {
     local app_dir="$1"
 
