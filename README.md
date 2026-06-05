@@ -8,6 +8,7 @@ Aplicativo em Python/Tkinter para baixar videos e audios com `yt-dlp`, usando o 
 - `docs/`: tutoriais, PDF, argumentos extras e exemplos de manifesto.
 - `scripts/`: atalhos e instaladores para Windows/macOS.
 - `release/`: arquivos de distribuicao, incluindo o ZIP final.
+- `assets/`: imagens e icones do aplicativo.
 - `requirements.txt`: dependencias Python.
 - `update_manifest.json`: manifesto publico usado pelo atualizador do app.
 
@@ -26,10 +27,12 @@ Esse instalador ja leva o aplicativo, Python embutido no executavel, `yt-dlp.exe
 No macOS, enquanto o `.dmg` final nao for gerado em um Mac, use o instalador automatico:
 
 ```text
-scripts/Instalador_Automatico_macOS.command
+release/BaixadorDeVideos3000_Instalador_macOS.zip
 ```
 
-Ele instala Python, ffmpeg e dependencias automaticamente quando estiverem faltando.
+Extraia o ZIP inteiro e clique duas vezes em `Instalador_Automatico_macOS.command`. O ZIP preserva a permissao de execucao do arquivo, evitando o erro de acesso do macOS. Ele instala Python, ffmpeg e dependencias automaticamente quando estiverem faltando, cria um icone na Area de Trabalho e abre o app.
+
+Se o macOS bloquear por seguranca, clique com o botao direito no instalador, escolha `Abrir` e confirme.
 
 Tambem existe o pacote final em ZIP:
 

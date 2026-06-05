@@ -5,9 +5,14 @@ $python = "C:\Users\EDGE\AppData\Local\Python\pythoncore-3.14-64\python.exe"
 $buildRoot = Join-Path $root "build\windows"
 $payload = Join-Path $buildRoot "payload"
 $setup = Join-Path $root "release\BaixadorDeVideos3000_Setup_Windows.exe"
+$icon = Join-Path $root "assets\favicon.ico"
 
 if (-not (Test-Path -LiteralPath $python)) {
     throw "Python de build nao encontrado: $python"
+}
+
+if (-not (Test-Path -LiteralPath $icon)) {
+    throw "Icone nao encontrado: $icon"
 }
 
 Remove-Item -LiteralPath $buildRoot -Recurse -Force -ErrorAction SilentlyContinue
@@ -20,6 +25,7 @@ New-Item -ItemType Directory -Path $payload | Out-Null
     --windowed `
     --onefile `
     --name BaixadorDeVideos3000 `
+    --icon $icon `
     --distpath (Join-Path $buildRoot "dist") `
     --workpath (Join-Path $buildRoot "pyinstaller") `
     --specpath $buildRoot `
@@ -32,6 +38,7 @@ Copy-Item -LiteralPath (Join-Path $root "release\yt-dlp.exe") -Destination (Join
 Copy-Item -LiteralPath (Join-Path $root "release\ffmpeg.exe") -Destination (Join-Path $payload "ffmpeg.exe") -Force
 Copy-Item -LiteralPath (Join-Path $root "docs\Tutorial_BaixadorDeVideos3000.pdf") -Destination (Join-Path $payload "Tutorial_BaixadorDeVideos3000.pdf") -Force
 Copy-Item -LiteralPath (Join-Path $root "README.md") -Destination (Join-Path $payload "README.md") -Force
+Copy-Item -LiteralPath $icon -Destination (Join-Path $payload "favicon.ico") -Force
 
 @'
 @echo off
@@ -52,9 +59,10 @@ copy /Y "%~dp0yt-dlp.exe" "%TARGET%\yt-dlp.exe" >nul
 copy /Y "%~dp0ffmpeg.exe" "%TARGET%\ffmpeg.exe" >nul
 copy /Y "%~dp0Tutorial_BaixadorDeVideos3000.pdf" "%TARGET%\docs\Tutorial_BaixadorDeVideos3000.pdf" >nul
 copy /Y "%~dp0README.md" "%TARGET%\README.md" >nul
+copy /Y "%~dp0favicon.ico" "%TARGET%\favicon.ico" >nul
 
 if "%BAIXADOR_SKIP_SHORTCUT%"=="" (
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "$desktop=[Environment]::GetFolderPath('Desktop'); $shell=New-Object -ComObject WScript.Shell; $shortcut=$shell.CreateShortcut((Join-Path $desktop 'Baixador de Videos 3000.lnk')); $shortcut.TargetPath='%TARGET%\BaixadorDeVideos3000.exe'; $shortcut.WorkingDirectory='%TARGET%'; $shortcut.Description='Baixador de Videos 3000'; $shortcut.Save()"
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$desktop=[Environment]::GetFolderPath('Desktop'); $shell=New-Object -ComObject WScript.Shell; $shortcut=$shell.CreateShortcut((Join-Path $desktop 'Baixador de Videos 3000.lnk')); $shortcut.TargetPath='%TARGET%\BaixadorDeVideos3000.exe'; $shortcut.WorkingDirectory='%TARGET%'; $shortcut.IconLocation='%TARGET%\favicon.ico'; $shortcut.Description='Baixador de Videos 3000'; $shortcut.Save()"
 )
 
 if "%BAIXADOR_SKIP_LAUNCH%"=="" start "" "%TARGET%\BaixadorDeVideos3000.exe"

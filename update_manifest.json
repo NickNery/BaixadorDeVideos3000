@@ -1,7 +1,8 @@
 {
-  "version": "1.4.0",
-  "notes": "Adiciona instalador Windows com Python embutido, yt-dlp e ffmpeg, alem de scripts para instalacao automatica no macOS.",
+  "version": "1.4.1",
+  "notes": "Ajusta o instalador macOS em ZIP com permissao executavel preservada, move o instalador macOS para release e adiciona icone do app/atalhos.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
+  "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
@@ -18,6 +19,10 @@
     {
       "path": "requirements.txt",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/requirements.txt"
+    },
+    {
+      "path": "assets/favicon.ico",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/favicon.ico"
     },
     {
       "path": "docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
@@ -70,6 +75,14 @@
     {
       "path": "release/BaixadorDeVideos3000_Setup_Windows.exe",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe"
+    },
+    {
+      "path": "release/Instalador_Automatico_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/Instalador_Automatico_macOS.command"
+    },
+    {
+      "path": "release/BaixadorDeVideos3000_Instalador_macOS.zip",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip"
     }
   ]
 }

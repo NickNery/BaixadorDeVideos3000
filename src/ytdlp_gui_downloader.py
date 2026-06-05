@@ -49,11 +49,23 @@ else:
     SOURCE_DIR = Path(__file__).resolve().parent
     APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.4.0"
+APP_VERSION = "1.4.1"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
 SSL_CERT_ERROR_HINT = "Erro de certificado SSL no macOS. Rode Instalar_Dependencias_macOS.command para atualizar certifi e depois abra o app de novo."
+
+
+def get_app_icon_path():
+    for icon_path in (
+        APP_DIR / "favicon.ico",
+        APP_DIR / "assets" / "favicon.ico",
+        SOURCE_DIR / "favicon.ico",
+        SOURCE_DIR / "assets" / "favicon.ico",
+    ):
+        if icon_path.exists():
+            return icon_path
+    return None
 
 
 DEFAULT_CONFIG = {
@@ -516,6 +528,7 @@ class DownloaderApp:
         self.root.geometry("1080x760")
         self.root.minsize(620, 460)
         self.root.configure(bg=self.config["background_color"])
+        self.apply_window_icon()
 
         self.setup_styles()
         self.build_ui()
@@ -527,6 +540,15 @@ class DownloaderApp:
     def setup_styles(self):
         self.style = ttk.Style()
         self.style.theme_use("clam")
+
+    def apply_window_icon(self):
+        icon_path = get_app_icon_path()
+        if not icon_path:
+            return
+        try:
+            self.root.iconbitmap(str(icon_path))
+        except Exception:
+            pass
 
     def make_selection_pill(self, parent, text, variable, value=None, mode="radio", command=None):
         pill = SelectionPill(parent, text=text, variable=variable, value=value, mode=mode, command=command)

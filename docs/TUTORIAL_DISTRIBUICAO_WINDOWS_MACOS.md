@@ -4,7 +4,19 @@ Este tutorial explica como instalar o Baixador YT-DLP em outros computadores Win
 
 ## 1. Arquivos que voce deve enviar
 
-O pacote final fica em:
+Para Windows, envie o instalador:
+
+```text
+release/BaixadorDeVideos3000_Setup_Windows.exe
+```
+
+Para macOS, envie o ZIP do instalador automatico:
+
+```text
+release/BaixadorDeVideos3000_Instalador_macOS.zip
+```
+
+O pacote de codigo fonte fica em:
 
 ```text
 release/Baixador_YTDLP_Windows_macOS.zip
@@ -33,113 +45,50 @@ No macOS, o arquivo `yt-dlp.exe` nao deve ser executado. Ele e um executavel de 
 
 ## 2. Instalacao no Windows
 
-### Passo 1 - Instalar Python
-
-O arquivo `Instalar_Dependencias_Windows.bat` nao instala o Python. Ele so instala as bibliotecas do programa depois que o Python ja existe no computador.
-
-Se o computador ainda nao tiver Python instalado:
-
-1. Baixe o Python em `https://www.python.org/downloads/windows/`.
-2. Durante a instalacao, marque a opcao `Add python.exe to PATH`.
-3. Conclua a instalacao.
-4. Feche e abra novamente a pasta/terminal antes de continuar.
-
-Para testar se deu certo, abra o Prompt de Comando ou PowerShell e rode:
-
-```powershell
-python --version
-```
-
-Se aparecer uma versao, por exemplo `Python 3.14.0`, pode continuar.
-
-Se aparecer que `python` nao e reconhecido, reinstale o Python marcando `Add python.exe to PATH`.
-
-### Passo 2 - Extrair o programa
-
-1. Extraia o `.zip` do programa em uma pasta simples, por exemplo:
+### Passo 1 - Abrir o instalador
 
 ```text
-C:\Baixador-YTDLP
+BaixadorDeVideos3000_Setup_Windows.exe
 ```
 
-Evite colocar dentro de pastas protegidas como `C:\Program Files`.
+Clique duas vezes nesse arquivo e aguarde.
 
-### Passo 3 - Instalar dependencias
+### Passo 2 - O que ele instala
 
-1. Abra a pasta do programa.
-2. Clique duas vezes em:
+O instalador do Windows ja leva:
+
+- aplicativo pronto;
+- Python embutido no executavel;
+- `yt-dlp.exe`;
+- `ffmpeg.exe`;
+- PDF de tutorial;
+- icone na Area de Trabalho.
+
+O usuario nao precisa entrar no site do Python e nao precisa instalar dependencias por fora.
+
+### Passo 3 - Abrir o programa
+
+Depois da instalacao, clique no atalho criado na Area de Trabalho:
 
 ```text
-scripts\Instalar_Dependencias_Windows.bat
+Baixador de Videos 3000
 ```
 
-Esse arquivo instala:
+### Instalacao manual pelo codigo fonte
 
-- `Pillow`, para imagem de fundo e redimensionamento;
-- `yt-dlp`, caso voce nao esteja usando `yt-dlp.exe` na pasta.
-
-Se esse arquivo abrir e fechar rapido, ou mostrar erro dizendo que `python` nao foi encontrado, volte ao Passo 1 e instale o Python corretamente.
-
-### Passo 4 - Instalar ffmpeg
-
-Para MP3 e MP4 em alta qualidade, instale o `ffmpeg`.
-
-Opcoes:
-
-- baixar o `ffmpeg.exe` e colocar na mesma pasta do programa;
-- ou instalar pelo gerenciador de pacotes do Windows;
-- ou adicionar o ffmpeg ao PATH do Windows.
-
-### Passo 5 - Abrir o programa
-
-Clique duas vezes em:
-
-```text
-scripts\Abrir_Baixador_YTDLP.bat
-```
-
-Para criar atalho:
-
-1. Clique com o botao direito no `scripts\Abrir_Baixador_YTDLP.bat`.
-2. Escolha `Enviar para > Area de trabalho (criar atalho)`.
+Use o pacote `Baixador_YTDLP_Windows_macOS.zip` apenas se voce quiser rodar pelo codigo fonte. Nesse caso, o usuario precisa instalar Python, dependencias e ffmpeg manualmente.
 
 ## 3. Instalacao no macOS
 
-### Passo 1 - Instalar Python
+### Passo 1 - Extrair o instalador
 
-O arquivo `Instalar_Dependencias_macOS.command` nao instala o Python. Ele so instala as bibliotecas do programa depois que o Python ja existe no Mac.
-
-Instale Python 3 pelo site:
+Baixe e extraia o arquivo:
 
 ```text
-https://www.python.org/downloads/macos/
+BaixadorDeVideos3000_Instalador_macOS.zip
 ```
 
-Ou pelo Homebrew:
-
-```zsh
-brew install python
-```
-
-Para testar se deu certo, abra o Terminal e rode:
-
-```zsh
-python3 --version
-```
-
-Se aparecer uma versao, por exemplo `Python 3.14.0`, pode continuar.
-
-### Passo 2 - Instalar ffmpeg
-
-No Mac, o jeito mais facil e pelo Homebrew:
-
-```zsh
-brew install ffmpeg
-```
-
-### Passo 3 - Extrair o programa
-
-Extraia o `.zip` em uma pasta, por exemplo:
+Coloque a pasta extraida em um lugar simples, por exemplo:
 
 ```text
 /Users/SEU_USUARIO/Applications/Baixador-YTDLP
@@ -151,46 +100,36 @@ Ou:
 /Users/SEU_USUARIO/Desktop/Baixador-YTDLP
 ```
 
-### Passo 4 - Liberar os arquivos `.command`
-
-Abra o Terminal dentro da pasta do programa e rode:
-
-```zsh
-chmod +x scripts/Abrir_Baixador_YTDLP.command
-chmod +x scripts/Instalar_Dependencias_macOS.command
-```
-
-### Passo 5 - Instalar dependencias
+### Passo 2 - Abrir o instalador
 
 Clique duas vezes em:
 
 ```text
-scripts/Instalar_Dependencias_macOS.command
+Instalador_Automatico_macOS.command
 ```
 
-Ou rode no Terminal:
+Esse ZIP ja preserva a permissao de execucao do instalador. Se o macOS bloquear por seguranca:
 
-```zsh
-python3 -m pip install --upgrade -r requirements.txt
-```
-
-Esse passo instala tambem o `yt-dlp` para Mac. Se voce tentar usar o `yt-dlp.exe` no macOS, pode aparecer `Errno 8`, porque esse arquivo e de Windows.
-
-Esse passo tambem instala/atualiza `certifi`, que fornece certificados SSL confiaveis para o Python. Se aparecer `CERTIFICATE_VERIFY_FAILED` ou `unable to get local issuer certificate`, rode `scripts/Instalar_Dependencias_macOS.command` novamente e depois abra o app de novo.
-
-### Passo 6 - Abrir o programa
-
-Clique duas vezes em:
-
-```text
-scripts/Abrir_Baixador_YTDLP.command
-```
-
-Se o macOS bloquear por seguranca:
-
-1. Clique com o botao direito no arquivo.
+1. Clique com o botao direito no instalador.
 2. Escolha `Abrir`.
 3. Confirme que deseja abrir.
+
+### Passo 3 - Aguardar a instalacao
+
+O instalador baixa automaticamente o que estiver faltando:
+
+- Homebrew, se necessario;
+- Python, se necessario;
+- ffmpeg, se necessario;
+- bibliotecas do app, incluindo `yt-dlp` e `certifi`.
+
+Ele tambem cria um icone na Area de Trabalho chamado `Baixador de Videos 3000.app`.
+
+### Passo 4 - Abrir o programa
+
+Depois da instalacao, clique no icone criado na Area de Trabalho.
+
+Se aparecer `CERTIFICATE_VERIFY_FAILED` ou `unable to get local issuer certificate`, rode `scripts/Instalar_Dependencias_macOS.command` novamente e depois abra o app de novo.
 
 ## 4. Como configurar atualizacao para todos os PCs
 
@@ -227,7 +166,7 @@ Modelo:
 
 ```json
 {
-  "version": "1.4.0",
+  "version": "1.4.1",
   "notes": "Resumo das mudancas desta versao.",
   "files": [
     {
@@ -266,14 +205,14 @@ Sempre que voce quiser atualizar todos os computadores:
 2. Aumente a versao dentro do arquivo `src/ytdlp_gui_downloader.py`:
 
 ```python
-APP_VERSION = "1.4.0"
+APP_VERSION = "1.4.1"
 ```
 
 3. Envie os arquivos novos para o seu GitHub/site.
 4. Atualize o manifesto:
 
 ```json
-"version": "1.4.0"
+"version": "1.4.1"
 ```
 
 5. Atualize as URLs dos arquivos se necessario.
