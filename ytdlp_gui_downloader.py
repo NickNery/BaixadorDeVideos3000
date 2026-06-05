@@ -42,7 +42,7 @@ except Exception:
 
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.3.3"
+APP_VERSION = "1.3.4"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
@@ -485,7 +485,7 @@ class DownloaderApp:
         self.status_text = StringVar(value="Pronto para baixar.")
         self.current_screen = "download"
 
-        self.root.title(self.config["title"])
+        self.root.title(f"{self.config['title']} - v{APP_VERSION}")
         self.root.geometry("1080x760")
         self.root.minsize(620, 460)
         self.root.configure(bg=self.config["background_color"])
@@ -526,7 +526,7 @@ class DownloaderApp:
         self.title_label.pack(anchor="w")
         ttk.Label(
             title_stack,
-            text="Downloads de video e audio com visual premium Edge Solutions.",
+            text=f"Downloads de video e audio com visual premium Edge Solutions. v{APP_VERSION}",
             style="AppSubtitle.TLabel",
         ).pack(anchor="w", pady=(3, 0))
 
@@ -944,7 +944,7 @@ class DownloaderApp:
             self.config[key] = value
 
         self.title_label.configure(text=self.config["title"])
-        self.root.title(self.config["title"])
+        self.root.title(f"{self.config['title']} - v{APP_VERSION}")
         save_config(self.config)
         for key in self.color_swatches:
             self.paint_swatch(key)

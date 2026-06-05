@@ -1,6 +1,6 @@
 {
-  "version": "1.3.3",
-  "notes": "Corrige erro SSL CERTIFICATE_VERIFY_FAILED ao verificar atualizacoes no macOS usando certifi no urllib.",
+  "version": "1.3.4",
+  "notes": "Teste de atualizacao: exibe a versao do app no titulo da janela e no subtitulo.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
