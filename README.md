@@ -34,6 +34,8 @@ Extraia o ZIP inteiro e clique duas vezes em `Instalador_Automatico_macOS.comman
 
 Se o macOS bloquear por seguranca, clique com o botao direito no instalador, escolha `Abrir` e confirme.
 
+Se aparecer uma instalacao do Homebrew durante esse processo, isso e normal. O instalador usa o Homebrew para instalar Python/ffmpeg quando o Mac ainda nao tem uma versao compativel. O Python 3.9 do Command Line Tools da Apple e ignorado porque pode travar o Tkinter em Macs novos.
+
 Tambem existe o pacote final em ZIP:
 
 ```text
@@ -113,5 +115,7 @@ Esse script cria a pasta no servidor, se ela ainda nao existir, e copia `src`, `
 No macOS, nao use `yt-dlp.exe`; ele e apenas para Windows. Rode `scripts/Instalar_Dependencias_macOS.command` antes de abrir o app.
 
 Se aparecer `CERTIFICATE_VERIFY_FAILED` ou `unable to get local issuer certificate`, rode `scripts/Instalar_Dependencias_macOS.command` novamente para atualizar `yt-dlp` e `certifi`.
+
+Se o app fechar com um relatorio de crash do Python/Tkinter no macOS, rode novamente `release/BaixadorDeVideos3000_Instalador_macOS.zip`. Ele remove a `.venv` antiga e cria uma nova com um Python compativel.
 
 Use apenas para baixar conteudos que voce tem permissao para salvar.

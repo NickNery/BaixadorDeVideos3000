@@ -4,22 +4,21 @@ set -e
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 VENV_DIR="$APP_DIR/.venv"
 PYTHON_BIN="$VENV_DIR/bin/python"
+RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
 
 cd "$APP_DIR"
 
-if ! command -v python3 >/dev/null 2>&1; then
-    echo "Python 3 nao foi encontrado."
-    echo "Rode scripts/Instalador_Automatico_macOS.command para instalar tudo automaticamente."
+if [ ! -f "$RUNTIME_HELPERS" ]; then
+    echo "Nao encontrei scripts/macos_python_runtime.zsh."
+    echo "Extraia o ZIP inteiro e rode o instalador novamente."
     read "?Pressione Enter para fechar..."
     exit 1
 fi
 
-if [ ! -x "$PYTHON_BIN" ]; then
-    python3 -m venv "$VENV_DIR"
-fi
+source "$RUNTIME_HELPERS"
 
-"$PYTHON_BIN" -m pip install --upgrade pip
-"$PYTHON_BIN" -m pip install --upgrade -r requirements.txt
+PYTHON_BIN="$(ensure_app_venv "$APP_DIR")"
+install_app_dependencies "$PYTHON_BIN"
 
 "$PYTHON_BIN" - <<'PY'
 try:
@@ -30,8 +29,7 @@ except Exception as exc:
     print(f"Aviso: nao consegui localizar o certifi: {exc}")
 PY
 
-chmod +x "$APP_DIR/scripts/"*.command 2>/dev/null || true
-chmod +x "$APP_DIR/release/"*.command 2>/dev/null || true
+chmod_app_commands "$APP_DIR"
 
 echo
 echo "Dependencias instaladas."

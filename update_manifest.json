@@ -1,6 +1,6 @@
 {
-  "version": "1.4.1",
-  "notes": "Ajusta o instalador macOS em ZIP com permissao executavel preservada, move o instalador macOS para release e adiciona icone do app/atalhos.",
+  "version": "1.4.2",
+  "notes": "Corrige o macOS para ignorar o Python 3.9 do Command Line Tools quando o Tkinter trava, recriando o ambiente com um Python compativel.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
@@ -55,6 +55,10 @@
     {
       "path": "scripts/Instalar_Dependencias_macOS.command",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Instalar_Dependencias_macOS.command"
+    },
+    {
+      "path": "scripts/macos_python_runtime.zsh",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/macos_python_runtime.zsh"
     },
     {
       "path": "scripts/Sincronizar_Release_Servidor_Windows.bat",

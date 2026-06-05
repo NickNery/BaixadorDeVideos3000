@@ -1,5 +1,5 @@
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "notes": "Descreva aqui o que mudou nesta versao.",
   "installer_windows_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Instalador_macOS.zip",
@@ -51,6 +51,10 @@
     {
       "path": "scripts/Instalar_Dependencias_macOS.command",
       "url": "https://SEU-SITE-OU-GITHUB/scripts/Instalar_Dependencias_macOS.command"
+    },
+    {
+      "path": "scripts/macos_python_runtime.zsh",
+      "url": "https://SEU-SITE-OU-GITHUB/scripts/macos_python_runtime.zsh"
     },
     {
       "path": "scripts/Sincronizar_Release_Servidor_Windows.bat",

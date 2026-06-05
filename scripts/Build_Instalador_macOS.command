@@ -12,22 +12,25 @@ APP_PATH="$DIST_DIR/$APP_NAME.app"
 DMG_PATH="$PWD/release/BaixadorDeVideos3000_macOS.dmg"
 ICON_FILE="$PWD/assets/favicon.ico"
 ICON_ICNS="$BUILD_DIR/AppIcon.icns"
+RUNTIME_HELPERS="$PWD/scripts/macos_python_runtime.zsh"
 
 echo "=================================================="
 echo "  BUILD macOS - BAIXADOR DE VIDEOS 3000"
 echo "=================================================="
 echo
 
-if ! command -v python3 >/dev/null 2>&1; then
-    echo "Python 3 nao encontrado neste Mac de build."
-    echo "Instale Python 3 ou rode scripts/Instalador_Automatico_macOS.command."
+if [ ! -f "$RUNTIME_HELPERS" ]; then
+    echo "Nao encontrei scripts/macos_python_runtime.zsh."
     exit 1
 fi
+
+source "$RUNTIME_HELPERS"
+BUILD_PYTHON="$(ensure_usable_python)"
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR" "$DIST_DIR" "$PWD/release"
 
-python3 -m venv "$VENV_DIR"
+"$BUILD_PYTHON" -m venv "$VENV_DIR"
 "$VENV_DIR/bin/python" -m pip install --upgrade pip
 "$VENV_DIR/bin/python" -m pip install pyinstaller pillow certifi imageio-ffmpeg
 

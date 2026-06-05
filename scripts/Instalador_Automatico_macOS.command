@@ -21,39 +21,23 @@ PYTHON_BIN="$VENV_DIR/bin/python"
 DESKTOP_DIR="$HOME/Desktop"
 DESKTOP_APP="$DESKTOP_DIR/Baixador de Videos 3000.app"
 ICON_FILE="$APP_DIR/assets/favicon.ico"
+RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
+
+if [ ! -f "$RUNTIME_HELPERS" ]; then
+    echo "Nao encontrei scripts/macos_python_runtime.zsh."
+    echo "Extraia o ZIP inteiro e rode o instalador novamente."
+    read "?Pressione Enter para fechar..."
+    exit 1
+fi
+
+source "$RUNTIME_HELPERS"
 
 echo "=================================================="
 echo "  INSTALADOR AUTOMATICO - BAIXADOR DE VIDEOS 3000"
 echo "=================================================="
 echo
 
-load_brew_shellenv() {
-    if [ -x "/opt/homebrew/bin/brew" ]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    elif [ -x "/usr/local/bin/brew" ]; then
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
-}
-
-ensure_homebrew() {
-    load_brew_shellenv
-
-    if command -v brew >/dev/null 2>&1; then
-        return
-    fi
-
-    echo "Homebrew nao foi encontrado."
-    echo "Ele sera instalado para baixar Python e ffmpeg automaticamente."
-    echo
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    load_brew_shellenv
-}
-
-if ! command -v python3 >/dev/null 2>&1; then
-    ensure_homebrew
-    echo "Instalando Python..."
-    brew install python
-fi
+PYTHON_BIN="$(ensure_app_venv "$APP_DIR")"
 
 if ! command -v ffmpeg >/dev/null 2>&1; then
     ensure_homebrew
@@ -61,17 +45,9 @@ if ! command -v ffmpeg >/dev/null 2>&1; then
     brew install ffmpeg
 fi
 
-if [ ! -x "$PYTHON_BIN" ]; then
-    echo "Criando ambiente Python do aplicativo..."
-    python3 -m venv "$VENV_DIR"
-fi
-
 echo "Instalando dependencias do aplicativo..."
-"$PYTHON_BIN" -m pip install --upgrade pip
-"$PYTHON_BIN" -m pip install --upgrade -r requirements.txt
-
-chmod +x "$APP_DIR/scripts/"*.command 2>/dev/null || true
-chmod +x "$APP_DIR/release/"*.command 2>/dev/null || true
+install_app_dependencies "$PYTHON_BIN"
+chmod_app_commands "$APP_DIR"
 
 create_app_icon() {
     if [ ! -f "$ICON_FILE" ]; then
@@ -111,10 +87,9 @@ create_desktop_app() {
     cat > "$DESKTOP_APP/Contents/MacOS/launcher" <<EOF
 #!/bin/zsh
 APP_DIR="$APP_DIR"
-PYTHON_BIN="\$APP_DIR/.venv/bin/python"
 export PATH="\$APP_DIR:\$APP_DIR/.venv/bin:/opt/homebrew/bin:/usr/local/bin:\$PATH"
 cd "\$APP_DIR"
-exec "\$PYTHON_BIN" "src/ytdlp_gui_downloader.py"
+exec "\$APP_DIR/scripts/Abrir_Baixador_YTDLP.command"
 EOF
     chmod +x "$DESKTOP_APP/Contents/MacOS/launcher"
 

@@ -1,7 +1,9 @@
+/.gitattributes text eol=lf
 *.pdf binary
 *.zip binary
 *.command text eol=lf
 *.sh text eol=lf
+*.zsh text eol=lf
 *.bat text eol=crlf
 *.py text eol=lf
 *.md text eol=lf

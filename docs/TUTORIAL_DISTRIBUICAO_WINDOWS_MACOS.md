@@ -125,11 +125,15 @@ O instalador baixa automaticamente o que estiver faltando:
 
 Ele tambem cria um icone na Area de Trabalho chamado `Baixador de Videos 3000.app`.
 
+Se aparecer uma janela ou mensagem do Homebrew, esta tudo certo. O Homebrew e usado para instalar Python e ffmpeg no Mac quando eles ainda nao estao prontos.
+
 ### Passo 4 - Abrir o programa
 
 Depois da instalacao, clique no icone criado na Area de Trabalho.
 
 Se aparecer `CERTIFICATE_VERIFY_FAILED` ou `unable to get local issuer certificate`, rode `scripts/Instalar_Dependencias_macOS.command` novamente e depois abra o app de novo.
+
+Se aparecer um relatorio de crash do Python/Tkinter no macOS, rode novamente `Instalador_Automatico_macOS.command`. Ele recria o ambiente Python e ignora o Python 3.9 do Command Line Tools da Apple.
 
 ## 4. Como configurar atualizacao para todos os PCs
 
@@ -166,7 +170,7 @@ Modelo:
 
 ```json
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "notes": "Resumo das mudancas desta versao.",
   "files": [
     {
@@ -205,14 +209,14 @@ Sempre que voce quiser atualizar todos os computadores:
 2. Aumente a versao dentro do arquivo `src/ytdlp_gui_downloader.py`:
 
 ```python
-APP_VERSION = "1.4.1"
+APP_VERSION = "1.4.2"
 ```
 
 3. Envie os arquivos novos para o seu GitHub/site.
 4. Atualize o manifesto:
 
 ```json
-"version": "1.4.1"
+"version": "1.4.2"
 ```
 
 5. Atualize as URLs dos arquivos se necessario.
