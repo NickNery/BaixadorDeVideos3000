@@ -1,42 +1,54 @@
 {
-  "version": "1.3.4",
-  "notes": "Teste de atualizacao: exibe a versao do app no titulo da janela e no subtitulo.",
+  "version": "1.3.5",
+  "notes": "Reorganiza o projeto em src, docs, scripts e release, mantendo launcher legado para atualizacoes antigas.",
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/ytdlp_gui_downloader.py"
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/legacy/ytdlp_gui_downloader.py"
     },
     {
-      "path": "README_ytdlp_gui.md",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/README_ytdlp_gui.md"
+      "path": "src/ytdlp_gui_downloader.py",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/src/ytdlp_gui_downloader.py"
     },
     {
-      "path": "TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md"
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/README.md"
     },
     {
       "path": "requirements.txt",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/requirements.txt"
     },
     {
-      "path": "argumentosExtras.txt",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/argumentosExtras.txt"
+      "path": "docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md"
     },
     {
-      "path": "Abrir_Baixador_YTDLP.bat",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Abrir_Baixador_YTDLP.bat"
+      "path": "docs/argumentosExtras.txt",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/argumentosExtras.txt"
     },
     {
-      "path": "Abrir_Baixador_YTDLP.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Abrir_Baixador_YTDLP.command"
+      "path": "docs/Tutorial_BaixadorDeVideos3000.pdf",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/Tutorial_BaixadorDeVideos3000.pdf"
     },
     {
-      "path": "Instalar_Dependencias_Windows.bat",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Instalar_Dependencias_Windows.bat"
+      "path": "docs/update_manifest_example.json",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/update_manifest_example.json"
     },
     {
-      "path": "Instalar_Dependencias_macOS.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Instalar_Dependencias_macOS.command"
+      "path": "scripts/Abrir_Baixador_YTDLP.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_YTDLP.bat"
+    },
+    {
+      "path": "scripts/Abrir_Baixador_YTDLP.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_YTDLP.command"
+    },
+    {
+      "path": "scripts/Instalar_Dependencias_Windows.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Instalar_Dependencias_Windows.bat"
+    },
+    {
+      "path": "scripts/Instalar_Dependencias_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Instalar_Dependencias_macOS.command"
     }
   ]
 }

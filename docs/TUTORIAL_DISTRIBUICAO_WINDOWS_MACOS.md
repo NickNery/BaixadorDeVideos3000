@@ -4,16 +4,23 @@ Este tutorial explica como instalar o Baixador YT-DLP em outros computadores Win
 
 ## 1. Arquivos que voce deve enviar
 
-Crie um `.zip` com estes arquivos da pasta do programa:
+O pacote final fica em:
 
-- `ytdlp_gui_downloader.py`
+```text
+release/Baixador_YTDLP_Windows_macOS.zip
+```
+
+Dentro dele, os arquivos principais ficam organizados assim:
+
+- `src/ytdlp_gui_downloader.py`
 - `requirements.txt`
-- `Abrir_Baixador_YTDLP.bat`
-- `Abrir_Baixador_YTDLP.command`
-- `Instalar_Dependencias_Windows.bat`
-- `Instalar_Dependencias_macOS.command`
-- `README_ytdlp_gui.md`
-- `update_manifest_example.json`
+- `scripts/Abrir_Baixador_YTDLP.bat`
+- `scripts/Abrir_Baixador_YTDLP.command`
+- `scripts/Instalar_Dependencias_Windows.bat`
+- `scripts/Instalar_Dependencias_macOS.command`
+- `README.md`
+- `docs/update_manifest_example.json`
+- `docs/argumentosExtras.txt`
 
 Opcional no Windows:
 
@@ -62,7 +69,7 @@ Evite colocar dentro de pastas protegidas como `C:\Program Files`.
 2. Clique duas vezes em:
 
 ```text
-Instalar_Dependencias_Windows.bat
+scripts\Instalar_Dependencias_Windows.bat
 ```
 
 Esse arquivo instala:
@@ -87,12 +94,12 @@ Opcoes:
 Clique duas vezes em:
 
 ```text
-Abrir_Baixador_YTDLP.bat
+scripts\Abrir_Baixador_YTDLP.bat
 ```
 
 Para criar atalho:
 
-1. Clique com o botao direito no `Abrir_Baixador_YTDLP.bat`.
+1. Clique com o botao direito no `scripts\Abrir_Baixador_YTDLP.bat`.
 2. Escolha `Enviar para > Area de trabalho (criar atalho)`.
 
 ## 3. Instalacao no macOS
@@ -148,8 +155,8 @@ Ou:
 Abra o Terminal dentro da pasta do programa e rode:
 
 ```zsh
-chmod +x Abrir_Baixador_YTDLP.command
-chmod +x Instalar_Dependencias_macOS.command
+chmod +x scripts/Abrir_Baixador_YTDLP.command
+chmod +x scripts/Instalar_Dependencias_macOS.command
 ```
 
 ### Passo 5 - Instalar dependencias
@@ -157,7 +164,7 @@ chmod +x Instalar_Dependencias_macOS.command
 Clique duas vezes em:
 
 ```text
-Instalar_Dependencias_macOS.command
+scripts/Instalar_Dependencias_macOS.command
 ```
 
 Ou rode no Terminal:
@@ -168,14 +175,14 @@ python3 -m pip install --upgrade -r requirements.txt
 
 Esse passo instala tambem o `yt-dlp` para Mac. Se voce tentar usar o `yt-dlp.exe` no macOS, pode aparecer `Errno 8`, porque esse arquivo e de Windows.
 
-Esse passo tambem instala/atualiza `certifi`, que fornece certificados SSL confiaveis para o Python. Se aparecer `CERTIFICATE_VERIFY_FAILED` ou `unable to get local issuer certificate`, rode `Instalar_Dependencias_macOS.command` novamente e depois abra o app de novo.
+Esse passo tambem instala/atualiza `certifi`, que fornece certificados SSL confiaveis para o Python. Se aparecer `CERTIFICATE_VERIFY_FAILED` ou `unable to get local issuer certificate`, rode `scripts/Instalar_Dependencias_macOS.command` novamente e depois abra o app de novo.
 
 ### Passo 6 - Abrir o programa
 
 Clique duas vezes em:
 
 ```text
-Abrir_Baixador_YTDLP.command
+scripts/Abrir_Baixador_YTDLP.command
 ```
 
 Se o macOS bloquear por seguranca:
@@ -212,7 +219,7 @@ Evite links que abrem uma pagina HTML em vez de baixar o arquivo diretamente.
 Use o arquivo:
 
 ```text
-update_manifest_example.json
+docs/update_manifest_example.json
 ```
 
 Modelo:
@@ -224,11 +231,15 @@ Modelo:
   "files": [
     {
       "path": "ytdlp_gui_downloader.py",
-      "url": "https://SEU-SITE-OU-GITHUB/ytdlp_gui_downloader.py"
+      "url": "https://SEU-SITE-OU-GITHUB/release/legacy/ytdlp_gui_downloader.py"
     },
     {
-      "path": "README_ytdlp_gui.md",
-      "url": "https://SEU-SITE-OU-GITHUB/README_ytdlp_gui.md"
+      "path": "src/ytdlp_gui_downloader.py",
+      "url": "https://SEU-SITE-OU-GITHUB/src/ytdlp_gui_downloader.py"
+    },
+    {
+      "path": "README.md",
+      "url": "https://SEU-SITE-OU-GITHUB/README.md"
     },
     {
       "path": "requirements.txt",
@@ -251,7 +262,7 @@ Modelo:
 Sempre que voce quiser atualizar todos os computadores:
 
 1. Edite o programa.
-2. Aumente a versao dentro do arquivo `ytdlp_gui_downloader.py`:
+2. Aumente a versao dentro do arquivo `src/ytdlp_gui_downloader.py`:
 
 ```python
 APP_VERSION = "1.3.0"
