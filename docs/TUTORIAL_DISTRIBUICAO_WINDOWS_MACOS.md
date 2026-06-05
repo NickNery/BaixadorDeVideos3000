@@ -1,4 +1,4 @@
-# Tutorial de distribuicao - Windows e macOS
+﻿# Tutorial de distribuicao - Windows e macOS
 
 Este tutorial explica como instalar o Baixador YT-DLP em outros computadores Windows e Mac, e como preparar atualizacoes para todos os usuarios.
 
@@ -170,7 +170,7 @@ Modelo:
 
 ```json
 {
-  "version": "1.4.2",
+  "version": "1.4.3",
   "notes": "Resumo das mudancas desta versao.",
   "files": [
     {
@@ -209,14 +209,14 @@ Sempre que voce quiser atualizar todos os computadores:
 2. Aumente a versao dentro do arquivo `src/ytdlp_gui_downloader.py`:
 
 ```python
-APP_VERSION = "1.4.2"
+APP_VERSION = "1.4.3"
 ```
 
 3. Envie os arquivos novos para o seu GitHub/site.
 4. Atualize o manifesto:
 
 ```json
-"version": "1.4.2"
+"version": "1.4.3"
 ```
 
 5. Atualize as URLs dos arquivos se necessario.
@@ -232,7 +232,7 @@ Verificar atualizacao
 Quando houver uma nova versao, alem de atualizar o computador local e o GitHub, copie a versao nova para:
 
 ```text
-Z:\AUDIO VISUAL\ELEMENTOS DE EDIÇÃO\BaixadorDeVideos3000
+Z:\AUDIO VISUAL\ELEMENTOS DE EDIÃ‡ÃƒO\BaixadorDeVideos3000
 ```
 
 No Windows, execute:

@@ -1,6 +1,6 @@
 {
-  "version": "1.4.2",
-  "notes": "Corrige o macOS para ignorar o Python 3.9 do Command Line Tools quando o Tkinter trava, recriando o ambiente com um Python compativel.",
+  "version": "1.4.3",
+  "notes": "Adiciona o easter egg #DOOM na personalizacao, abrindo uma fase estilo E1M1 dentro do proprio aplicativo.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [

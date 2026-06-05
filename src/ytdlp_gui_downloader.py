@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import platform
 import queue
@@ -49,7 +50,7 @@ else:
     SOURCE_DIR = Path(__file__).resolve().parent
     APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.4.2"
+APP_VERSION = "1.4.3"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
@@ -446,6 +447,301 @@ class SelectionPill(Frame):
                 self.indicator.create_oval(6, 6, 10, 10, outline="#ffffff", fill="#ffffff")
 
 
+class DoomE1M1Window:
+    MAP = [
+        "111111111111111111111111",
+        "100000000100000000000001",
+        "100111000100011111110001",
+        "100101000000010000010001",
+        "100101111110010111010001",
+        "100100000010010101010001",
+        "100111101010000101000001",
+        "100000101011110101111101",
+        "111110101000010100000101",
+        "100000101111010111110101",
+        "100111100000010000010101",
+        "100100001111011110010101",
+        "100101111001000010010001",
+        "100100000001111010111101",
+        "100111111100000010000001",
+        "100000000111011111110001",
+        "101111110100010000000001",
+        "100000010100010111111101",
+        "1001100100000001000000X1",
+        "100100011111110101111111",
+        "100000000000000100000001",
+        "111111111111111111111111",
+    ]
+
+    def __init__(self, master):
+        self.window = Toplevel(master)
+        self.window.title("DOOM 1993 - E1M1")
+        self.window.geometry("960x620")
+        self.window.minsize(720, 460)
+        self.window.configure(bg="#050505")
+        self.canvas = Canvas(self.window, bg="#000000", highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True)
+
+        self.keys = set()
+        self.player = {"x": 2.5, "y": 2.5, "a": 0.0, "hp": 100.0, "ammo": 50, "score": 0}
+        self.enemy_starts = [(7.4, 3.5), (14.5, 5.5), (19.5, 7.5), (7.5, 13.5), (16.5, 15.5), (20.5, 18.5)]
+        self.enemies = [{"x": x, "y": y, "hp": 30, "alive": True} for x, y in self.enemy_starts]
+        self.running = True
+        self.flash = 0.0
+        self.bob = 0.0
+        self.won = False
+        self.game_over = False
+        self.last_time = time.perf_counter()
+
+        self.window.bind("<KeyPress>", self.on_key_press)
+        self.window.bind("<KeyRelease>", self.on_key_release)
+        self.canvas.bind("<Button-1>", self.on_shoot)
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
+        self.window.after(100, self.focus)
+        self.tick()
+
+    def focus(self):
+        try:
+            self.window.focus_force()
+            self.canvas.focus_set()
+        except Exception:
+            pass
+
+    def close(self):
+        self.running = False
+        self.window.destroy()
+
+    def on_key_press(self, event):
+        key = event.keysym.lower()
+        self.keys.add(key)
+        if key == "r" and (self.won or self.game_over):
+            self.reset()
+
+    def on_key_release(self, event):
+        self.keys.discard(event.keysym.lower())
+
+    def on_shoot(self, event=None):
+        if self.won or self.game_over or self.player["ammo"] <= 0:
+            return
+        self.player["ammo"] -= 1
+        self.flash = 0.14
+        best_enemy = None
+        best_diff = 0.16
+        for enemy in self.enemies:
+            if not enemy["alive"]:
+                continue
+            dx = enemy["x"] - self.player["x"]
+            dy = enemy["y"] - self.player["y"]
+            distance = math.hypot(dx, dy)
+            angle = math.atan2(dy, dx)
+            diff = abs(math.atan2(math.sin(angle - self.player["a"]), math.cos(angle - self.player["a"])))
+            if diff < best_diff and distance < 9 and self.line_clear(enemy["x"], enemy["y"]):
+                best_enemy = enemy
+                best_diff = diff
+        if best_enemy:
+            best_enemy["hp"] -= 34
+            if best_enemy["hp"] <= 0:
+                best_enemy["alive"] = False
+                self.player["score"] += 100
+
+    def reset(self):
+        self.player.update({"x": 2.5, "y": 2.5, "a": 0.0, "hp": 100.0, "ammo": 50, "score": 0})
+        for enemy, (x, y) in zip(self.enemies, self.enemy_starts):
+            enemy["x"] = x
+            enemy["y"] = y
+            enemy["alive"] = True
+            enemy["hp"] = 30
+        self.won = False
+        self.game_over = False
+
+    def tile(self, x, y):
+        ix = int(x)
+        iy = int(y)
+        if iy < 0 or iy >= len(self.MAP) or ix < 0 or ix >= len(self.MAP[0]):
+            return "1"
+        return self.MAP[iy][ix]
+
+    def is_solid(self, x, y):
+        return self.tile(x, y) == "1"
+
+    def move(self, dx, dy):
+        nx = self.player["x"] + dx
+        ny = self.player["y"] + dy
+        if not self.is_solid(nx, self.player["y"]):
+            self.player["x"] = nx
+        if not self.is_solid(self.player["x"], ny):
+            self.player["y"] = ny
+
+    def line_clear(self, target_x, target_y):
+        dx = target_x - self.player["x"]
+        dy = target_y - self.player["y"]
+        distance = max(math.hypot(dx, dy), 0.01)
+        steps = max(4, int(distance / 0.08))
+        for step in range(1, steps):
+            x = self.player["x"] + dx * (step / steps)
+            y = self.player["y"] + dy * (step / steps)
+            if self.is_solid(x, y):
+                return False
+        return True
+
+    def cast_ray(self, angle):
+        distance = 0.02
+        step = 0.035
+        ray_x = math.cos(angle)
+        ray_y = math.sin(angle)
+        hit = "1"
+        shade = 1.0
+        while distance < 24:
+            x = self.player["x"] + ray_x * distance
+            y = self.player["y"] + ray_y * distance
+            hit = self.tile(x, y)
+            if hit != "0":
+                rx = abs(x - math.floor(x) - 0.5)
+                ry = abs(y - math.floor(y) - 0.5)
+                shade = 0.78 if rx > ry else 1.0
+                break
+            distance += step
+        return distance, hit, shade
+
+    def update(self, dt):
+        if self.won or self.game_over:
+            return
+        speed = 2.8
+        turn_speed = 2.4
+        forward = 0
+        if "w" in self.keys:
+            forward += 1
+        if "s" in self.keys:
+            forward -= 1
+        if "a" in self.keys:
+            self.player["a"] -= turn_speed * dt
+        if "d" in self.keys:
+            self.player["a"] += turn_speed * dt
+        if forward:
+            self.move(math.cos(self.player["a"]) * forward * speed * dt, math.sin(self.player["a"]) * forward * speed * dt)
+            self.bob += dt * 9
+        self.flash = max(0, self.flash - dt)
+
+        for enemy in self.enemies:
+            if not enemy["alive"]:
+                continue
+            dx = self.player["x"] - enemy["x"]
+            dy = self.player["y"] - enemy["y"]
+            distance = math.hypot(dx, dy)
+            if distance < 7 and self.line_clear(enemy["x"], enemy["y"]):
+                enemy_dx = (dx / max(distance, 0.01)) * dt * 0.65
+                enemy_dy = (dy / max(distance, 0.01)) * dt * 0.65
+                if not self.is_solid(enemy["x"] + enemy_dx, enemy["y"]):
+                    enemy["x"] += enemy_dx
+                if not self.is_solid(enemy["x"], enemy["y"] + enemy_dy):
+                    enemy["y"] += enemy_dy
+            if distance < 0.7:
+                self.player["hp"] -= 18 * dt
+                if self.player["hp"] <= 0:
+                    self.player["hp"] = 0
+                    self.game_over = True
+
+        if self.tile(self.player["x"], self.player["y"]) == "X":
+            self.won = True
+
+    def draw(self):
+        width = max(self.canvas.winfo_width(), 1)
+        height = max(self.canvas.winfo_height(), 1)
+        hud_height = 86
+        view_height = max(height - hud_height, 1)
+        rays = 170
+        fov = math.pi / 3
+        self.canvas.delete("all")
+
+        self.canvas.create_rectangle(0, 0, width, view_height / 2, fill="#18202a", outline="")
+        self.canvas.create_rectangle(0, view_height / 2, width, view_height, fill="#2b241d", outline="")
+
+        depth_buffer = []
+        for index in range(rays):
+            ray_angle = self.player["a"] - fov / 2 + (index / rays) * fov
+            distance, hit, shade = self.cast_ray(ray_angle)
+            corrected = max(distance * math.cos(ray_angle - self.player["a"]), 0.05)
+            depth_buffer.append(corrected)
+            slice_height = min(view_height * 1.5, view_height / corrected)
+            x0 = int(index * width / rays)
+            x1 = int((index + 1) * width / rays) + 1
+            y0 = int(view_height / 2 - slice_height / 2 + math.sin(self.bob) * 3)
+            y1 = int(y0 + slice_height)
+            color = "#8a8a8a" if hit != "X" else "#b42626"
+            self.canvas.create_rectangle(x0, y0, x1, y1, fill=self.shade_color(color, shade * max(0.22, 1 - corrected / 14)), outline="")
+            self.canvas.create_rectangle(x0, int((y0 + y1) / 2), x1, int((y0 + y1) / 2) + 2, fill="#2f2f2f", outline="")
+
+        self.draw_enemies(depth_buffer, rays, view_height, fov, width)
+        self.draw_weapon(width, height, hud_height)
+        self.draw_hud(width, height, hud_height)
+        if self.won or self.game_over:
+            self.draw_end(width, height)
+
+    def draw_enemies(self, depth_buffer, rays, view_height, fov, width):
+        visible = []
+        for enemy in self.enemies:
+            if not enemy["alive"]:
+                continue
+            dx = enemy["x"] - self.player["x"]
+            dy = enemy["y"] - self.player["y"]
+            visible.append((math.hypot(dx, dy), math.atan2(dy, dx), enemy))
+        for distance, angle, enemy in sorted(visible, key=lambda item: item[0], reverse=True):
+            diff = math.atan2(math.sin(angle - self.player["a"]), math.cos(angle - self.player["a"]))
+            if abs(diff) > fov / 1.5:
+                continue
+            screen_x = (0.5 + diff / fov) * width
+            ray = int((screen_x / width) * rays)
+            if 0 <= ray < len(depth_buffer) and distance > depth_buffer[ray] + 0.2:
+                continue
+            size = min(220, view_height / max(distance, 0.1))
+            y = view_height / 2 - size / 2 + math.sin(self.bob) * 3
+            self.canvas.create_rectangle(screen_x - size * 0.28, y + size * 0.28, screen_x + size * 0.28, y + size * 0.86, fill="#311818", outline="")
+            self.canvas.create_rectangle(screen_x - size * 0.2, y + size * 0.06, screen_x + size * 0.2, y + size * 0.31, fill="#8b2d1f", outline="")
+            self.canvas.create_rectangle(screen_x - size * 0.1, y + size * 0.14, screen_x - size * 0.04, y + size * 0.2, fill="#ffd25d", outline="")
+            self.canvas.create_rectangle(screen_x + size * 0.04, y + size * 0.14, screen_x + size * 0.1, y + size * 0.2, fill="#ffd25d", outline="")
+
+    def draw_weapon(self, width, height, hud_height):
+        center = width / 2
+        base = height - hud_height + 8 + (14 if self.flash else 0)
+        muzzle = "#fff2a0" if self.flash else "#151515"
+        self.canvas.create_rectangle(center - 48, base + 26, center + 48, base + 90, fill="#222222", outline="")
+        self.canvas.create_rectangle(center - 26, base, center + 26, base + 86, fill="#5c5c5c", outline="")
+        self.canvas.create_rectangle(center - 10, base - 9, center + 10, base + 13, fill=muzzle, outline="")
+
+    def draw_hud(self, width, height, hud_height):
+        y = height - hud_height
+        self.canvas.create_rectangle(0, y, width, height, fill="#2b2b2b", outline="")
+        self.canvas.create_rectangle(0, y, width, y + 4, fill="#111111", outline="")
+        self.canvas.create_text(36, y + 28, text=f"AMMO {self.player['ammo']}", anchor="w", fill="#d8d8d8", font=(FONT_MEDIUM, 17))
+        self.canvas.create_text(220, y + 28, text=f"HEALTH {int(self.player['hp'])}%", anchor="w", fill="#d8d8d8", font=(FONT_MEDIUM, 17))
+        self.canvas.create_text(470, y + 28, text=f"SCORE {self.player['score']}", anchor="w", fill="#d8d8d8", font=(FONT_MEDIUM, 17))
+        self.canvas.create_text(36, y + 60, text="E1M1: HANGAR | W/S anda, A/D gira, clique esquerdo atira", anchor="w", fill="#ff3030", font=(FONT_MEDIUM, 12))
+
+    def draw_end(self, width, height):
+        self.canvas.create_rectangle(0, 0, width, height, fill="#000000", stipple="gray50", outline="")
+        text = "E1M1 COMPLETE" if self.won else "YOU DIED"
+        color = "#ff3030" if self.won else "#d8d8d8"
+        self.canvas.create_text(width / 2, height / 2 - 20, text=text, fill=color, font=(FONT_MEDIUM, 34))
+        self.canvas.create_text(width / 2, height / 2 + 32, text="Pressione R para reiniciar", fill="#ffffff", font=(FONT_REGULAR, 14))
+
+    def shade_color(self, color, shade):
+        shade = min(max(shade, 0), 1)
+        red = int(color[1:3], 16)
+        green = int(color[3:5], 16)
+        blue = int(color[5:7], 16)
+        return f"#{int(red * shade):02x}{int(green * shade):02x}{int(blue * shade):02x}"
+
+    def tick(self):
+        if not self.running:
+            return
+        now = time.perf_counter()
+        dt = min(now - self.last_time, 0.05)
+        self.last_time = now
+        self.update(dt)
+        self.draw()
+        self.window.after(33, self.tick)
+
+
 UPDATER_SCRIPT = r'''
 import os
 import shutil
@@ -510,6 +806,7 @@ class DownloaderApp:
         self.update_check_id = 0
         self.update_check_timeout_job = None
         self.selection_pills = []
+        self.doom_window = None
 
         self.destino = StringVar(value=self.config["default_folder"])
         self.formato = StringVar(value="mp4")
@@ -958,6 +1255,13 @@ class DownloaderApp:
             swatch.create_rectangle(2, 2, 32, 22, fill="#000000", outline="")
 
     def apply_customization_from_tab(self):
+        background_secret = self.theme_vars.get("background_color")
+        if background_secret and background_secret.get().strip().upper() == "#DOOM":
+            background_secret.set(self.config.get("background_color", DEFAULT_CONFIG["background_color"]))
+            self.launch_doom_easter_egg()
+            self.show_toast("#DOOM ativado. Abrindo E1M1 dentro do app.", "success")
+            return
+
         color_keys = {
             "background_color",
             "panel_color",
@@ -1001,6 +1305,15 @@ class DownloaderApp:
         self.load_background_image()
         self.log("Personalizacao aplicada e salva.")
         self.show_screen("download")
+
+    def launch_doom_easter_egg(self):
+        try:
+            if self.doom_window and self.doom_window.running:
+                self.doom_window.focus()
+                return
+        except Exception:
+            pass
+        self.doom_window = DoomE1M1Window(self.root)
 
     def clear_background_image(self):
         if hasattr(self, "theme_vars"):

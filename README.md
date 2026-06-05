@@ -87,6 +87,10 @@ https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_mani
 
 O manifesto baixa os arquivos dos novos caminhos (`src/`, `docs/`, `scripts/`) e tambem instala um launcher legado na raiz para nao quebrar atalhos antigos.
 
+## Easter egg
+
+Na aba de personalizacao, digite `#DOOM` no campo `Cor do fundo` e clique em `Aplicar e salvar`. O app abre uma janela interna com uma fase estilo E1M1. Use `W/S` para andar, `A/D` para girar e clique esquerdo para atirar.
+
 ## Sincronizar com a pasta do servidor
 
 Depois de gerar uma nova versao, sincronize tambem a pasta compartilhada:
