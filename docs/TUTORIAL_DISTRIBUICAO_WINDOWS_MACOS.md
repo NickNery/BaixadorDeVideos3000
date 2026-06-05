@@ -18,6 +18,7 @@ Dentro dele, os arquivos principais ficam organizados assim:
 - `scripts/Abrir_Baixador_YTDLP.command`
 - `scripts/Instalar_Dependencias_Windows.bat`
 - `scripts/Instalar_Dependencias_macOS.command`
+- `scripts/Sincronizar_Release_Servidor_Windows.bat`
 - `README.md`
 - `docs/update_manifest_example.json`
 - `docs/argumentosExtras.txt`
@@ -226,7 +227,7 @@ Modelo:
 
 ```json
 {
-  "version": "1.2.0",
+  "version": "1.3.6",
   "notes": "Resumo das mudancas desta versao.",
   "files": [
     {
@@ -265,24 +266,41 @@ Sempre que voce quiser atualizar todos os computadores:
 2. Aumente a versao dentro do arquivo `src/ytdlp_gui_downloader.py`:
 
 ```python
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.6"
 ```
 
 3. Envie os arquivos novos para o seu GitHub/site.
 4. Atualize o manifesto:
 
 ```json
-"version": "1.3.0"
+"version": "1.3.6"
 ```
 
 5. Atualize as URLs dos arquivos se necessario.
-6. Nos computadores dos usuarios, abra o app e clique em:
+6. Sincronize a pasta compartilhada do servidor.
+7. Nos computadores dos usuarios, abra o app e clique em:
 
 ```text
 Verificar atualizacao
 ```
 
-## 7. Como configurar a URL de atualizacao no app
+## 7. Como sincronizar a pasta do servidor
+
+Quando houver uma nova versao, alem de atualizar o computador local e o GitHub, copie a versao nova para:
+
+```text
+Z:\AUDIO VISUAL\ELEMENTOS DE EDIÇÃO\BaixadorDeVideos3000
+```
+
+No Windows, execute:
+
+```text
+scripts\Sincronizar_Release_Servidor_Windows.bat
+```
+
+Esse script cria a pasta do servidor, se ela ainda nao existir, e copia `src`, `docs`, `scripts`, `release`, `README.md`, `requirements.txt` e `update_manifest.json`.
+
+## 8. Como configurar a URL de atualizacao no app
 
 Dentro do programa:
 
@@ -293,7 +311,7 @@ Dentro do programa:
 
 O app salva essa URL no arquivo `ytdlp_gui_config.json`.
 
-## 8. Importante sobre atualizacao automatica
+## 9. Importante sobre atualizacao automatica
 
 O app esta preparado para buscar atualizacoes online, mas ele precisa de uma URL publica para o manifesto.
 

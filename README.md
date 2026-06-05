@@ -50,6 +50,22 @@ https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_mani
 
 O manifesto baixa os arquivos dos novos caminhos (`src/`, `docs/`, `scripts/`) e tambem instala um launcher legado na raiz para nao quebrar atalhos antigos.
 
+## Sincronizar com a pasta do servidor
+
+Depois de gerar uma nova versao, sincronize tambem a pasta compartilhada:
+
+```text
+Z:\AUDIO VISUAL\ELEMENTOS DE EDIÇÃO\BaixadorDeVideos3000
+```
+
+No Windows, use:
+
+```text
+scripts/Sincronizar_Release_Servidor_Windows.bat
+```
+
+Esse script cria a pasta no servidor, se ela ainda nao existir, e copia `src`, `docs`, `scripts`, `release`, `README.md`, `requirements.txt` e `update_manifest.json`.
+
 ## Documentacao
 
 - Tutorial Windows/macOS: `docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md`
