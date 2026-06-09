@@ -30,11 +30,11 @@ No macOS, enquanto o `.dmg` final nao for gerado em um Mac, use o instalador aut
 release/BaixadorDeVideos3000_Instalador_macOS.zip
 ```
 
-Extraia o ZIP inteiro e clique duas vezes em `Instalador_Automatico_macOS.command`. O ZIP preserva a permissao de execucao do arquivo, evitando o erro de acesso do macOS. Ele instala Python, ffmpeg, Chocolate Doom e dependencias automaticamente quando estiverem faltando, cria um icone na Area de Trabalho e abre o app.
+Extraia o ZIP inteiro e clique duas vezes em `Instalador_Automatico_macOS.command`. O ZIP preserva a permissao de execucao do arquivo, evitando o erro de acesso do macOS. Ele instala Python, ffmpeg e dependencias automaticamente quando estiverem faltando, cria um icone na Area de Trabalho e abre o app.
 
 Se o macOS bloquear por seguranca, clique com o botao direito no instalador, escolha `Abrir` e confirme.
 
-Se aparecer uma instalacao do Homebrew durante esse processo, isso e normal. O instalador usa o Homebrew para instalar Python, ffmpeg e Chocolate Doom quando o Mac ainda nao tem uma versao compativel. O Python 3.9 do Command Line Tools da Apple e ignorado porque pode travar o Tkinter em Macs novos.
+Se aparecer uma instalacao do Homebrew durante esse processo, isso e normal. O instalador usa o Homebrew para instalar Python, ffmpeg e componentes necessarios quando o Mac ainda nao tem uma versao compativel. O Python 3.9 do Command Line Tools da Apple e ignorado porque pode travar o Tkinter em Macs novos.
 
 Tambem existe o pacote final em ZIP:
 
@@ -86,10 +86,6 @@ https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_mani
 ```
 
 O manifesto baixa os arquivos dos novos caminhos (`src/`, `docs/`, `scripts/`) e tambem instala um launcher legado na raiz para nao quebrar atalhos antigos.
-
-## Easter egg
-
-Na aba de personalizacao, digite `#DOOM` no campo `Cor do fundo` e clique em `Aplicar e salvar`. O app prepara o Freedoom automaticamente e abre a primeira fase livre do Freedoom Phase 1 com Chocolate Doom. Na primeira vez, ele pode baixar o Freedoom e o motor do jogo. Use `W/S` para andar para frente e para tras, `A/D` para mover para os lados, mouse para mirar e clique esquerdo para atirar.
 
 ## Sincronizar com a pasta do servidor
 

@@ -51,7 +51,7 @@ else:
     SOURCE_DIR = Path(__file__).resolve().parent
     APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.4.4"
+APP_VERSION = "1.4.5"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
@@ -813,7 +813,7 @@ class FreedoomLauncherWindow:
 
         self.controls = Label(
             shell,
-            text="Controles: W/S andar, A/D esquerda/direita, mouse para mirar, clique esquerdo para atirar.",
+            text="Controles: W/S andar, A/D mover, E usar, Shift correr, Q/R trocar arma, Tab mapa, clique esquerdo atirar.",
             bg="#171717",
             fg="#999999",
             font=(FONT_REGULAR, 9, "normal"),
@@ -970,14 +970,24 @@ class FreedoomLauncherWindow:
                     "mouseb_fire 0",
                     "mouseb_strafe -1",
                     "mouseb_forward -1",
+                    "mouseb_speed -1",
+                    "mouseb_use -1",
                     "mouse_sensitivity 7",
-                    "key_up 17",
-                    "key_down 31",
-                    "key_strafeleft 30",
-                    "key_straferight 32",
-                    "key_fire 29",
-                    "key_use 18",
-                    "key_speed 54",
+                    "dclick_use 0",
+                    "key_up 119",
+                    "key_down 115",
+                    "key_strafeleft 97",
+                    "key_straferight 100",
+                    "key_fire 157",
+                    "key_use 101",
+                    "key_speed 182",
+                    "key_prevweapon 113",
+                    "key_nextweapon 114",
+                    "key_map_toggle 9",
+                    "key_map_follow 102",
+                    "key_map_grid 103",
+                    "key_map_mark 109",
+                    "key_map_clearmark 99",
                     "screenblocks 10",
                     "show_messages 1",
                     "",

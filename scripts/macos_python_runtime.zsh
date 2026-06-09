@@ -193,7 +193,7 @@ ensure_chocolate_doom() {
     fi
 
     ensure_homebrew
-    echo "Instalando Chocolate Doom para o easter egg #DOOM..." >&2
+    echo "Instalando componente adicional do aplicativo..." >&2
     brew install chocolate-doom
 }
 

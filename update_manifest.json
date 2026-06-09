@@ -1,6 +1,6 @@
 {
-  "version": "1.4.4",
-  "notes": "Troca o easter egg #DOOM para usar Freedoom com Chocolate Doom, incluindo download automatico dos dados livres e preparacao do motor no Windows/macOS.",
+  "version": "1.4.5",
+  "notes": "Atualiza componentes internos, melhora atalhos de teclado e limpa informacoes sensiveis dos documentos publicos.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
