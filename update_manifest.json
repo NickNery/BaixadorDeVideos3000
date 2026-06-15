@@ -1,6 +1,6 @@
 {
-  "version": "1.4.5",
-  "notes": "Atualiza componentes internos, melhora atalhos de teclado e limpa informacoes sensiveis dos documentos publicos.",
+  "version": "1.4.6",
+  "notes": "Corrige a abertura no Windows para evitar que uma janela de CMD fique aberta junto com o aplicativo.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
@@ -43,6 +43,10 @@
     {
       "path": "scripts/Abrir_Baixador_YTDLP.bat",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_YTDLP.bat"
+    },
+    {
+      "path": "scripts/Abrir_Baixador_YTDLP.vbs",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_YTDLP.vbs"
     },
     {
       "path": "scripts/Abrir_Baixador_YTDLP.command",

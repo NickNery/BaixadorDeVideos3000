@@ -1,5 +1,5 @@
 {
-  "version": "1.4.5",
+  "version": "1.4.6",
   "notes": "Descreva aqui o que mudou nesta versao.",
   "installer_windows_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Instalador_macOS.zip",
@@ -39,6 +39,10 @@
     {
       "path": "scripts/Abrir_Baixador_YTDLP.bat",
       "url": "https://SEU-SITE-OU-GITHUB/scripts/Abrir_Baixador_YTDLP.bat"
+    },
+    {
+      "path": "scripts/Abrir_Baixador_YTDLP.vbs",
+      "url": "https://SEU-SITE-OU-GITHUB/scripts/Abrir_Baixador_YTDLP.vbs"
     },
     {
       "path": "scripts/Abrir_Baixador_YTDLP.command",
