@@ -20,7 +20,10 @@ VENV_DIR="$APP_DIR/.venv"
 PYTHON_BIN="$VENV_DIR/bin/python"
 DESKTOP_DIR="$HOME/Desktop"
 DESKTOP_APP="$DESKTOP_DIR/Baixador de Videos 3000.app"
-ICON_FILE="$APP_DIR/assets/favicon.ico"
+ICON_FILE="$APP_DIR/assets/app_icon.png"
+if [ ! -f "$ICON_FILE" ]; then
+    ICON_FILE="$APP_DIR/assets/favicon.ico"
+fi
 RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
 
 if [ ! -f "$RUNTIME_HELPERS" ]; then

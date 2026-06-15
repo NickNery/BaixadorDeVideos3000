@@ -6,6 +6,7 @@ $buildRoot = Join-Path $root "build\windows"
 $payload = Join-Path $buildRoot "payload"
 $setup = Join-Path $root "release\BaixadorDeVideos3000_Setup_Windows.exe"
 $icon = Join-Path $root "assets\favicon.ico"
+$pngIcon = Join-Path $root "assets\app_icon.png"
 
 if (-not (Test-Path -LiteralPath $python)) {
     throw "Python de build nao encontrado: $python"
@@ -39,6 +40,7 @@ Copy-Item -LiteralPath (Join-Path $root "release\ffmpeg.exe") -Destination (Join
 Copy-Item -LiteralPath (Join-Path $root "docs\Tutorial_BaixadorDeVideos3000.pdf") -Destination (Join-Path $payload "Tutorial_BaixadorDeVideos3000.pdf") -Force
 Copy-Item -LiteralPath (Join-Path $root "README.md") -Destination (Join-Path $payload "README.md") -Force
 Copy-Item -LiteralPath $icon -Destination (Join-Path $payload "favicon.ico") -Force
+Copy-Item -LiteralPath $pngIcon -Destination (Join-Path $payload "app_icon.png") -Force
 
 @'
 @echo off
@@ -60,6 +62,7 @@ copy /Y "%~dp0ffmpeg.exe" "%TARGET%\ffmpeg.exe" >nul
 copy /Y "%~dp0Tutorial_BaixadorDeVideos3000.pdf" "%TARGET%\docs\Tutorial_BaixadorDeVideos3000.pdf" >nul
 copy /Y "%~dp0README.md" "%TARGET%\README.md" >nul
 copy /Y "%~dp0favicon.ico" "%TARGET%\favicon.ico" >nul
+copy /Y "%~dp0app_icon.png" "%TARGET%\app_icon.png" >nul
 
 if "%BAIXADOR_SKIP_SHORTCUT%"=="" (
     powershell -NoProfile -ExecutionPolicy Bypass -Command "$desktop=[Environment]::GetFolderPath('Desktop'); $shell=New-Object -ComObject WScript.Shell; $shortcut=$shell.CreateShortcut((Join-Path $desktop 'Baixador de Videos 3000.lnk')); $shortcut.TargetPath='%TARGET%\BaixadorDeVideos3000.exe'; $shortcut.WorkingDirectory='%TARGET%'; $shortcut.IconLocation='%TARGET%\favicon.ico'; $shortcut.Description='Baixador de Videos 3000'; $shortcut.Save()"

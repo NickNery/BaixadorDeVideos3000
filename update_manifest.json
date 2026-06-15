@@ -1,6 +1,6 @@
 {
-  "version": "1.4.6",
-  "notes": "Corrige a abertura no Windows para evitar que uma janela de CMD fique aberta junto com o aplicativo.",
+  "version": "1.4.7",
+  "notes": "Atualiza o icone padrao do aplicativo e corrige o icone exibido na barra de tarefas do Windows.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
@@ -23,6 +23,18 @@
     {
       "path": "assets/favicon.ico",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/favicon.ico"
+    },
+    {
+      "path": "assets/app_icon.png",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/app_icon.png"
+    },
+    {
+      "path": "favicon.ico",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/favicon.ico"
+    },
+    {
+      "path": "app_icon.png",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/app_icon.png"
     },
     {
       "path": "docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",

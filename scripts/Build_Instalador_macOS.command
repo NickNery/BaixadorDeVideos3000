@@ -10,7 +10,10 @@ YTDLP_BIN="$BUILD_DIR/yt-dlp"
 APP_NAME="BaixadorDeVideos3000"
 APP_PATH="$DIST_DIR/$APP_NAME.app"
 DMG_PATH="$PWD/release/BaixadorDeVideos3000_macOS.dmg"
-ICON_FILE="$PWD/assets/favicon.ico"
+ICON_FILE="$PWD/assets/app_icon.png"
+if [ ! -f "$ICON_FILE" ]; then
+    ICON_FILE="$PWD/assets/favicon.ico"
+fi
 ICON_ICNS="$BUILD_DIR/AppIcon.icns"
 RUNTIME_HELPERS="$PWD/scripts/macos_python_runtime.zsh"
 

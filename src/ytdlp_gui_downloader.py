@@ -51,7 +51,8 @@ else:
     SOURCE_DIR = Path(__file__).resolve().parent
     APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.4.6"
+APP_VERSION = "1.4.7"
+APP_USER_MODEL_ID = "EdgeSolutions.BaixadorDeVideos3000"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
 DESIGN_SYSTEM_VERSION = "edge-solution-2026-06"
@@ -76,6 +77,29 @@ def get_app_icon_path():
         if icon_path.exists():
             return icon_path
     return None
+
+
+def get_app_png_icon_path():
+    for icon_path in (
+        APP_DIR / "app_icon.png",
+        APP_DIR / "assets" / "app_icon.png",
+        SOURCE_DIR / "app_icon.png",
+        SOURCE_DIR / "assets" / "app_icon.png",
+    ):
+        if icon_path.exists():
+            return icon_path
+    return None
+
+
+def configure_windows_app_identity():
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_USER_MODEL_ID)
+    except Exception:
+        pass
 
 
 DEFAULT_CONFIG = {
@@ -1118,6 +1142,7 @@ class DownloaderApp:
         self.root_background_photo = None
         self.background_resize_job = None
         self.active_toast = None
+        self.window_icon_photo = None
         self.last_process_lines = []
         self.current_process_kind = None
         self.download_watchdog_job = None
@@ -1159,6 +1184,14 @@ class DownloaderApp:
         self.style.theme_use("clam")
 
     def apply_window_icon(self):
+        png_icon_path = get_app_png_icon_path()
+        if png_icon_path:
+            try:
+                self.window_icon_photo = PhotoImage(file=str(png_icon_path))
+                self.root.iconphoto(True, self.window_icon_photo)
+            except Exception:
+                self.window_icon_photo = None
+
         icon_path = get_app_icon_path()
         if not icon_path:
             return
@@ -2274,6 +2307,7 @@ class DownloaderApp:
 
 
 def main():
+    configure_windows_app_identity()
     root = Tk()
     app = DownloaderApp(root)
     root.mainloop()

@@ -1,5 +1,5 @@
 {
-  "version": "1.4.6",
+  "version": "1.4.7",
   "notes": "Descreva aqui o que mudou nesta versao.",
   "installer_windows_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Instalador_macOS.zip",
@@ -23,6 +23,18 @@
     {
       "path": "assets/favicon.ico",
       "url": "https://SEU-SITE-OU-GITHUB/assets/favicon.ico"
+    },
+    {
+      "path": "assets/app_icon.png",
+      "url": "https://SEU-SITE-OU-GITHUB/assets/app_icon.png"
+    },
+    {
+      "path": "favicon.ico",
+      "url": "https://SEU-SITE-OU-GITHUB/assets/favicon.ico"
+    },
+    {
+      "path": "app_icon.png",
+      "url": "https://SEU-SITE-OU-GITHUB/assets/app_icon.png"
     },
     {
       "path": "docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
