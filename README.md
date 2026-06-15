@@ -45,7 +45,7 @@ release/Baixador_YTDLP_Windows_macOS.zip
 Dentro do ZIP:
 
 1. Rode `scripts/Instalar_Dependencias_Windows.bat` no Windows ou `scripts/Instalar_Dependencias_macOS.command` no macOS.
-2. Abra com `scripts/Abrir_Baixador_YTDLP.vbs` no Windows ou `scripts/Abrir_Baixador_YTDLP.command` no macOS.
+2. Abra pela raiz da pasta com `BaixadorDeVideos3000.vbs` no Windows ou `BaixadorDeVideos3000.command` no macOS.
 
 ## Gerar instaladores
 

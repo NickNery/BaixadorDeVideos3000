@@ -33,7 +33,13 @@ call :copydir "scripts"
 if errorlevel 1 goto erro
 call :copydir "release"
 if errorlevel 1 goto erro
+call :copydir "assets"
+if errorlevel 1 goto erro
 
+call :copyfile "BaixadorDeVideos3000.vbs"
+if errorlevel 1 goto erro
+call :copyfile "BaixadorDeVideos3000.command"
+if errorlevel 1 goto erro
 call :copyfile "README.md"
 if errorlevel 1 goto erro
 call :copyfile "requirements.txt"

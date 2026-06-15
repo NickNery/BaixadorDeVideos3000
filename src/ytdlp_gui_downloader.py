@@ -51,7 +51,7 @@ else:
     SOURCE_DIR = Path(__file__).resolve().parent
     APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.4.7"
+APP_VERSION = "1.4.8"
 APP_USER_MODEL_ID = "EdgeSolutions.BaixadorDeVideos3000"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25

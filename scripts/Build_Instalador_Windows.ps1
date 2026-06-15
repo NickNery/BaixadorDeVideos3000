@@ -39,6 +39,7 @@ Copy-Item -LiteralPath (Join-Path $root "release\yt-dlp.exe") -Destination (Join
 Copy-Item -LiteralPath (Join-Path $root "release\ffmpeg.exe") -Destination (Join-Path $payload "ffmpeg.exe") -Force
 Copy-Item -LiteralPath (Join-Path $root "docs\Tutorial_BaixadorDeVideos3000.pdf") -Destination (Join-Path $payload "Tutorial_BaixadorDeVideos3000.pdf") -Force
 Copy-Item -LiteralPath (Join-Path $root "README.md") -Destination (Join-Path $payload "README.md") -Force
+Copy-Item -LiteralPath (Join-Path $root "BaixadorDeVideos3000.vbs") -Destination (Join-Path $payload "BaixadorDeVideos3000.vbs") -Force
 Copy-Item -LiteralPath $icon -Destination (Join-Path $payload "favicon.ico") -Force
 Copy-Item -LiteralPath $pngIcon -Destination (Join-Path $payload "app_icon.png") -Force
 
@@ -61,6 +62,7 @@ copy /Y "%~dp0yt-dlp.exe" "%TARGET%\yt-dlp.exe" >nul
 copy /Y "%~dp0ffmpeg.exe" "%TARGET%\ffmpeg.exe" >nul
 copy /Y "%~dp0Tutorial_BaixadorDeVideos3000.pdf" "%TARGET%\docs\Tutorial_BaixadorDeVideos3000.pdf" >nul
 copy /Y "%~dp0README.md" "%TARGET%\README.md" >nul
+copy /Y "%~dp0BaixadorDeVideos3000.vbs" "%TARGET%\BaixadorDeVideos3000.vbs" >nul
 copy /Y "%~dp0favicon.ico" "%TARGET%\favicon.ico" >nul
 copy /Y "%~dp0app_icon.png" "%TARGET%\app_icon.png" >nul
 

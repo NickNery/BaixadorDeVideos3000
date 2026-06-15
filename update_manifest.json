@@ -1,6 +1,6 @@
 {
-  "version": "1.4.7",
-  "notes": "Atualiza o icone padrao do aplicativo e corrige o icone exibido na barra de tarefas do Windows.",
+  "version": "1.4.8",
+  "notes": "Adiciona abridores do aplicativo na raiz da pasta para facilitar o acesso sem entrar em scripts.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
@@ -35,6 +35,14 @@
     {
       "path": "app_icon.png",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/app_icon.png"
+    },
+    {
+      "path": "BaixadorDeVideos3000.vbs",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000.vbs"
+    },
+    {
+      "path": "BaixadorDeVideos3000.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000.command"
     },
     {
       "path": "docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
