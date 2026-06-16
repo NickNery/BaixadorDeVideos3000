@@ -1,4 +1,5 @@
 import os
+import json
 import shutil
 import subprocess
 import sys
@@ -38,6 +39,13 @@ WINDOWS_CREATION_FLAGS = (
     if os.name == "nt" and hasattr(subprocess, "CREATE_NO_WINDOW")
     else 0
 )
+
+
+def safe_working_dir():
+    for value in (os.environ.get("TEMP"), os.environ.get("USERPROFILE"), os.environ.get("SystemRoot")):
+        if value and Path(value).exists():
+            return value
+    return "C:\\Windows" if os.name == "nt" else str(Path.home())
 
 
 def setup_tk():
@@ -118,6 +126,34 @@ def resolve_electron_cli():
         if candidate.exists():
             return candidate
     return None
+
+
+def electron_package_version():
+    package_file = ELECTRON_DIR / "node_modules" / "electron" / "package.json"
+    try:
+        return json.loads(package_file.read_text(encoding="utf-8")).get("version") or "runtime"
+    except Exception:
+        return "runtime"
+
+
+def prepare_local_electron_exe():
+    if os.name != "nt":
+        return None
+
+    source_dist = ELECTRON_DIR / "node_modules" / "electron" / "dist"
+    source_exe = source_dist / "electron.exe"
+    if not source_exe.exists():
+        return None
+
+    base = os.environ.get("LOCALAPPDATA") or os.environ.get("TEMP") or str(Path.home())
+    target_dist = Path(base) / "BaixadorDeVideos3000" / "ElectronRuntime" / electron_package_version()
+    target_exe = target_dist / "electron.exe"
+
+    if not target_exe.exists() or target_exe.stat().st_size != source_exe.stat().st_size:
+        append_log(f"[runtime electron] Copiando runtime para {target_dist}")
+        shutil.copytree(source_dist, target_dist, dirs_exist_ok=True)
+
+    return target_exe
 
 
 def electron_runtime_ready():
@@ -279,19 +315,23 @@ def launch_electron():
     if not node_cmd or not electron_cli:
         raise RuntimeError("Nao consegui localizar os arquivos do Electron depois da instalacao.")
 
+    local_electron_exe = prepare_local_electron_exe()
+    if local_electron_exe:
+        electron_cli = local_electron_exe
+
     append_log(f"\n[abrir electron] app_dir={APP_DIR}")
     append_log(f"[abrir electron] electron_dir={ELECTRON_DIR}")
     append_log(f"[abrir electron] electron={electron_cli}")
 
     log_handle = LOG_FILE.open("a", encoding="utf-8", errors="replace")
     if electron_cli.suffix.lower() == ".exe":
-        command = [str(electron_cli), "."]
+        command = [str(electron_cli), "--disable-gpu", str(ELECTRON_DIR)]
     else:
-        command = [node_cmd, str(electron_cli), "."]
+        command = [node_cmd, str(electron_cli), "--disable-gpu", str(ELECTRON_DIR)]
 
     process = subprocess.Popen(
         command,
-        cwd=str(ELECTRON_DIR),
+        cwd=safe_working_dir(),
         env=os.environ.copy(),
         stdout=log_handle,
         stderr=subprocess.STDOUT,

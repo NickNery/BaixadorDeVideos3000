@@ -1,6 +1,6 @@
 {
-  "version": "1.5.6",
-  "notes": "Corrige caminhos com espacos no launcher Electron e repara instalacoes incompletas quando electron.exe nao foi baixado.",
+  "version": "1.5.9",
+  "notes": "Copia o runtime Electron para uma pasta local antes de abrir apps pelo servidor, evitando falhas de GPU e caminhos UNC.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [

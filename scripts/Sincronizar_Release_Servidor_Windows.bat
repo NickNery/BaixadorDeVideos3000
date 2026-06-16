@@ -69,7 +69,7 @@ exit /b 0
 echo Sincronizando pasta %~1...
 set "EXCLUDE_FILES="
 if /I "%~1"=="release" set "EXCLUDE_FILES=/XF BaixadorDeVideos3000_Electron.exe"
-robocopy "%ROOT%\%~1" "%DESTINO%\%~1" /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD node_modules dist dist-packages .venv __pycache__ %EXCLUDE_FILES% >nul
+robocopy "%ROOT%\%~1" "%DESTINO%\%~1" /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD node_modules dist-packages .venv __pycache__ %EXCLUDE_FILES% >nul
 if %ERRORLEVEL% GEQ 8 (
     echo [ERRO] Falha ao sincronizar a pasta %~1.
     exit /b 1

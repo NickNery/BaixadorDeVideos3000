@@ -53,7 +53,7 @@ Copy-Item -LiteralPath $icon -Destination (Join-Path $payload "favicon.ico") -Fo
 Copy-Item -LiteralPath $pngIcon -Destination (Join-Path $payload "app_icon.png") -Force
 
 $payloadElectron = Join-Path $payload "electron"
-robocopy (Join-Path $root "electron") $payloadElectron /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD node_modules dist dist-packages .venv __pycache__ | Out-Null
+robocopy (Join-Path $root "electron") $payloadElectron /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD node_modules dist-packages .venv __pycache__ | Out-Null
 if ($LASTEXITCODE -ge 8) {
     throw "Falha ao copiar a pasta electron para o instalador."
 }
@@ -81,7 +81,7 @@ copy /Y "%~dp0BaixadorDeVideos3000.vbs" "%TARGET%\BaixadorDeVideos3000.vbs" >nul
 if exist "%~dp0BaixadorDeVideos3000_Electron.exe" copy /Y "%~dp0BaixadorDeVideos3000_Electron.exe" "%TARGET%\BaixadorDeVideos3000_Electron.exe" >nul
 copy /Y "%~dp0favicon.ico" "%TARGET%\favicon.ico" >nul
 copy /Y "%~dp0app_icon.png" "%TARGET%\app_icon.png" >nul
-if exist "%~dp0electron" robocopy "%~dp0electron" "%TARGET%\electron" /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD node_modules dist dist-packages .venv __pycache__ >nul
+if exist "%~dp0electron" robocopy "%~dp0electron" "%TARGET%\electron" /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD node_modules dist-packages .venv __pycache__ >nul
 
 if "%BAIXADOR_SKIP_SHORTCUT%"=="" (
     powershell -NoProfile -ExecutionPolicy Bypass -Command "$desktop=[Environment]::GetFolderPath('Desktop'); $shell=New-Object -ComObject WScript.Shell; $shortcut=$shell.CreateShortcut((Join-Path $desktop 'Baixador de Videos 3000.lnk')); $shortcut.TargetPath='%TARGET%\BaixadorDeVideos3000.exe'; $shortcut.WorkingDirectory='%TARGET%'; $shortcut.IconLocation='%TARGET%\favicon.ico'; $shortcut.Description='Baixador de Videos 3000'; $shortcut.Save()"

@@ -5,6 +5,13 @@ Add-Type -AssemblyName System.Windows.Forms
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $electronDir = Join-Path $root "electron"
 $logFile = Join-Path $root "BaixadorDeVideos3000_Electron.log"
+$safeWorkingDir = $env:TEMP
+if (-not $safeWorkingDir) {
+    $safeWorkingDir = $env:USERPROFILE
+}
+if (-not $safeWorkingDir) {
+    $safeWorkingDir = $env:SystemRoot
+}
 
 function Show-Info($message) {
     [System.Windows.Forms.MessageBox]::Show($message, "Baixador de Videos 3000 - Electron", "OK", "Information") | Out-Null
@@ -85,6 +92,52 @@ function Resolve-ElectronCli {
         }
     }
     return $null
+}
+
+function Get-ElectronPackageVersion {
+    $packageFile = Join-Path $electronDir "node_modules\electron\package.json"
+    if (Test-Path -LiteralPath $packageFile) {
+        try {
+            return ((Get-Content -LiteralPath $packageFile -Raw) | ConvertFrom-Json).version
+        } catch {
+            return "runtime"
+        }
+    }
+    return "runtime"
+}
+
+function Prepare-LocalElectronExe {
+    $sourceDist = Join-Path $electronDir "node_modules\electron\dist"
+    $sourceExe = Join-Path $sourceDist "electron.exe"
+    if (-not (Test-Path -LiteralPath $sourceExe)) {
+        return $null
+    }
+
+    $base = $env:LOCALAPPDATA
+    if (-not $base) {
+        $base = $env:TEMP
+    }
+    if (-not $base) {
+        $base = $env:USERPROFILE
+    }
+
+    $targetDist = Join-Path $base ("BaixadorDeVideos3000\ElectronRuntime\" + (Get-ElectronPackageVersion))
+    $targetExe = Join-Path $targetDist "electron.exe"
+
+    $needsCopy = $true
+    if (Test-Path -LiteralPath $targetExe) {
+        $needsCopy = (Get-Item -LiteralPath $targetExe).Length -ne (Get-Item -LiteralPath $sourceExe).Length
+    }
+
+    if ($needsCopy) {
+        New-Item -ItemType Directory -Force -Path $targetDist | Out-Null
+        robocopy $sourceDist $targetDist /E /R:2 /W:2 /NFL /NDL /NJH /NJS | Out-Null
+        if ($LASTEXITCODE -ge 8) {
+            throw "Nao consegui preparar o runtime local do Electron."
+        }
+    }
+
+    return $targetExe
 }
 
 function Test-ElectronRuntimeReady {
@@ -220,14 +273,39 @@ try {
         throw "Nao consegui localizar os arquivos do Electron depois da instalacao."
     }
 
+    $localElectronExe = Prepare-LocalElectronExe
+    if ($localElectronExe) {
+        $electronCli = $localElectronExe
+    }
+
     if ([IO.Path]::GetExtension($electronCli).ToLowerInvariant() -eq ".exe") {
-        Start-Process -FilePath $electronCli -ArgumentList "." -WorkingDirectory $electronDir
+        $electronArgs = ('--disable-gpu "{0}"' -f $electronDir)
+        $stdoutLog = "$logFile.out"
+        $stderrLog = "$logFile.err"
+        $process = Start-Process -FilePath $electronCli -ArgumentList $electronArgs -WorkingDirectory $safeWorkingDir `
+            -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog -PassThru
+        Start-Sleep -Seconds 3
+        if ($process.HasExited -and $process.ExitCode -ne 0) {
+            $details = ""
+            if (Test-Path -LiteralPath $stderrLog) {
+                $details = Get-Content -LiteralPath $stderrLog -Raw
+            }
+            throw "O Electron tentou abrir, mas fechou logo em seguida.`n`nLog:`n$stderrLog`n`n$details"
+        }
     } else {
         $stdoutLog = "$logFile.out"
         $stderrLog = "$logFile.err"
-        $nodeArgs = ('"{0}" .' -f $electronCli)
-        Start-Process -FilePath $nodeCmd -ArgumentList $nodeArgs -WorkingDirectory $electronDir -WindowStyle Hidden `
-            -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
+        $nodeArgs = ('"{0}" --disable-gpu "{1}"' -f $electronCli, $electronDir)
+        $process = Start-Process -FilePath $nodeCmd -ArgumentList $nodeArgs -WorkingDirectory $safeWorkingDir -WindowStyle Hidden `
+            -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog -PassThru
+        Start-Sleep -Seconds 3
+        if ($process.HasExited -and $process.ExitCode -ne 0) {
+            $details = ""
+            if (Test-Path -LiteralPath $stderrLog) {
+                $details = Get-Content -LiteralPath $stderrLog -Raw
+            }
+            throw "O Electron tentou abrir, mas fechou logo em seguida.`n`nLog:`n$stderrLog`n`n$details"
+        }
     }
 } catch {
     Show-Error $_.Exception.Message

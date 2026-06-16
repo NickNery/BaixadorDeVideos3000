@@ -21,6 +21,9 @@ type DownloadJob = {
 const jobs = new Map<string, DownloadJob>();
 let mainWindow: BrowserWindow | null = null;
 
+app.disableHardwareAcceleration();
+app.commandLine.appendSwitch("disable-gpu");
+
 function isDev() {
   return Boolean(process.env.VITE_DEV_SERVER_URL);
 }
