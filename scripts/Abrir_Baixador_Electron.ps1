@@ -4,6 +4,7 @@ Add-Type -AssemblyName System.Windows.Forms
 
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $electronDir = Join-Path $root "electron"
+$logFile = Join-Path $root "BaixadorDeVideos3000_Electron.log"
 
 function Show-Info($message) {
     [System.Windows.Forms.MessageBox]::Show($message, "Baixador de Videos 3000 - Electron", "OK", "Information") | Out-Null
@@ -75,8 +76,8 @@ function Resolve-NpmCli {
 
 function Resolve-ElectronCli {
     $candidates = @(
-        (Join-Path $electronDir "node_modules\electron\cli.js"),
-        (Join-Path $electronDir "node_modules\electron\dist\electron.exe")
+        (Join-Path $electronDir "node_modules\electron\dist\electron.exe"),
+        (Join-Path $electronDir "node_modules\electron\cli.js")
     )
     foreach ($candidate in $candidates) {
         if (Test-Path -LiteralPath $candidate) {
@@ -200,9 +201,12 @@ try {
     }
 
     if ([IO.Path]::GetExtension($electronCli).ToLowerInvariant() -eq ".exe") {
-        Start-Process -FilePath $electronCli -WorkingDirectory $electronDir
+        Start-Process -FilePath $electronCli -ArgumentList "." -WorkingDirectory $electronDir
     } else {
-        Start-Process -FilePath $nodeCmd -ArgumentList @($electronCli, ".") -WorkingDirectory $electronDir
+        $stdoutLog = "$logFile.out"
+        $stderrLog = "$logFile.err"
+        Start-Process -FilePath $nodeCmd -ArgumentList @($electronCli, ".") -WorkingDirectory $electronDir -WindowStyle Hidden `
+            -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
     }
 } catch {
     Show-Error $_.Exception.Message

@@ -214,14 +214,14 @@ Sempre que voce quiser atualizar todos os computadores:
 2. Aumente a versao dentro do arquivo `python/src/ytdlp_gui_downloader.py` e no `electron/package.json`:
 
 ```python
-APP_VERSION = "1.5.4"
+APP_VERSION = "1.5.5"
 ```
 
 3. Envie os arquivos novos para o seu GitHub/site.
 4. Atualize o manifesto:
 
 ```json
-"version": "1.5.4"
+"version": "1.5.5"
 ```
 
 5. Atualize as URLs dos arquivos se necessario.

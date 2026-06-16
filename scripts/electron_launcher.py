@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 import webbrowser
 from pathlib import Path
 from tkinter import Tk, messagebox
@@ -31,6 +32,12 @@ def find_app_dir():
 
 APP_DIR = find_app_dir()
 ELECTRON_DIR = APP_DIR / "electron"
+LOG_FILE = APP_DIR / "BaixadorDeVideos3000_Electron.log"
+WINDOWS_CREATION_FLAGS = (
+    subprocess.CREATE_NO_WINDOW
+    if os.name == "nt" and hasattr(subprocess, "CREATE_NO_WINDOW")
+    else 0
+)
 
 
 def setup_tk():
@@ -104,8 +111,8 @@ def resolve_npm_cli():
 
 def resolve_electron_cli():
     candidates = [
-        ELECTRON_DIR / "node_modules" / "electron" / "cli.js",
         ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe",
+        ELECTRON_DIR / "node_modules" / "electron" / "cli.js",
     ]
     for candidate in candidates:
         if candidate.exists():
@@ -113,7 +120,26 @@ def resolve_electron_cli():
     return None
 
 
+def append_log(message):
+    try:
+        with LOG_FILE.open("a", encoding="utf-8") as log:
+            log.write(message.rstrip() + "\n")
+    except Exception:
+        pass
+
+
+def read_recent_log(limit=1800):
+    try:
+        text = LOG_FILE.read_text(encoding="utf-8", errors="replace").strip()
+    except Exception:
+        return ""
+    if len(text) > limit:
+        return text[-limit:]
+    return text
+
+
 def run_checked(command, cwd=None, action="comando"):
+    append_log(f"\n[{action}] {' '.join(str(part) for part in command)}")
     completed = subprocess.run(
         command,
         cwd=str(cwd) if cwd else None,
@@ -123,7 +149,10 @@ def run_checked(command, cwd=None, action="comando"):
         text=True,
         encoding="utf-8",
         errors="replace",
+        creationflags=WINDOWS_CREATION_FLAGS,
     )
+    if completed.stdout:
+        append_log(completed.stdout)
     if completed.returncode != 0:
         output = completed.stdout.strip()
         if len(output) > 1800:
@@ -227,10 +256,33 @@ def launch_electron():
     if not node_cmd or not electron_cli:
         raise RuntimeError("Nao consegui localizar os arquivos do Electron depois da instalacao.")
 
+    append_log(f"\n[abrir electron] app_dir={APP_DIR}")
+    append_log(f"[abrir electron] electron_dir={ELECTRON_DIR}")
+    append_log(f"[abrir electron] electron={electron_cli}")
+
+    log_handle = LOG_FILE.open("a", encoding="utf-8", errors="replace")
     if electron_cli.suffix.lower() == ".exe":
-        subprocess.Popen([str(electron_cli)], cwd=str(ELECTRON_DIR), env=os.environ.copy())
+        command = [str(electron_cli), "."]
     else:
-        subprocess.Popen([node_cmd, str(electron_cli), "."], cwd=str(ELECTRON_DIR), env=os.environ.copy())
+        command = [node_cmd, str(electron_cli), "."]
+
+    process = subprocess.Popen(
+        command,
+        cwd=str(ELECTRON_DIR),
+        env=os.environ.copy(),
+        stdout=log_handle,
+        stderr=subprocess.STDOUT,
+        creationflags=WINDOWS_CREATION_FLAGS,
+    )
+    log_handle.close()
+    time.sleep(2)
+    if process.poll() is not None and process.returncode != 0:
+        output = read_recent_log()
+        raise RuntimeError(
+            "O Electron tentou abrir, mas fechou logo em seguida.\n\n"
+            f"Log salvo em:\n{LOG_FILE}\n\n"
+            f"{output}"
+        )
 
 
 def main():
