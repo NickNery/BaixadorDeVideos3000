@@ -50,9 +50,45 @@ function Resolve-CommandPath {
     return $null
 }
 
+function Resolve-NodeCommand {
+    return Resolve-CommandPath @("node.exe", "node")
+}
+
+function Resolve-NpmCli {
+    $nodeCmd = Resolve-NodeCommand
+    if (-not $nodeCmd) {
+        return $null
+    }
+
+    $nodeDir = Split-Path -Parent $nodeCmd
+    $candidates = @(
+        (Join-Path $nodeDir "node_modules\npm\bin\npm-cli.js"),
+        (Join-Path (Split-Path -Parent $nodeDir) "node_modules\npm\bin\npm-cli.js")
+    )
+    foreach ($candidate in $candidates) {
+        if (Test-Path -LiteralPath $candidate) {
+            return $candidate
+        }
+    }
+    return $null
+}
+
+function Resolve-ElectronCli {
+    $candidates = @(
+        (Join-Path $electronDir "node_modules\electron\cli.js"),
+        (Join-Path $electronDir "node_modules\electron\dist\electron.exe")
+    )
+    foreach ($candidate in $candidates) {
+        if (Test-Path -LiteralPath $candidate) {
+            return $candidate
+        }
+    }
+    return $null
+}
+
 function Require-Node {
     Refresh-NodePath
-    if ((Command-Exists "node") -and (Resolve-CommandPath @("npm.cmd", "npm"))) {
+    if ((Command-Exists "node") -and (Resolve-NpmCli)) {
         return
     }
 
@@ -73,7 +109,7 @@ function Require-Node {
     }
 
     Refresh-NodePath
-    if (-not ((Command-Exists "node") -and (Resolve-CommandPath @("npm.cmd", "npm")))) {
+    if (-not ((Command-Exists "node") -and (Resolve-NpmCli))) {
         Show-Info "Node.js foi instalado, mas o PATH ainda nao atualizou nesta sessao.`n`nFeche e abra este launcher novamente."
         exit 0
     }
@@ -91,13 +127,14 @@ function Ensure-ElectronDependencies {
     }
 
     Write-Host "Instalando dependencias Electron..."
-    $npmCmd = Resolve-CommandPath @("npm.cmd", "npm")
-    if (-not $npmCmd) {
-        throw "Encontrei o Node.js, mas nao consegui localizar o npm."
+    $nodeCmd = Resolve-NodeCommand
+    $npmCli = Resolve-NpmCli
+    if ((-not $nodeCmd) -or (-not $npmCli)) {
+        throw "Encontrei o Node.js, mas nao consegui localizar os arquivos do npm."
     }
     Push-Location $electronDir
     try {
-        & $npmCmd install
+        & $nodeCmd $npmCli install
         if ($LASTEXITCODE -ne 0) {
             throw "npm install falhou."
         }
@@ -131,13 +168,14 @@ function Ensure-ElectronBuild {
     }
 
     Write-Host "Preparando build local da versao Electron..."
-    $npmCmd = Resolve-CommandPath @("npm.cmd", "npm")
-    if (-not $npmCmd) {
-        throw "Encontrei o Node.js, mas nao consegui localizar o npm."
+    $nodeCmd = Resolve-NodeCommand
+    $npmCli = Resolve-NpmCli
+    if ((-not $nodeCmd) -or (-not $npmCli)) {
+        throw "Encontrei o Node.js, mas nao consegui localizar os arquivos do npm."
     }
     Push-Location $electronDir
     try {
-        & $npmCmd run build
+        & $nodeCmd $npmCli run build
         if ($LASTEXITCODE -ne 0) {
             throw "npm run build falhou."
         }
@@ -155,8 +193,17 @@ try {
     Ensure-ElectronDependencies
     Ensure-ElectronBuild
 
-    $electronCmd = Join-Path $electronDir "node_modules\.bin\electron.cmd"
-    Start-Process -FilePath $electronCmd -ArgumentList "." -WorkingDirectory $electronDir
+    $nodeCmd = Resolve-NodeCommand
+    $electronCli = Resolve-ElectronCli
+    if ((-not $nodeCmd) -or (-not $electronCli)) {
+        throw "Nao consegui localizar os arquivos do Electron depois da instalacao."
+    }
+
+    if ([IO.Path]::GetExtension($electronCli).ToLowerInvariant() -eq ".exe") {
+        Start-Process -FilePath $electronCli -WorkingDirectory $electronDir
+    } else {
+        Start-Process -FilePath $nodeCmd -ArgumentList @($electronCli, ".") -WorkingDirectory $electronDir
+    }
 } catch {
     Show-Error $_.Exception.Message
     exit 1

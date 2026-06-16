@@ -82,6 +82,37 @@ def resolve_command(*names):
     return None
 
 
+def resolve_node_command():
+    return resolve_command("node.exe", "node")
+
+
+def resolve_npm_cli():
+    node_cmd = resolve_node_command()
+    if not node_cmd:
+        return None
+
+    node_path = Path(node_cmd).resolve()
+    candidates = [
+        node_path.parent / "node_modules" / "npm" / "bin" / "npm-cli.js",
+        node_path.parent.parent / "node_modules" / "npm" / "bin" / "npm-cli.js",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def resolve_electron_cli():
+    candidates = [
+        ELECTRON_DIR / "node_modules" / "electron" / "cli.js",
+        ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def run_checked(command, cwd=None, action="comando"):
     completed = subprocess.run(
         command,
@@ -101,7 +132,7 @@ def run_checked(command, cwd=None, action="comando"):
 
 
 def ensure_node():
-    if command_exists("node") and (resolve_command("npm.cmd", "npm") is not None):
+    if command_exists("node") and (resolve_npm_cli() is not None):
         return
 
     if not ask(
@@ -134,7 +165,7 @@ def ensure_node():
         action="instalacao do Node.js",
     )
     refresh_node_path()
-    if not (command_exists("node") and (resolve_command("npm.cmd", "npm") is not None)):
+    if not (command_exists("node") and (resolve_npm_cli() is not None)):
         info("Node.js foi instalado, mas o Windows ainda nao atualizou o PATH.\n\nFeche e abra este .exe novamente.")
         raise SystemExit(0)
 
@@ -151,10 +182,11 @@ def ensure_dependencies():
         raise RuntimeError("Dependencias Electron nao instaladas.")
 
     info("Vou instalar as dependencias Electron agora. Isso pode demorar alguns minutos.")
-    npm_cmd = resolve_command("npm.cmd", "npm")
-    if not npm_cmd:
-        raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar o npm.")
-    run_checked([npm_cmd, "install"], cwd=ELECTRON_DIR, action="npm install")
+    node_cmd = resolve_node_command()
+    npm_cli = resolve_npm_cli()
+    if not node_cmd or not npm_cli:
+        raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar os arquivos do npm.")
+    run_checked([node_cmd, str(npm_cli), "install"], cwd=ELECTRON_DIR, action="npm install")
 
 
 def source_is_newer_than_build():
@@ -182,15 +214,23 @@ def ensure_build():
     if not source_is_newer_than_build():
         return
     info("Vou preparar a versao Electron local agora.")
-    npm_cmd = resolve_command("npm.cmd", "npm")
-    if not npm_cmd:
-        raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar o npm.")
-    run_checked([npm_cmd, "run", "build"], cwd=ELECTRON_DIR, action="npm run build")
+    node_cmd = resolve_node_command()
+    npm_cli = resolve_npm_cli()
+    if not node_cmd or not npm_cli:
+        raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar os arquivos do npm.")
+    run_checked([node_cmd, str(npm_cli), "run", "build"], cwd=ELECTRON_DIR, action="npm run build")
 
 
 def launch_electron():
-    electron_cmd = ELECTRON_DIR / "node_modules" / ".bin" / "electron.cmd"
-    subprocess.Popen([str(electron_cmd), "."], cwd=str(ELECTRON_DIR), env=os.environ.copy())
+    node_cmd = resolve_node_command()
+    electron_cli = resolve_electron_cli()
+    if not node_cmd or not electron_cli:
+        raise RuntimeError("Nao consegui localizar os arquivos do Electron depois da instalacao.")
+
+    if electron_cli.suffix.lower() == ".exe":
+        subprocess.Popen([str(electron_cli)], cwd=str(ELECTRON_DIR), env=os.environ.copy())
+    else:
+        subprocess.Popen([node_cmd, str(electron_cli), "."], cwd=str(ELECTRON_DIR), env=os.environ.copy())
 
 
 def main():

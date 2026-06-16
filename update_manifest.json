@@ -1,6 +1,6 @@
 {
-  "version": "1.5.2",
-  "notes": "Corrige o launcher Electron no Windows para localizar corretamente o npm.cmd durante npm install e npm run build.",
+  "version": "1.5.3",
+  "notes": "Corrige o launcher Electron no Windows para rodar npm e Electron sem depender do cmd.exe, inclusive em pastas de rede.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
