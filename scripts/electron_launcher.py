@@ -120,6 +120,12 @@ def resolve_electron_cli():
     return None
 
 
+def electron_runtime_ready():
+    if os.name == "nt":
+        return (ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe").exists()
+    return resolve_electron_cli() is not None
+
+
 def append_log(message):
     try:
         with LOG_FILE.open("a", encoding="utf-8") as log:
@@ -200,13 +206,19 @@ def ensure_node():
 
 
 def ensure_dependencies():
-    electron_cmd = ELECTRON_DIR / "node_modules" / ".bin" / "electron.cmd"
-    if electron_cmd.exists():
+    if electron_runtime_ready():
         return
 
-    if not ask(
-        "As dependencias da versao Electron ainda nao estao instaladas nesta pasta.\n\n"
+    has_node_modules = (ELECTRON_DIR / "node_modules").exists()
+    prompt = (
+        "A instalacao do Electron parece incompleta nesta pasta.\n\n"
+        "Deseja reparar agora com npm install?"
+        if has_node_modules
+        else "As dependencias da versao Electron ainda nao estao instaladas nesta pasta.\n\n"
         "Deseja instalar agora com npm install?"
+    )
+    if not ask(
+        prompt
     ):
         raise RuntimeError("Dependencias Electron nao instaladas.")
 
@@ -216,6 +228,17 @@ def ensure_dependencies():
     if not node_cmd or not npm_cli:
         raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar os arquivos do npm.")
     run_checked([node_cmd, str(npm_cli), "install"], cwd=ELECTRON_DIR, action="npm install")
+
+    install_js = ELECTRON_DIR / "node_modules" / "electron" / "install.js"
+    if not electron_runtime_ready() and install_js.exists():
+        run_checked([node_cmd, str(install_js)], cwd=ELECTRON_DIR, action="reparo do Electron")
+
+    if not electron_runtime_ready():
+        raise RuntimeError(
+            "As dependencias foram instaladas, mas o electron.exe nao apareceu.\n\n"
+            "Isso normalmente acontece quando o download do Electron foi bloqueado ou interrompido.\n"
+            f"Confira o log em:\n{LOG_FILE}"
+        )
 
 
 def source_is_newer_than_build():

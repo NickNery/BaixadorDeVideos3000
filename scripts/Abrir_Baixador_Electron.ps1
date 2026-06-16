@@ -87,6 +87,11 @@ function Resolve-ElectronCli {
     return $null
 }
 
+function Test-ElectronRuntimeReady {
+    $electronExe = Join-Path $electronDir "node_modules\electron\dist\electron.exe"
+    return Test-Path -LiteralPath $electronExe
+}
+
 function Require-Node {
     Refresh-NodePath
     if ((Command-Exists "node") -and (Resolve-NpmCli)) {
@@ -117,12 +122,16 @@ function Require-Node {
 }
 
 function Ensure-ElectronDependencies {
-    $electronCmd = Join-Path $electronDir "node_modules\.bin\electron.cmd"
-    if (Test-Path -LiteralPath $electronCmd) {
+    if (Test-ElectronRuntimeReady) {
         return
     }
 
-    $install = Ask-YesNo "As dependencias da versao Electron ainda nao estao instaladas nesta pasta.`n`nDeseja instalar agora com npm install?"
+    $nodeModules = Join-Path $electronDir "node_modules"
+    if (Test-Path -LiteralPath $nodeModules) {
+        $install = Ask-YesNo "A instalacao do Electron parece incompleta nesta pasta.`n`nDeseja reparar agora com npm install?"
+    } else {
+        $install = Ask-YesNo "As dependencias da versao Electron ainda nao estao instaladas nesta pasta.`n`nDeseja instalar agora com npm install?"
+    }
     if (-not $install) {
         throw "Dependencias Electron nao instaladas."
     }
@@ -139,8 +148,19 @@ function Ensure-ElectronDependencies {
         if ($LASTEXITCODE -ne 0) {
             throw "npm install falhou."
         }
+        $installJs = Join-Path $electronDir "node_modules\electron\install.js"
+        if ((-not (Test-ElectronRuntimeReady)) -and (Test-Path -LiteralPath $installJs)) {
+            & $nodeCmd $installJs
+            if ($LASTEXITCODE -ne 0) {
+                throw "Reparo do Electron falhou."
+            }
+        }
     } finally {
         Pop-Location
+    }
+
+    if (-not (Test-ElectronRuntimeReady)) {
+        throw "As dependencias foram instaladas, mas o electron.exe nao apareceu.`n`nIsso normalmente acontece quando o download do Electron foi bloqueado ou interrompido.`n`nConfira os logs na pasta do aplicativo."
     }
 }
 
@@ -205,7 +225,8 @@ try {
     } else {
         $stdoutLog = "$logFile.out"
         $stderrLog = "$logFile.err"
-        Start-Process -FilePath $nodeCmd -ArgumentList @($electronCli, ".") -WorkingDirectory $electronDir -WindowStyle Hidden `
+        $nodeArgs = ('"{0}" .' -f $electronCli)
+        Start-Process -FilePath $nodeCmd -ArgumentList $nodeArgs -WorkingDirectory $electronDir -WindowStyle Hidden `
             -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
     }
 } catch {

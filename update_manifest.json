@@ -1,6 +1,6 @@
 {
-  "version": "1.5.5",
-  "notes": "Corrige a abertura da versao Electron para evitar piscar CMD e registrar log quando o app fecha rapidamente.",
+  "version": "1.5.6",
+  "notes": "Corrige caminhos com espacos no launcher Electron e repara instalacoes incompletas quando electron.exe nao foi baixado.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
