@@ -38,9 +38,21 @@ function Command-Exists($name) {
     return $null -ne (Get-Command $name -ErrorAction SilentlyContinue)
 }
 
+function Resolve-CommandPath {
+    param([string[]]$Names)
+    Refresh-NodePath
+    foreach ($name in $Names) {
+        $command = Get-Command $name -ErrorAction SilentlyContinue
+        if ($command -and $command.Source) {
+            return $command.Source
+        }
+    }
+    return $null
+}
+
 function Require-Node {
     Refresh-NodePath
-    if ((Command-Exists "node") -and (Command-Exists "npm")) {
+    if ((Command-Exists "node") -and (Resolve-CommandPath @("npm.cmd", "npm"))) {
         return
     }
 
@@ -61,7 +73,7 @@ function Require-Node {
     }
 
     Refresh-NodePath
-    if (-not ((Command-Exists "node") -and (Command-Exists "npm"))) {
+    if (-not ((Command-Exists "node") -and (Resolve-CommandPath @("npm.cmd", "npm")))) {
         Show-Info "Node.js foi instalado, mas o PATH ainda nao atualizou nesta sessao.`n`nFeche e abra este launcher novamente."
         exit 0
     }
@@ -79,9 +91,13 @@ function Ensure-ElectronDependencies {
     }
 
     Write-Host "Instalando dependencias Electron..."
+    $npmCmd = Resolve-CommandPath @("npm.cmd", "npm")
+    if (-not $npmCmd) {
+        throw "Encontrei o Node.js, mas nao consegui localizar o npm."
+    }
     Push-Location $electronDir
     try {
-        & npm install
+        & $npmCmd install
         if ($LASTEXITCODE -ne 0) {
             throw "npm install falhou."
         }
@@ -115,9 +131,13 @@ function Ensure-ElectronBuild {
     }
 
     Write-Host "Preparando build local da versao Electron..."
+    $npmCmd = Resolve-CommandPath @("npm.cmd", "npm")
+    if (-not $npmCmd) {
+        throw "Encontrei o Node.js, mas nao consegui localizar o npm."
+    }
     Push-Location $electronDir
     try {
-        & npm run build
+        & $npmCmd run build
         if ($LASTEXITCODE -ne 0) {
             throw "npm run build falhou."
         }

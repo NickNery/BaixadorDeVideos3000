@@ -1,6 +1,6 @@
 {
-  "version": "1.5.1",
-  "notes": "Adiciona launcher .exe da versao Electron com verificacao automatica de Node.js/npm e preparo da pasta electron.",
+  "version": "1.5.2",
+  "notes": "Corrige o launcher Electron no Windows para localizar corretamente o npm.cmd durante npm install e npm run build.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [

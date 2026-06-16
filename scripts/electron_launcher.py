@@ -73,6 +73,15 @@ def command_exists(name):
     return shutil.which(name) is not None
 
 
+def resolve_command(*names):
+    refresh_node_path()
+    for name in names:
+        resolved = shutil.which(name)
+        if resolved:
+            return resolved
+    return None
+
+
 def run_checked(command, cwd=None, action="comando"):
     completed = subprocess.run(
         command,
@@ -92,7 +101,7 @@ def run_checked(command, cwd=None, action="comando"):
 
 
 def ensure_node():
-    if command_exists("node") and command_exists("npm"):
+    if command_exists("node") and (resolve_command("npm.cmd", "npm") is not None):
         return
 
     if not ask(
@@ -125,7 +134,7 @@ def ensure_node():
         action="instalacao do Node.js",
     )
     refresh_node_path()
-    if not (command_exists("node") and command_exists("npm")):
+    if not (command_exists("node") and (resolve_command("npm.cmd", "npm") is not None)):
         info("Node.js foi instalado, mas o Windows ainda nao atualizou o PATH.\n\nFeche e abra este .exe novamente.")
         raise SystemExit(0)
 
@@ -142,7 +151,10 @@ def ensure_dependencies():
         raise RuntimeError("Dependencias Electron nao instaladas.")
 
     info("Vou instalar as dependencias Electron agora. Isso pode demorar alguns minutos.")
-    run_checked(["npm", "install"], cwd=ELECTRON_DIR, action="npm install")
+    npm_cmd = resolve_command("npm.cmd", "npm")
+    if not npm_cmd:
+        raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar o npm.")
+    run_checked([npm_cmd, "install"], cwd=ELECTRON_DIR, action="npm install")
 
 
 def source_is_newer_than_build():
@@ -170,7 +182,10 @@ def ensure_build():
     if not source_is_newer_than_build():
         return
     info("Vou preparar a versao Electron local agora.")
-    run_checked(["npm", "run", "build"], cwd=ELECTRON_DIR, action="npm run build")
+    npm_cmd = resolve_command("npm.cmd", "npm")
+    if not npm_cmd:
+        raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar o npm.")
+    run_checked([npm_cmd, "run", "build"], cwd=ELECTRON_DIR, action="npm run build")
 
 
 def launch_electron():
