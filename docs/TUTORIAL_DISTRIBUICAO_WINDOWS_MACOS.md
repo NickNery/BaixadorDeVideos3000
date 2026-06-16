@@ -173,7 +173,7 @@ Modelo:
 
 ```json
 {
-  "version": "1.4.8",
+  "version": "1.4.9",
   "notes": "Resumo das mudancas desta versao.",
   "files": [
     {
@@ -212,14 +212,14 @@ Sempre que voce quiser atualizar todos os computadores:
 2. Aumente a versao dentro do arquivo `src/ytdlp_gui_downloader.py`:
 
 ```python
-APP_VERSION = "1.4.8"
+APP_VERSION = "1.4.9"
 ```
 
 3. Envie os arquivos novos para o seu GitHub/site.
 4. Atualize o manifesto:
 
 ```json
-"version": "1.4.8"
+"version": "1.4.9"
 ```
 
 5. Atualize as URLs dos arquivos se necessario.

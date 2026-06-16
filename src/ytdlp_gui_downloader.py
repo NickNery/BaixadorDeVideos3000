@@ -3,6 +3,7 @@ import math
 import os
 import platform
 import queue
+import random
 import re
 import shlex
 import shutil
@@ -51,7 +52,7 @@ else:
     SOURCE_DIR = Path(__file__).resolve().parent
     APP_DIR = SOURCE_DIR.parent if SOURCE_DIR.name == "src" else SOURCE_DIR
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.4.8"
+APP_VERSION = "1.4.9"
 APP_USER_MODEL_ID = "EdgeSolutions.BaixadorDeVideos3000"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
@@ -366,6 +367,324 @@ def resize_image_for_area(path, width, height, fit, scale_percent):
         resized = background
 
     return ImageTk.PhotoImage(resized)
+
+
+def normalize_hex_color(color, fallback="#171717"):
+    value = str(color or "").strip()
+    if re.fullmatch(r"#[0-9a-fA-F]{6}", value):
+        return value.lower()
+    return fallback
+
+
+def hex_to_rgb(color):
+    color = normalize_hex_color(color).lstrip("#")
+    return tuple(int(color[index : index + 2], 16) for index in (0, 2, 4))
+
+
+def blend_hex(base, accent, amount):
+    amount = min(max(float(amount), 0), 1)
+    base_rgb = hex_to_rgb(base)
+    accent_rgb = hex_to_rgb(accent)
+    mixed = tuple(int(base_rgb[i] + (accent_rgb[i] - base_rgb[i]) * amount) for i in range(3))
+    return f"#{mixed[0]:02x}{mixed[1]:02x}{mixed[2]:02x}"
+
+
+class LightfallBackground(Canvas):
+    def __init__(self, parent, config_ref=None, height=150):
+        self.config_ref = config_ref or DEFAULT_CONFIG.copy()
+        super().__init__(parent, height=height, highlightthickness=0, bd=0)
+        self.height_hint = height
+        self.particles = []
+        self.phase = 0
+        self.animation_job = None
+        self.bind("<Configure>", self.on_resize)
+        self.start()
+
+    def set_theme(self, config):
+        self.config_ref = config
+        self.configure(bg=config.get("background_color", "#171717"))
+        self.seed_particles()
+        self.draw()
+
+    def on_resize(self, event=None):
+        self.seed_particles()
+        self.draw()
+
+    def start(self):
+        if not self.animation_job:
+            self.animate()
+
+    def animate(self):
+        self.phase += 1
+        width = max(self.winfo_width(), 1)
+        height = max(self.winfo_height(), self.height_hint)
+        for particle in self.particles:
+            particle["y"] += particle["speed"]
+            particle["x"] += particle["drift"]
+            if particle["y"] > height + particle["length"]:
+                particle.update(self.make_particle(width, start_above=True))
+        self.draw()
+        self.animation_job = self.after(45, self.animate)
+
+    def seed_particles(self):
+        width = max(self.winfo_width(), 1)
+        height = max(self.winfo_height(), self.height_hint)
+        desired = max(16, min(46, width // 26))
+        if len(self.particles) == desired:
+            return
+        self.particles = [self.make_particle(width, height=height) for _ in range(desired)]
+
+    def make_particle(self, width, height=None, start_above=False):
+        height = height or max(self.winfo_height(), self.height_hint)
+        length = random.randint(34, 118)
+        return {
+            "x": random.randint(-80, max(width + 80, 81)),
+            "y": random.randint(-height, 0) if start_above else random.randint(-80, max(height, 81)),
+            "length": length,
+            "speed": random.uniform(1.2, 3.6),
+            "drift": random.uniform(-0.35, 0.55),
+            "width": random.choice([1, 1, 2]),
+            "alpha": random.uniform(0.18, 0.7),
+        }
+
+    def draw(self):
+        width = max(self.winfo_width(), 1)
+        height = max(self.winfo_height(), self.height_hint)
+        cfg = self.config_ref
+        bg = normalize_hex_color(cfg.get("background_color"), "#171717")
+        panel = normalize_hex_color(cfg.get("panel_color"), "#1f1f1f")
+        accent = normalize_hex_color(cfg.get("button_color"), "#0000ff")
+        self.configure(bg=bg)
+        self.delete("all")
+
+        for index in range(7):
+            y0 = int(height * index / 7)
+            y1 = int(height * (index + 1) / 7) + 1
+            color = blend_hex(bg, panel, 0.12 + index * 0.035)
+            self.create_rectangle(0, y0, width, y1, fill=color, outline="")
+
+        glow_x = int((self.phase * 1.8) % max(width, 1))
+        self.create_oval(glow_x - 240, -height * 0.8, glow_x + 260, height * 1.8, fill=blend_hex(bg, accent, 0.11), outline="")
+
+        for particle in self.particles:
+            x = particle["x"]
+            y = particle["y"]
+            length = particle["length"]
+            color = blend_hex(bg, accent, particle["alpha"])
+            tail = blend_hex(bg, "#ffffff", min(particle["alpha"] + 0.18, 0.84))
+            self.create_line(x, y, x + length * 0.24, y + length, fill=color, width=particle["width"])
+            self.create_line(x - 1, y, x + length * 0.12, y + length * 0.48, fill=tail, width=1)
+
+        self.create_rectangle(0, 0, width, 1, fill=blend_hex(bg, accent, 0.32), outline="")
+        self.create_rectangle(0, height - 1, width, height, fill=blend_hex(bg, accent, 0.16), outline="")
+
+
+class AnimatedButton(Frame):
+    STYLE_VARIANTS = {
+        None: "default",
+        "TButton": "default",
+        "Accent.TButton": "accent",
+        "Nav.TButton": "nav",
+        "ActiveNav.TButton": "active_nav",
+        "Secondary.TButton": "default",
+    }
+
+    def __init__(self, parent, text, command=None, style=None, state="normal", config_ref=None):
+        super().__init__(parent, bd=0, highlightthickness=0, cursor="hand2")
+        self.text = text
+        self.command = command
+        self.state = state
+        self.variant = self.STYLE_VARIANTS.get(style, "default")
+        self.config_ref = config_ref or DEFAULT_CONFIG.copy()
+        self.hovered = False
+        self.pressed = False
+        self.phase = 0
+        self.hover_x = 0
+        self.hover_y = 0
+        self.height = 48 if self.variant == "active_nav" else 42 if self.variant in {"accent", "nav"} else 38
+        self.base_width = self.measure_width(text)
+        self.canvas = Canvas(self, width=self.base_width, height=self.height, highlightthickness=0, bd=0, cursor="hand2")
+        self.canvas.pack(fill="both", expand=True)
+        self.canvas.bind("<Enter>", self.on_enter)
+        self.canvas.bind("<Leave>", self.on_leave)
+        self.canvas.bind("<Motion>", self.on_motion)
+        self.canvas.bind("<ButtonPress-1>", self.on_press)
+        self.canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.canvas.bind("<Configure>", lambda _event=None: self.draw())
+        self.bind("<Destroy>", self.on_destroy)
+        self.animation_job = self.after(80, self.animate)
+        self.draw()
+
+    def measure_width(self, text):
+        return max(92, min(280, len(str(text or "")) * 8 + 34))
+
+    def set_theme(self, config):
+        self.config_ref = config
+        self.draw()
+
+    def configure(self, cnf=None, **kwargs):
+        options = {}
+        if cnf:
+            options.update(cnf)
+        options.update(kwargs)
+
+        if "text" in options:
+            self.text = options.pop("text")
+            self.base_width = self.measure_width(self.text)
+            self.canvas.configure(width=self.base_width)
+        if "command" in options:
+            self.command = options.pop("command")
+        if "state" in options:
+            self.state = options.pop("state")
+        if "style" in options:
+            self.variant = self.STYLE_VARIANTS.get(options.pop("style"), "default")
+            self.height = 48 if self.variant == "active_nav" else 42 if self.variant in {"accent", "nav"} else 38
+            self.canvas.configure(height=self.height)
+        if "cursor" in options:
+            self.canvas.configure(cursor=options["cursor"])
+
+        if options:
+            super().configure(**options)
+        self.draw()
+
+    config = configure
+
+    def cget(self, key):
+        if key == "state":
+            return self.state
+        if key == "text":
+            return self.text
+        return super().cget(key)
+
+    def on_destroy(self, event=None):
+        if event is not None and event.widget is not self:
+            return
+        if self.animation_job:
+            try:
+                self.after_cancel(self.animation_job)
+            except Exception:
+                pass
+            self.animation_job = None
+
+    def on_enter(self, event=None):
+        if self.state == "disabled":
+            return
+        self.hovered = True
+        self.draw()
+
+    def on_leave(self, event=None):
+        self.hovered = False
+        self.pressed = False
+        self.draw()
+
+    def on_motion(self, event):
+        self.hover_x = event.x
+        self.hover_y = event.y
+        if self.hovered:
+            self.draw()
+
+    def on_press(self, event=None):
+        if self.state == "disabled":
+            return
+        self.pressed = True
+        self.draw()
+
+    def on_release(self, event=None):
+        if self.state == "disabled":
+            return
+        was_pressed = self.pressed
+        self.pressed = False
+        self.draw()
+        if was_pressed and self.command:
+            self.command()
+
+    def animate(self):
+        self.phase = (self.phase + 0.035) % 1
+        if self.hovered or self.variant in {"accent", "active_nav"}:
+            self.draw()
+        self.animation_job = self.after(80, self.animate)
+
+    def draw_round_rect(self, x0, y0, x1, y1, radius, fill, outline="", width=1):
+        radius = min(radius, (x1 - x0) / 2, (y1 - y0) / 2)
+        self.canvas.create_rectangle(x0 + radius, y0, x1 - radius, y1, fill=fill, outline=outline, width=width)
+        self.canvas.create_rectangle(x0, y0 + radius, x1, y1 - radius, fill=fill, outline=outline, width=width)
+        self.canvas.create_arc(x0, y0, x0 + radius * 2, y0 + radius * 2, start=90, extent=90, fill=fill, outline=outline, width=width)
+        self.canvas.create_arc(x1 - radius * 2, y0, x1, y0 + radius * 2, start=0, extent=90, fill=fill, outline=outline, width=width)
+        self.canvas.create_arc(x1 - radius * 2, y1 - radius * 2, x1, y1, start=270, extent=90, fill=fill, outline=outline, width=width)
+        self.canvas.create_arc(x0, y1 - radius * 2, x0 + radius * 2, y1, start=180, extent=90, fill=fill, outline=outline, width=width)
+
+    def draw_star_border(self, width, height, border_color, glow_color):
+        pad = 3
+        self.draw_round_rect(pad, pad, width - pad, height - pad, 8, "", outline=border_color, width=1)
+        segment = max(34, min(width, height) * 1.25)
+        x = -segment + self.phase * (width + segment * 2)
+        y = -segment + ((self.phase + 0.5) % 1) * (height + segment * 2)
+        if x < width:
+            self.canvas.create_line(max(8, x), pad, min(width - 8, x + segment), pad, fill=glow_color, width=2)
+            self.canvas.create_oval(min(width - 11, max(8, x + segment - 6)), 1, min(width - 5, max(14, x + segment)), 7, fill="#ffffff", outline="")
+        if y < height:
+            self.canvas.create_line(width - pad, max(8, y), width - pad, min(height - 8, y + segment), fill=glow_color, width=2)
+
+    def draw(self):
+        width = max(self.canvas.winfo_width(), 90)
+        height = max(self.canvas.winfo_height(), self.height)
+        cfg = self.config_ref
+        bg = normalize_hex_color(cfg.get("background_color"), "#171717")
+        panel = normalize_hex_color(cfg.get("panel_color"), "#1f1f1f")
+        accent = normalize_hex_color(cfg.get("button_color"), "#0000ff")
+        text = normalize_hex_color(cfg.get("text_color"), "#f7f7f7")
+        muted = normalize_hex_color(cfg.get("muted_text_color"), "#999999")
+        button_text = normalize_hex_color(cfg.get("button_text_color"), "#ffffff")
+
+        self.canvas.configure(bg=bg)
+        Frame.configure(self, bg=bg)
+        self.canvas.delete("all")
+
+        disabled = self.state == "disabled"
+        active = self.variant in {"accent", "active_nav"}
+        fill = accent if active else EDGE_MUTED_SURFACE
+        if self.variant == "nav":
+            fill = blend_hex(panel, "#ffffff", 0.04)
+        if self.hovered and not disabled:
+            fill = blend_hex(fill, "#ffffff", 0.14 if active else 0.09)
+        if self.pressed and not disabled:
+            fill = blend_hex(fill, "#000000", 0.18)
+        if disabled:
+            fill = "#242424"
+
+        border = accent if active else blend_hex(panel, accent, 0.32)
+        fg = button_text if active else text
+        if disabled:
+            fg = muted
+
+        self.draw_round_rect(2, 2, width - 2, height - 2, 8, fill=fill, outline="")
+
+        if self.hovered and not disabled:
+            hx = self.hover_x or width // 2
+            hy = self.hover_y or height // 2
+            for scale, amount in [(1.9, 0.20), (1.15, 0.30), (0.55, 0.42)]:
+                radius = int(height * scale)
+                color = blend_hex(fill, accent, amount)
+                self.canvas.create_oval(hx - radius, hy - radius, hx + radius, hy + radius, fill=color, outline="")
+            self.canvas.create_polygon(
+                width * 0.18,
+                3,
+                width * 0.55,
+                3,
+                width * 0.35,
+                height - 3,
+                width * 0.0,
+                height - 3,
+                fill=blend_hex(fill, "#ffffff", 0.08),
+                outline="",
+            )
+            self.draw_round_rect(2, 2, width - 2, height - 2, 8, fill="", outline="")
+
+        self.draw_star_border(width, height, border, blend_hex(accent, "#ffffff", 0.45))
+
+        font_size = 12 if self.variant == "active_nav" else 10 if self.variant == "nav" else 9
+        font_name = FONT_MEDIUM if active or self.hovered else FONT_REGULAR
+        self.canvas.create_text(width / 2, height / 2, text=self.text, fill=fg, font=(font_name, font_size, "normal"))
 
 
 class ScrollableFrame(ttk.Frame):
@@ -1151,6 +1470,7 @@ class DownloaderApp:
         self.update_check_id = 0
         self.update_check_timeout_job = None
         self.selection_pills = []
+        self.animated_buttons = []
         self.doom_window = None
 
         self.destino = StringVar(value=self.config["default_folder"])
@@ -1205,6 +1525,11 @@ class DownloaderApp:
         self.selection_pills.append(pill)
         return pill
 
+    def make_button(self, parent, text, command=None, style=None, state="normal"):
+        button = AnimatedButton(parent, text=text, command=command, style=style, state=state, config_ref=self.config)
+        self.animated_buttons.append(button)
+        return button
+
     def build_ui(self):
         self.root_bg_label = Label(self.root, bd=0)
 
@@ -1240,14 +1565,14 @@ class DownloaderApp:
 
         self.nav_frame = ttk.Frame(header, style="Main.TFrame")
         self.nav_frame.pack(side="right", padx=(0, 14))
-        self.nav_download_button = ttk.Button(
+        self.nav_download_button = self.make_button(
             self.nav_frame,
             text="Home",
             command=lambda: self.show_screen("download"),
             style="ActiveNav.TButton",
         )
         self.nav_download_button.pack(side="left", padx=(0, 8))
-        self.nav_customize_button = ttk.Button(
+        self.nav_customize_button = self.make_button(
             self.nav_frame,
             text="Personalizar",
             command=lambda: self.show_screen("customize"),
@@ -1270,6 +1595,7 @@ class DownloaderApp:
         self.customize_content = self.customize_scroll.content
 
         self.background_banner = ttk.Label(self.download_content, style="Image.TLabel")
+        self.lightfall_banner = LightfallBackground(self.download_content, self.config, height=150)
 
         self.body = ttk.Frame(self.download_content, style="Main.TFrame")
         self.body.pack(fill="both", expand=True)
@@ -1301,7 +1627,7 @@ class DownloaderApp:
         destino_row.grid(row=4, column=0, sticky="ew", pady=(8, 8))
         destino_row.columnconfigure(0, weight=1)
         ttk.Entry(destino_row, textvariable=self.destino).grid(row=0, column=0, sticky="ew")
-        ttk.Button(destino_row, text="Procurar", command=self.choose_folder, style="Accent.TButton").grid(row=0, column=1, padx=(8, 0))
+        self.make_button(destino_row, text="Procurar", command=self.choose_folder, style="Accent.TButton").grid(row=0, column=1, padx=(8, 0))
 
         quick = ttk.Frame(left, style="Panel.TFrame")
         quick.grid(row=5, column=0, sticky="ew", pady=(0, 14))
@@ -1310,7 +1636,7 @@ class DownloaderApp:
             ("Downloads", Path.home() / "Downloads"),
             ("Videos", Path.home() / "Videos"),
         ]:
-            ttk.Button(
+            self.make_button(
                 quick,
                 text=label,
                 command=lambda p=folder: self.destino.set(str(p)),
@@ -1336,9 +1662,9 @@ class DownloaderApp:
         actions.grid(row=7, column=0, sticky="ew", pady=(14, 0))
         actions.columnconfigure(0, weight=1)
         actions.columnconfigure(1, weight=1)
-        self.download_button = ttk.Button(actions, text="Iniciar download", command=self.start_download, style="Accent.TButton")
+        self.download_button = self.make_button(actions, text="Iniciar download", command=self.start_download, style="Accent.TButton")
         self.download_button.grid(row=0, column=0, sticky="ew", padx=(0, 6))
-        self.cancel_button = ttk.Button(actions, text="Cancelar", command=self.cancel_download, state="disabled")
+        self.cancel_button = self.make_button(actions, text="Cancelar", command=self.cancel_download, state="disabled")
         self.cancel_button.grid(row=0, column=1, sticky="ew", padx=(6, 0))
         self.status_label = ttk.Label(
             left,
@@ -1364,17 +1690,17 @@ class DownloaderApp:
         cookies_file_row = ttk.Frame(cookies_box, style="Panel.TFrame")
         cookies_file_row.pack(fill="x", pady=(8, 0))
         ttk.Entry(cookies_file_row, textvariable=self.cookies_file).pack(side="left", fill="x", expand=True)
-        ttk.Button(cookies_file_row, text="Arquivo", command=self.choose_cookies_file).pack(side="left", padx=(8, 0))
+        self.make_button(cookies_file_row, text="Arquivo", command=self.choose_cookies_file).pack(side="left", padx=(8, 0))
 
         tool_box = ttk.LabelFrame(right, text="yt-dlp", style="Panel.TLabelframe", padding=12)
         tool_box.grid(row=2, column=0, sticky="ew", pady=(0, 14))
         tool_box.columnconfigure(0, weight=1)
         ttk.Entry(tool_box, textvariable=self.yt_dlp_path).grid(row=0, column=0, sticky="ew")
-        ttk.Button(tool_box, text="Selecionar", command=self.choose_ytdlp).grid(row=0, column=1, padx=(8, 0))
-        ttk.Button(tool_box, text="Atualizar yt-dlp", command=self.update_ytdlp, style="Accent.TButton").grid(row=1, column=0, columnspan=2, sticky="ew", pady=(10, 0))
+        self.make_button(tool_box, text="Selecionar", command=self.choose_ytdlp).grid(row=0, column=1, padx=(8, 0))
+        self.make_button(tool_box, text="Atualizar yt-dlp", command=self.update_ytdlp, style="Accent.TButton").grid(row=1, column=0, columnspan=2, sticky="ew", pady=(10, 0))
         ttk.Label(tool_box, text="URL de atualizacao do app", style="Hint.TLabel").grid(row=2, column=0, columnspan=2, sticky="w", pady=(12, 4))
         ttk.Entry(tool_box, textvariable=self.update_manifest_url).grid(row=3, column=0, sticky="ew")
-        self.update_app_button = ttk.Button(tool_box, text="Verificar atualizacao", command=self.check_app_update)
+        self.update_app_button = self.make_button(tool_box, text="Verificar atualizacao", command=self.check_app_update)
         self.update_app_button.grid(row=3, column=1, padx=(8, 0))
 
         extra_box = ttk.LabelFrame(right, text="Argumentos extras", style="Panel.TLabelframe", padding=12)
@@ -1400,6 +1726,10 @@ class DownloaderApp:
             self.download_scroll.set_colors(cfg["background_color"])
         if hasattr(self, "customize_scroll"):
             self.customize_scroll.set_colors(cfg["background_color"])
+        if hasattr(self, "lightfall_banner"):
+            self.lightfall_banner.set_theme(cfg)
+        if hasattr(self, "customize_lightfall"):
+            self.customize_lightfall.set_theme(cfg)
         self.style.configure("Title.TLabel", background=cfg["background_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 23, "normal"))
         self.style.configure("AppSubtitle.TLabel", background=cfg["background_color"], foreground=cfg["muted_text_color"], font=(FONT_REGULAR, 10, "normal"))
         self.style.configure("Section.TLabel", background=cfg["panel_color"], foreground=cfg["text_color"], font=(FONT_MEDIUM, 12, "normal"))
@@ -1445,6 +1775,8 @@ class DownloaderApp:
 
         for pill in self.selection_pills:
             pill.set_theme(cfg)
+        for button in self.animated_buttons:
+            button.set_theme(cfg)
 
         for text_widget in [self.url_text]:
             text_widget.configure(
@@ -1483,14 +1815,17 @@ class DownloaderApp:
         parent = self.customize_content
         parent.columnconfigure(0, weight=3)
         parent.columnconfigure(1, weight=2)
-        parent.rowconfigure(0, weight=1)
+        parent.rowconfigure(1, weight=1)
+
+        self.customize_lightfall = LightfallBackground(parent, self.config, height=120)
+        self.customize_lightfall.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 14))
 
         settings = ttk.Frame(parent, style="Panel.TFrame", padding=16)
-        settings.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+        settings.grid(row=1, column=0, sticky="nsew", padx=(0, 10))
         settings.columnconfigure(1, weight=1)
 
         preview = ttk.Frame(parent, style="Panel.TFrame", padding=16)
-        preview.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
+        preview.grid(row=1, column=1, sticky="nsew", padx=(10, 0))
         preview.columnconfigure(0, weight=1)
 
         ttk.Label(settings, text="Personalizacao da interface", style="Section.TLabel").grid(row=0, column=0, columnspan=3, sticky="w")
@@ -1536,10 +1871,10 @@ class DownloaderApp:
                 self.color_swatches[key] = swatch
                 self.paint_swatch(key)
                 swatch.bind("<Button-1>", lambda event, v=var, s=swatch: self.pick_color(v, s))
-                ttk.Button(settings, text="Escolher", command=lambda v=var, s=swatch: self.pick_color(v, s)).grid(row=index, column=2, sticky="ew", pady=6)
+                self.make_button(settings, text="Escolher", command=lambda v=var, s=swatch: self.pick_color(v, s)).grid(row=index, column=2, sticky="ew", pady=6)
             elif field_type == "image":
                 ttk.Entry(settings, textvariable=var).grid(row=index, column=1, sticky="ew", padx=8, pady=6)
-                ttk.Button(settings, text="Arquivo", command=lambda v=var: self.pick_image(v)).grid(row=index, column=2, sticky="ew", pady=6)
+                self.make_button(settings, text="Arquivo", command=lambda v=var: self.pick_image(v)).grid(row=index, column=2, sticky="ew", pady=6)
             elif field_type.startswith("combo:"):
                 values = field_type.removeprefix("combo:").split(",")
                 combo = ttk.Combobox(settings, textvariable=var, values=values, state="readonly")
@@ -1557,9 +1892,9 @@ class DownloaderApp:
         actions_row.columnconfigure(0, weight=1)
         actions_row.columnconfigure(1, weight=1)
         actions_row.columnconfigure(2, weight=1)
-        ttk.Button(actions_row, text="Aplicar e salvar", command=self.apply_customization_from_tab, style="Accent.TButton").grid(row=0, column=0, sticky="ew", padx=(0, 6))
-        ttk.Button(actions_row, text="Remover imagem", command=self.clear_background_image).grid(row=0, column=1, sticky="ew", padx=6)
-        ttk.Button(actions_row, text="Restaurar padrao", command=self.reset_customization).grid(row=0, column=2, sticky="ew", padx=(6, 0))
+        self.make_button(actions_row, text="Aplicar e salvar", command=self.apply_customization_from_tab, style="Accent.TButton").grid(row=0, column=0, sticky="ew", padx=(0, 6))
+        self.make_button(actions_row, text="Remover imagem", command=self.clear_background_image).grid(row=0, column=1, sticky="ew", padx=6)
+        self.make_button(actions_row, text="Restaurar padrao", command=self.reset_customization).grid(row=0, column=2, sticky="ew", padx=(6, 0))
 
         ttk.Label(preview, text="Previa", style="Section.TLabel").grid(row=0, column=0, sticky="w")
         self.theme_preview_title = ttk.Label(preview, text=self.config["title"], style="PreviewTitle.TLabel")
@@ -1571,7 +1906,7 @@ class DownloaderApp:
             wraplength=320,
         ).grid(row=2, column=0, sticky="ew", pady=(0, 14))
         ttk.Entry(preview).grid(row=3, column=0, sticky="ew", pady=(0, 10))
-        ttk.Button(preview, text="Botao de exemplo", style="Accent.TButton").grid(row=4, column=0, sticky="ew")
+        self.make_button(preview, text="Botao de exemplo", style="Accent.TButton").grid(row=4, column=0, sticky="ew")
         ttk.Label(preview, text="Imagem", style="Section.TLabel").grid(row=5, column=0, sticky="w", pady=(22, 8))
         self.image_preview = Canvas(preview, height=150, highlightthickness=0, bg=self.config["background_color"])
         self.image_preview.grid(row=6, column=0, sticky="ew")
@@ -1743,10 +2078,14 @@ class DownloaderApp:
         mode = self.config.get("background_mode", "banner")
 
         self.background_banner.pack_forget()
+        if hasattr(self, "lightfall_banner"):
+            self.lightfall_banner.pack_forget()
         self.root_bg_label.place_forget()
         self.main.pack_configure(padx=0, pady=0)
 
         if not image_path or mode == "none":
+            if hasattr(self, "lightfall_banner"):
+                self.lightfall_banner.pack(fill="x", pady=(0, 14), before=self.body)
             self.update_image_preview()
             return
 
@@ -1754,6 +2093,8 @@ class DownloaderApp:
             self.log("[AVISO] Imagem decorativa nao encontrada.")
             self.update_image_preview()
             self.background_banner.pack_forget()
+            if hasattr(self, "lightfall_banner"):
+                self.lightfall_banner.pack(fill="x", pady=(0, 14), before=self.body)
             return
 
         try:
