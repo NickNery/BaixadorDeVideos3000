@@ -1,6 +1,6 @@
 {
-  "version": "1.5.9",
-  "notes": "Copia o runtime Electron para uma pasta local antes de abrir apps pelo servidor, evitando falhas de GPU e caminhos UNC.",
+  "version": "1.5.10",
+  "notes": "Corrige a tela vazia da versao Electron ao carregar os arquivos da interface por caminhos relativos.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
