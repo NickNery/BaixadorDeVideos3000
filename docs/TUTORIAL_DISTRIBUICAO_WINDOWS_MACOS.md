@@ -24,8 +24,9 @@ release/Baixador_YTDLP_Windows_macOS.zip
 
 Dentro dele, os arquivos principais ficam organizados assim:
 
-- `src/ytdlp_gui_downloader.py`
-- `requirements.txt`
+- `python/src/ytdlp_gui_downloader.py`
+- `python/requirements.txt`
+- `electron/`
 - `BaixadorDeVideos3000.vbs`
 - `BaixadorDeVideos3000.command`
 - `scripts/Abrir_Baixador_YTDLP.bat`
@@ -173,7 +174,7 @@ Modelo:
 
 ```json
 {
-  "version": "1.4.9",
+  "version": "1.5.0",
   "notes": "Resumo das mudancas desta versao.",
   "files": [
     {
@@ -181,16 +182,16 @@ Modelo:
       "url": "https://SEU-SITE-OU-GITHUB/release/legacy/ytdlp_gui_downloader.py"
     },
     {
-      "path": "src/ytdlp_gui_downloader.py",
-      "url": "https://SEU-SITE-OU-GITHUB/src/ytdlp_gui_downloader.py"
+      "path": "python/src/ytdlp_gui_downloader.py",
+      "url": "https://SEU-SITE-OU-GITHUB/python/src/ytdlp_gui_downloader.py"
     },
     {
       "path": "README.md",
       "url": "https://SEU-SITE-OU-GITHUB/README.md"
     },
     {
-      "path": "requirements.txt",
-      "url": "https://SEU-SITE-OU-GITHUB/requirements.txt"
+      "path": "python/requirements.txt",
+      "url": "https://SEU-SITE-OU-GITHUB/python/requirements.txt"
     }
   ]
 }
@@ -209,17 +210,17 @@ Modelo:
 Sempre que voce quiser atualizar todos os computadores:
 
 1. Edite o programa.
-2. Aumente a versao dentro do arquivo `src/ytdlp_gui_downloader.py`:
+2. Aumente a versao dentro do arquivo `python/src/ytdlp_gui_downloader.py` e no `electron/package.json`:
 
 ```python
-APP_VERSION = "1.4.9"
+APP_VERSION = "1.5.0"
 ```
 
 3. Envie os arquivos novos para o seu GitHub/site.
 4. Atualize o manifesto:
 
 ```json
-"version": "1.4.9"
+"version": "1.5.0"
 ```
 
 5. Atualize as URLs dos arquivos se necessario.
@@ -229,6 +230,8 @@ APP_VERSION = "1.4.9"
 ```text
 Verificar atualizacao
 ```
+
+Regra importante: quando a mudanca for uma regra do programa, aplique na versao Python e na versao Electron. Quando for somente visual e depender de React/CSS, ela pode ficar apenas na versao Electron.
 
 ## 7. Como sincronizar a pasta do servidor
 
@@ -244,7 +247,7 @@ No Windows, execute:
 scripts\Sincronizar_Release_Servidor_Windows.bat
 ```
 
-Esse script cria a pasta do servidor, se ela ainda nao existir, e copia `src`, `docs`, `scripts`, `release`, `README.md`, `requirements.txt` e `update_manifest.json`.
+Esse script cria a pasta do servidor, se ela ainda nao existir, e copia `python`, `electron`, `docs`, `scripts`, `release`, `assets`, `README.md` e `update_manifest.json`.
 
 ## 8. Como configurar a URL de atualizacao no app
 

@@ -1,15 +1,20 @@
 # BaixadorDeVideos3000
 
-Aplicativo em Python/Tkinter para baixar videos e audios com `yt-dlp`, usando o visual Edge Solutions.
+Aplicativo para baixar videos e audios com `yt-dlp`, usando o visual Edge Solutions.
+
+O projeto agora tem duas versoes mantidas em paralelo:
+
+- `python/`: versao estavel em Python/Tkinter.
+- `electron/`: nova versao em TypeScript + React + Electron.
 
 ## Estrutura
 
-- `src/`: codigo fonte do aplicativo.
+- `python/`: codigo fonte e dependencias da versao Python.
+- `electron/`: codigo fonte da nova versao Electron/React.
 - `docs/`: tutoriais, PDF, argumentos extras e exemplos de manifesto.
 - `scripts/`: atalhos e instaladores para Windows/macOS.
 - `release/`: arquivos de distribuicao, incluindo o ZIP final.
 - `assets/`: imagens e icones do aplicativo.
-- `requirements.txt`: dependencias Python.
 - `update_manifest.json`: manifesto publico usado pelo atualizador do app.
 
 Existe apenas este `README.md` na raiz do projeto.
@@ -68,13 +73,29 @@ Observacao: o `.dmg` do macOS precisa ser gerado em um Mac. O Windows nao conseg
 Na raiz do projeto:
 
 ```powershell
-python src/ytdlp_gui_downloader.py
+python python/src/ytdlp_gui_downloader.py
 ```
 
 No macOS:
 
 ```zsh
-python3 src/ytdlp_gui_downloader.py
+python3 python/src/ytdlp_gui_downloader.py
+```
+
+## Rodar a versao Electron
+
+Instale o Node.js LTS e entre na pasta Electron:
+
+```powershell
+cd electron
+npm install
+```
+
+Em desenvolvimento, rode o renderer e o Electron:
+
+```powershell
+npm run dev:renderer
+npm run dev:electron
 ```
 
 ## Atualizacao do app
@@ -85,7 +106,7 @@ Use esta URL no campo `URL de atualizacao do app`:
 https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json
 ```
 
-O manifesto baixa os arquivos dos novos caminhos (`src/`, `docs/`, `scripts/`) e tambem instala um launcher legado na raiz para nao quebrar atalhos antigos.
+O manifesto baixa os arquivos dos caminhos `python/`, `electron/`, `docs/` e `scripts/`, alem dos launchers da raiz.
 
 ## Sincronizar com a pasta do servidor
 
@@ -101,7 +122,16 @@ No Windows, use:
 scripts/Sincronizar_Release_Servidor_Windows.bat
 ```
 
-Esse script cria a pasta no servidor, se ela ainda nao existir, e copia `src`, `docs`, `scripts`, `release`, `README.md`, `requirements.txt` e `update_manifest.json`.
+Esse script cria a pasta no servidor, se ela ainda nao existir, e copia `python`, `electron`, `docs`, `scripts`, `release`, `assets`, `README.md` e `update_manifest.json`.
+
+## Regra de manutencao
+
+Toda mudanca de comportamento do programa deve ser aplicada nas duas versoes:
+
+- Python: `python/src/ytdlp_gui_downloader.py`
+- Electron: `electron/src/main/main.ts` e `electron/src/renderer/App.tsx`
+
+Mudancas apenas visuais podem ficar somente na versao Electron quando usarem React/CSS.
 
 ## Documentacao
 

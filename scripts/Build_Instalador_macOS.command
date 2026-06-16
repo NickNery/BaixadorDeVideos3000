@@ -86,7 +86,7 @@ PY
     "${PYINSTALLER_ICON_ARGS[@]}" \
     --hidden-import certifi \
     --collect-data certifi \
-    "src/ytdlp_gui_downloader.py"
+    "python/src/ytdlp_gui_downloader.py"
 
 cp "$YTDLP_BIN" "$APP_PATH/Contents/MacOS/yt-dlp"
 cp "$FFMPEG_BIN" "$APP_PATH/Contents/MacOS/ffmpeg"

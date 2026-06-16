@@ -32,7 +32,7 @@ New-Item -ItemType Directory -Path $payload | Out-Null
     --specpath $buildRoot `
     --hidden-import certifi `
     --collect-data certifi `
-    (Join-Path $root "src\ytdlp_gui_downloader.py")
+    (Join-Path $root "python\src\ytdlp_gui_downloader.py")
 
 Copy-Item -LiteralPath (Join-Path $buildRoot "dist\BaixadorDeVideos3000.exe") -Destination (Join-Path $payload "BaixadorDeVideos3000.exe") -Force
 Copy-Item -LiteralPath (Join-Path $root "release\yt-dlp.exe") -Destination (Join-Path $payload "yt-dlp.exe") -Force

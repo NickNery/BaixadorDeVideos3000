@@ -1,6 +1,6 @@
 {
-  "version": "1.4.9",
-  "notes": "Adiciona fundo animado inspirado em Lightfall e botoes com borda luminosa/hover no estilo Star Border e Magic Bento.",
+  "version": "1.5.0",
+  "notes": "Separa a versao Python em python/ e adiciona a nova base Electron + React + TypeScript.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
@@ -9,16 +9,72 @@
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/legacy/ytdlp_gui_downloader.py"
     },
     {
-      "path": "src/ytdlp_gui_downloader.py",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/src/ytdlp_gui_downloader.py"
+      "path": "python/src/ytdlp_gui_downloader.py",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/python/src/ytdlp_gui_downloader.py"
     },
     {
       "path": "README.md",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/README.md"
     },
     {
-      "path": "requirements.txt",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/requirements.txt"
+      "path": "python/requirements.txt",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/python/requirements.txt"
+    },
+    {
+      "path": "python/README.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/python/README.md"
+    },
+    {
+      "path": "electron/package.json",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/package.json"
+    },
+    {
+      "path": "electron/pnpm-lock.yaml",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/pnpm-lock.yaml"
+    },
+    {
+      "path": "electron/pnpm-workspace.yaml",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/pnpm-workspace.yaml"
+    },
+    {
+      "path": "electron/README.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/README.md"
+    },
+    {
+      "path": "electron/src/main/main.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/main/main.ts"
+    },
+    {
+      "path": "electron/src/main/preload.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/main/preload.ts"
+    },
+    {
+      "path": "electron/src/renderer/App.tsx",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/renderer/App.tsx"
+    },
+    {
+      "path": "electron/src/renderer/styles.css",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/renderer/styles.css"
+    },
+    {
+      "path": "electron/src/shared/types.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/shared/types.ts"
+    },
+    {
+      "path": "electron/index.html",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/index.html"
+    },
+    {
+      "path": "electron/vite.config.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/vite.config.ts"
+    },
+    {
+      "path": "electron/tsconfig.json",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/tsconfig.json"
+    },
+    {
+      "path": "electron/tsconfig.main.json",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/tsconfig.main.json"
     },
     {
       "path": "assets/favicon.ico",
@@ -99,6 +155,14 @@
     {
       "path": "scripts/Build_Instalador_Windows.ps1",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Instalador_Windows.ps1"
+    },
+    {
+      "path": "scripts/Build_Electron_Windows.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Electron_Windows.bat"
+    },
+    {
+      "path": "scripts/Build_Electron_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Electron_macOS.command"
     },
     {
       "path": "release/BaixadorDeVideos3000_Setup_Windows.exe",

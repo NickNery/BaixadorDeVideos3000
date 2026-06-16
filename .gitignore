@@ -6,3 +6,7 @@ _apply_update.py
 ytdlp_gui_config.json
 deno.exe
 doom/
+electron/node_modules/
+electron/dist/
+electron/dist-packages/
+electron/package-lock.json

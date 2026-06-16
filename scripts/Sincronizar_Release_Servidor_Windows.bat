@@ -25,7 +25,9 @@ if not exist "%DESTINO%" (
     )
 )
 
-call :copydir "src"
+call :copydir "python"
+if errorlevel 1 goto erro
+call :copydir "electron"
 if errorlevel 1 goto erro
 call :copydir "docs"
 if errorlevel 1 goto erro
@@ -42,20 +44,18 @@ call :copyfile "BaixadorDeVideos3000.command"
 if errorlevel 1 goto erro
 call :copyfile "README.md"
 if errorlevel 1 goto erro
-call :copyfile "requirements.txt"
-if errorlevel 1 goto erro
 call :copyfile "update_manifest.json"
 if errorlevel 1 goto erro
 
 echo.
 echo [SUCESSO] Pasta do servidor sincronizada.
 echo.
-pause
+if "%BAIXADOR_SYNC_NO_PAUSE%"=="" pause
 exit /b 0
 
 :copydir
 echo Sincronizando pasta %~1...
-robocopy "%ROOT%\%~1" "%DESTINO%\%~1" /E /R:2 /W:2 /NFL /NDL /NJH /NJS >nul
+robocopy "%ROOT%\%~1" "%DESTINO%\%~1" /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD node_modules dist dist-packages .venv __pycache__ >nul
 if %ERRORLEVEL% GEQ 8 (
     echo [ERRO] Falha ao sincronizar a pasta %~1.
     exit /b 1
@@ -76,5 +76,5 @@ echo.
 echo [ERRO] Sincronizacao interrompida.
 echo Verifique a conexao com a unidade Z: e tente novamente.
 echo.
-pause
+if "%BAIXADOR_SYNC_NO_PAUSE%"=="" pause
 exit /b 1

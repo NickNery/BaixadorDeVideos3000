@@ -182,7 +182,7 @@ install_app_dependencies() {
     local python_bin="$1"
 
     "$python_bin" -m pip install --upgrade pip
-    "$python_bin" -m pip install --upgrade -r requirements.txt
+    "$python_bin" -m pip install --upgrade -r python/requirements.txt
 }
 
 ensure_chocolate_doom() {

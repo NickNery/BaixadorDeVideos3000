@@ -20,4 +20,4 @@ if [ ! -x "$VENV_PYTHON" ]; then
     exit 1
 fi
 
-"$VENV_PYTHON" "src/ytdlp_gui_downloader.py"
+"$VENV_PYTHON" "python/src/ytdlp_gui_downloader.py"

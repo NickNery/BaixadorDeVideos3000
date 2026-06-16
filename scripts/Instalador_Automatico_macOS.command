@@ -3,9 +3,9 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-if [ -f "$SCRIPT_DIR/requirements.txt" ]; then
+if [ -f "$SCRIPT_DIR/python/requirements.txt" ]; then
     APP_DIR="$SCRIPT_DIR"
-elif [ -f "$SCRIPT_DIR/../requirements.txt" ]; then
+elif [ -f "$SCRIPT_DIR/../python/requirements.txt" ]; then
     APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 else
     echo "Nao encontrei a pasta do Baixador de Videos 3000."

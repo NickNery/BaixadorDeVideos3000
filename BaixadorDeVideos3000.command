@@ -8,12 +8,12 @@ fi
 
 cd "$SCRIPT_DIR"
 
-if [ -f "src/ytdlp_gui_downloader.py" ]; then
+if [ -f "python/src/ytdlp_gui_downloader.py" ]; then
     if [ -x ".venv/bin/python" ]; then
-        exec ".venv/bin/python" "src/ytdlp_gui_downloader.py"
+        exec ".venv/bin/python" "python/src/ytdlp_gui_downloader.py"
     fi
-    exec python3 "src/ytdlp_gui_downloader.py"
+    exec python3 "python/src/ytdlp_gui_downloader.py"
 fi
 
-echo "Nao encontrei src/ytdlp_gui_downloader.py nesta pasta."
+echo "Nao encontrei python/src/ytdlp_gui_downloader.py nesta pasta."
 read "?Pressione Enter para fechar..."
