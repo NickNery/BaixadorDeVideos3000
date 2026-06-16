@@ -4,6 +4,22 @@ Esta pasta contem a nova versao do BaixadorDeVideos3000 em TypeScript + React + 
 
 ## Instalar dependencias
 
+No Windows, o jeito mais simples e abrir pela raiz do projeto:
+
+```text
+BaixadorDeVideos3000_Electron.exe
+```
+
+Esse launcher verifica Node.js/npm, pergunta se pode instalar quando faltar, roda `npm install` e abre a versao Electron.
+
+No macOS, use o arquivo da raiz:
+
+```text
+BaixadorDeVideos3000_Electron.command
+```
+
+Manual:
+
 Instale o Node.js LTS e rode:
 
 ```bash

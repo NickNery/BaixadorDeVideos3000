@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0",
+  "version": "1.5.1",
   "notes": "Descreva aqui o que mudou nesta versao.",
   "installer_windows_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Instalador_macOS.zip",
@@ -69,6 +69,10 @@
       "url": "https://SEU-SITE-OU-GITHUB/BaixadorDeVideos3000.command"
     },
     {
+      "path": "BaixadorDeVideos3000_Electron.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/BaixadorDeVideos3000_Electron.exe"
+    },
+    {
       "path": "docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
       "url": "https://SEU-SITE-OU-GITHUB/docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md"
     },
@@ -91,6 +95,14 @@
     {
       "path": "scripts/Abrir_Baixador_YTDLP.command",
       "url": "https://SEU-SITE-OU-GITHUB/scripts/Abrir_Baixador_YTDLP.command"
+    },
+    {
+      "path": "scripts/Abrir_Baixador_Electron.ps1",
+      "url": "https://SEU-SITE-OU-GITHUB/scripts/Abrir_Baixador_Electron.ps1"
+    },
+    {
+      "path": "scripts/electron_launcher.py",
+      "url": "https://SEU-SITE-OU-GITHUB/scripts/electron_launcher.py"
     },
     {
       "path": "scripts/Instalar_Dependencias_Windows.bat",
@@ -125,12 +137,20 @@
       "url": "https://SEU-SITE-OU-GITHUB/scripts/Build_Electron_Windows.bat"
     },
     {
+      "path": "scripts/Build_Electron_Launcher_Windows.ps1",
+      "url": "https://SEU-SITE-OU-GITHUB/scripts/Build_Electron_Launcher_Windows.ps1"
+    },
+    {
       "path": "scripts/Build_Electron_macOS.command",
       "url": "https://SEU-SITE-OU-GITHUB/scripts/Build_Electron_macOS.command"
     },
     {
       "path": "release/BaixadorDeVideos3000_Setup_Windows.exe",
       "url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Setup_Windows.exe"
+    },
+    {
+      "path": "release/BaixadorDeVideos3000_Electron.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/release/BaixadorDeVideos3000_Electron.exe"
     },
     {
       "path": "release/Instalador_Automatico_macOS.command",

@@ -42,6 +42,10 @@ call :copyfile "BaixadorDeVideos3000.vbs"
 if errorlevel 1 goto erro
 call :copyfile "BaixadorDeVideos3000.command"
 if errorlevel 1 goto erro
+call :copyfile "BaixadorDeVideos3000_Electron.exe"
+if errorlevel 1 goto erro
+call :copyfile "BaixadorDeVideos3000_Electron.command"
+if errorlevel 1 goto erro
 call :copyfile "README.md"
 if errorlevel 1 goto erro
 call :copyfile "update_manifest.json"

@@ -27,6 +27,7 @@ Dentro dele, os arquivos principais ficam organizados assim:
 - `python/src/ytdlp_gui_downloader.py`
 - `python/requirements.txt`
 - `electron/`
+- `BaixadorDeVideos3000_Electron.exe`
 - `BaixadorDeVideos3000.vbs`
 - `BaixadorDeVideos3000.command`
 - `scripts/Abrir_Baixador_YTDLP.bat`
@@ -213,14 +214,14 @@ Sempre que voce quiser atualizar todos os computadores:
 2. Aumente a versao dentro do arquivo `python/src/ytdlp_gui_downloader.py` e no `electron/package.json`:
 
 ```python
-APP_VERSION = "1.5.0"
+APP_VERSION = "1.5.1"
 ```
 
 3. Envie os arquivos novos para o seu GitHub/site.
 4. Atualize o manifesto:
 
 ```json
-"version": "1.5.0"
+"version": "1.5.1"
 ```
 
 5. Atualize as URLs dos arquivos se necessario.
@@ -232,6 +233,14 @@ Verificar atualizacao
 ```
 
 Regra importante: quando a mudanca for uma regra do programa, aplique na versao Python e na versao Electron. Quando for somente visual e depender de React/CSS, ela pode ficar apenas na versao Electron.
+
+Para abrir a versao Electron no Windows, use:
+
+```text
+BaixadorDeVideos3000_Electron.exe
+```
+
+Esse arquivo entra na pasta `electron/` automaticamente, verifica Node.js/npm, pergunta se pode instalar quando faltar, roda `npm install` e abre o app.
 
 ## 7. Como sincronizar a pasta do servidor
 

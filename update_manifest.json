@@ -1,6 +1,6 @@
 {
-  "version": "1.5.0",
-  "notes": "Separa a versao Python em python/ e adiciona a nova base Electron + React + TypeScript.",
+  "version": "1.5.1",
+  "notes": "Adiciona launcher .exe da versao Electron com verificacao automatica de Node.js/npm e preparo da pasta electron.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
   "files": [
@@ -101,6 +101,14 @@
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000.command"
     },
     {
+      "path": "BaixadorDeVideos3000_Electron.exe",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000_Electron.exe"
+    },
+    {
+      "path": "BaixadorDeVideos3000_Electron.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000_Electron.command"
+    },
+    {
       "path": "docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md"
     },
@@ -127,6 +135,22 @@
     {
       "path": "scripts/Abrir_Baixador_YTDLP.command",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_YTDLP.command"
+    },
+    {
+      "path": "scripts/Abrir_Baixador_Electron.ps1",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_Electron.ps1"
+    },
+    {
+      "path": "scripts/Abrir_Baixador_Electron.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_Electron.bat"
+    },
+    {
+      "path": "scripts/Abrir_Baixador_Electron.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_Electron.command"
+    },
+    {
+      "path": "scripts/electron_launcher.py",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/electron_launcher.py"
     },
     {
       "path": "scripts/Instalar_Dependencias_Windows.bat",
@@ -161,12 +185,20 @@
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Electron_Windows.bat"
     },
     {
+      "path": "scripts/Build_Electron_Launcher_Windows.ps1",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Electron_Launcher_Windows.ps1"
+    },
+    {
       "path": "scripts/Build_Electron_macOS.command",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Electron_macOS.command"
     },
     {
       "path": "release/BaixadorDeVideos3000_Setup_Windows.exe",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe"
+    },
+    {
+      "path": "release/BaixadorDeVideos3000_Electron.exe",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Electron.exe"
     },
     {
       "path": "release/Instalador_Automatico_macOS.command",

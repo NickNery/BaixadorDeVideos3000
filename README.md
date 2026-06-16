@@ -51,6 +51,7 @@ Dentro do ZIP:
 
 1. Rode `scripts/Instalar_Dependencias_Windows.bat` no Windows ou `scripts/Instalar_Dependencias_macOS.command` no macOS.
 2. Abra pela raiz da pasta com `BaixadorDeVideos3000.vbs` no Windows ou `BaixadorDeVideos3000.command` no macOS.
+3. Para abrir a nova versao Electron no Windows, use `BaixadorDeVideos3000_Electron.exe`.
 
 ## Gerar instaladores
 
@@ -84,7 +85,21 @@ python3 python/src/ytdlp_gui_downloader.py
 
 ## Rodar a versao Electron
 
-Instale o Node.js LTS e entre na pasta Electron:
+No Windows, use o launcher facil da raiz:
+
+```text
+BaixadorDeVideos3000_Electron.exe
+```
+
+Ele entra na pasta `electron/` automaticamente. Se Node.js/npm ou as dependencias Electron estiverem faltando, ele pergunta se pode instalar para voce.
+
+No macOS, use:
+
+```text
+BaixadorDeVideos3000_Electron.command
+```
+
+Para rodar manualmente, instale o Node.js LTS e entre na pasta Electron:
 
 ```powershell
 cd electron
