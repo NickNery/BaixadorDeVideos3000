@@ -86,19 +86,47 @@ PY
     fi
 }
 
-create_desktop_app() {
-    mkdir -p "$DESKTOP_APP/Contents/MacOS" "$DESKTOP_APP/Contents/Resources"
+escape_dialog_text() {
+    printf "%s" "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
 
-    cat > "$DESKTOP_APP/Contents/MacOS/launcher" <<EOF
+create_desktop_app() {
+    LOG_FILE="$APP_DIR/desktop_launchers.log"
+    LAUNCHER_PATH="$APP_DIR/launcher/Abrir_Baixador_YTDLP.command"
+    SCRIPT_FILE="$APP_DIR/build/br.com.edgesolution.baixadordevideos3000.applescript"
+
+    rm -rf "$DESKTOP_APP"
+    mkdir -p "$APP_DIR/build"
+
+    if command -v osacompile >/dev/null 2>&1; then
+        cat > "$SCRIPT_FILE" <<EOF
+on run
+    set appDir to "$(escape_dialog_text "$APP_DIR")"
+    set launcherPath to "$(escape_dialog_text "$LAUNCHER_PATH")"
+    set logFile to "$(escape_dialog_text "$LOG_FILE")"
+    set logDir to "$(escape_dialog_text "$APP_DIR")"
+    set appName to "Baixador de Videos 3000"
+    set pathValue to appDir & ":" & appDir & "/.venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    set logMessage to "+[%Y-%m-%d %H:%M:%S] Abrindo " & appName & " via atalho .app"
+    set shellCommand to "mkdir -p " & quoted form of logDir & "; export PATH=" & quoted form of pathValue & "; cd " & quoted form of appDir & "; chmod +x " & quoted form of launcherPath & " 2>/dev/null || true; echo '' >> " & quoted form of logFile & "; date " & quoted form of logMessage & " >> " & quoted form of logFile & "; exec /bin/zsh " & quoted form of launcherPath & " >> " & quoted form of logFile & " 2>&1"
+    do shell script shellCommand
+on error errMsg number errNum
+    display dialog "Nao consegui abrir " & appName & "." & return & return & errMsg & return & return & "Veja o log em:" & return & logFile buttons {"OK"} default button "OK" with icon stop
+end run
+EOF
+        osacompile -o "$DESKTOP_APP" "$SCRIPT_FILE"
+    else
+        mkdir -p "$DESKTOP_APP/Contents/MacOS" "$DESKTOP_APP/Contents/Resources"
+        cat > "$DESKTOP_APP/Contents/MacOS/launcher" <<EOF
 #!/bin/zsh
 APP_DIR="$APP_DIR"
 export PATH="\$APP_DIR:\$APP_DIR/.venv/bin:/opt/homebrew/bin:/usr/local/bin:\$PATH"
 cd "\$APP_DIR"
-exec "\$APP_DIR/launcher/Abrir_Baixador_YTDLP.command"
+exec /bin/zsh "\$APP_DIR/launcher/Abrir_Baixador_YTDLP.command"
 EOF
-    chmod +x "$DESKTOP_APP/Contents/MacOS/launcher"
+        chmod +x "$DESKTOP_APP/Contents/MacOS/launcher"
 
-    cat > "$DESKTOP_APP/Contents/Info.plist" <<'EOF'
+        cat > "$DESKTOP_APP/Contents/Info.plist" <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -121,8 +149,17 @@ EOF
 </dict>
 </plist>
 EOF
+    fi
 
     create_app_icon
+    PLIST_FILE="$DESKTOP_APP/Contents/Info.plist"
+    if [ -f "$PLIST_FILE" ] && [ -x /usr/libexec/PlistBuddy ]; then
+        /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Baixador de Videos 3000" "$PLIST_FILE" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string Baixador de Videos 3000" "$PLIST_FILE" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set :CFBundleName Baixador de Videos 3000" "$PLIST_FILE" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleName string Baixador de Videos 3000" "$PLIST_FILE" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier br.com.edgesolution.baixadordevideos3000" "$PLIST_FILE" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string br.com.edgesolution.baixadordevideos3000" "$PLIST_FILE" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile AppIcon" "$PLIST_FILE" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string AppIcon" "$PLIST_FILE" 2>/dev/null || true
+    fi
+    xattr -dr com.apple.quarantine "$DESKTOP_APP" 2>/dev/null || true
     touch "$DESKTOP_APP"
 }
 

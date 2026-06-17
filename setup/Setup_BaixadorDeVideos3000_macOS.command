@@ -120,24 +120,45 @@ create_desktop_app() {
     local bundle_id="$3"
     local python_bin="$4"
     local desktop_app="$DESKTOP_DIR/$app_name.app"
+    local log_file="$ROOT_DIR/setup/desktop_launchers.log"
+    local script_file="$ROOT_DIR/build/$bundle_id.applescript"
 
     rm -rf "$desktop_app"
-    mkdir -p "$desktop_app/Contents/MacOS" "$desktop_app/Contents/Resources"
+    mkdir -p "$ROOT_DIR/build"
 
-    cat > "$desktop_app/Contents/MacOS/launcher" <<EOF
+    if command -v osacompile >/dev/null 2>&1; then
+        cat > "$script_file" <<EOF
+on run
+    set appDir to "$(escape_dialog_text "$APP_DIR")"
+    set launcherPath to "$(escape_dialog_text "$launcher_path")"
+    set logFile to "$(escape_dialog_text "$log_file")"
+    set logDir to "$(escape_dialog_text "$ROOT_DIR/setup")"
+    set appName to "$(escape_dialog_text "$app_name")"
+    set pathValue to appDir & ":" & appDir & "/.venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    set logMessage to "+[%Y-%m-%d %H:%M:%S] Abrindo " & appName & " via atalho .app"
+    set shellCommand to "mkdir -p " & quoted form of logDir & "; export PATH=" & quoted form of pathValue & "; cd " & quoted form of appDir & "; chmod +x " & quoted form of launcherPath & " 2>/dev/null || true; echo '' >> " & quoted form of logFile & "; date " & quoted form of logMessage & " >> " & quoted form of logFile & "; exec /bin/zsh " & quoted form of launcherPath & " >> " & quoted form of logFile & " 2>&1"
+    do shell script shellCommand
+on error errMsg number errNum
+    display dialog "Nao consegui abrir " & appName & "." & return & return & errMsg & return & return & "Veja o log em:" & return & logFile buttons {"OK"} default button "OK" with icon stop
+end run
+EOF
+        osacompile -o "$desktop_app" "$script_file"
+    else
+        mkdir -p "$desktop_app/Contents/MacOS" "$desktop_app/Contents/Resources"
+        cat > "$desktop_app/Contents/MacOS/launcher" <<EOF
 #!/bin/zsh
 APP_DIR="$APP_DIR"
-LOG_FILE="$ROOT_DIR/setup/desktop_launchers.log"
+LOG_FILE="$log_file"
 export PATH="\$APP_DIR:\$APP_DIR/.venv/bin:/opt/homebrew/bin:/usr/local/bin:\$PATH"
 cd "\$APP_DIR"
 chmod +x "$launcher_path" 2>/dev/null || true
 echo "" >> "\$LOG_FILE"
 echo "[\$(date)] Abrindo $app_name" >> "\$LOG_FILE"
-exec "$launcher_path" >> "\$LOG_FILE" 2>&1
+exec /bin/zsh "$launcher_path" >> "\$LOG_FILE" 2>&1
 EOF
-    chmod +x "$desktop_app/Contents/MacOS/launcher"
+        chmod +x "$desktop_app/Contents/MacOS/launcher"
 
-    cat > "$desktop_app/Contents/Info.plist" <<EOF
+        cat > "$desktop_app/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -160,8 +181,18 @@ EOF
 </dict>
 </plist>
 EOF
+    fi
 
     create_app_icon "$desktop_app" "$python_bin"
+    local plist="$desktop_app/Contents/Info.plist"
+    if [ -f "$plist" ] && [ -x /usr/libexec/PlistBuddy ]; then
+        /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName $app_name" "$plist" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string $app_name" "$plist" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set :CFBundleName $app_name" "$plist" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleName string $app_name" "$plist" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $bundle_id" "$plist" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string $bundle_id" "$plist" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile AppIcon" "$plist" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string AppIcon" "$plist" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set :LSMinimumSystemVersion 10.15" "$plist" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :LSMinimumSystemVersion string 10.15" "$plist" 2>/dev/null || true
+    fi
+    xattr -dr com.apple.quarantine "$desktop_app" 2>/dev/null || true
     touch "$desktop_app"
 }
 
