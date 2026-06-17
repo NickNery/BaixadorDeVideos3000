@@ -1,6 +1,6 @@
 {
-  "version": "1.6.7",
-  "notes": "Corrige a sintaxe AppleScript usada para criar os atalhos macOS pela Area de Trabalho.",
+  "version": "1.6.8",
+  "notes": "Move os logs dos atalhos macOS para a pasta local do usuario, evitando bloqueio de permissao em volumes de rede.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_macOS.command",
   "files": [

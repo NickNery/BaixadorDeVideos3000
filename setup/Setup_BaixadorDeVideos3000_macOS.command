@@ -120,7 +120,8 @@ create_desktop_app() {
     local bundle_id="$3"
     local python_bin="$4"
     local desktop_app="$DESKTOP_DIR/$app_name.app"
-    local log_file="$ROOT_DIR/setup/desktop_launchers.log"
+    local log_dir="$HOME/Library/Logs/BaixadorDeVideos3000"
+    local log_file="$log_dir/desktop_launchers.log"
     local script_file="$ROOT_DIR/build/$bundle_id.applescript"
 
     rm -rf "$desktop_app"
@@ -133,7 +134,7 @@ on run
         set appDir to "$(escape_dialog_text "$APP_DIR")"
         set launcherPath to "$(escape_dialog_text "$launcher_path")"
         set logFile to "$(escape_dialog_text "$log_file")"
-        set logDir to "$(escape_dialog_text "$ROOT_DIR/setup")"
+        set logDir to "$(escape_dialog_text "$log_dir")"
         set appName to "$(escape_dialog_text "$app_name")"
         set pathValue to appDir & ":" & appDir & "/.venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         set logMessage to "+[%Y-%m-%d %H:%M:%S] Abrindo " & appName & " via atalho .app"

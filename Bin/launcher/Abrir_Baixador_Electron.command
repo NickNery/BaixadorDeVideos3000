@@ -4,11 +4,13 @@ set -e
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 ELECTRON_DIR="$APP_DIR/electron"
 RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
-LOG_FILE="$APP_DIR/BaixadorDeVideos3000_Electron_macOS.log"
+LOG_DIR="$HOME/Library/Logs/BaixadorDeVideos3000"
+LOG_FILE="$LOG_DIR/Electron_macOS.log"
 ELECTRON_VERSION="39.8.10"
 ELECTRON_RUNTIME_DIR="$HOME/Library/Application Support/BaixadorDeVideos3000/ElectronRuntime/$ELECTRON_VERSION"
 
 export PATH="$APP_DIR:$APP_DIR/.venv/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+mkdir -p "$LOG_DIR"
 
 escape_dialog_text() {
     printf "%s" "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'

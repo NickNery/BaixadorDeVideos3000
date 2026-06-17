@@ -91,7 +91,8 @@ escape_dialog_text() {
 }
 
 create_desktop_app() {
-    LOG_FILE="$APP_DIR/desktop_launchers.log"
+    LOG_DIR="$HOME/Library/Logs/BaixadorDeVideos3000"
+    LOG_FILE="$LOG_DIR/desktop_launchers.log"
     LAUNCHER_PATH="$APP_DIR/launcher/Abrir_Baixador_YTDLP.command"
     SCRIPT_FILE="$APP_DIR/build/br.com.edgesolution.baixadordevideos3000.applescript"
 
@@ -105,7 +106,7 @@ on run
         set appDir to "$(escape_dialog_text "$APP_DIR")"
         set launcherPath to "$(escape_dialog_text "$LAUNCHER_PATH")"
         set logFile to "$(escape_dialog_text "$LOG_FILE")"
-        set logDir to "$(escape_dialog_text "$APP_DIR")"
+        set logDir to "$(escape_dialog_text "$LOG_DIR")"
         set appName to "Baixador de Videos 3000"
         set pathValue to appDir & ":" & appDir & "/.venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         set logMessage to "+[%Y-%m-%d %H:%M:%S] Abrindo " & appName & " via atalho .app"
