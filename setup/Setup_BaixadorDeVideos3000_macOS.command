@@ -129,17 +129,19 @@ create_desktop_app() {
     if command -v osacompile >/dev/null 2>&1; then
         cat > "$script_file" <<EOF
 on run
-    set appDir to "$(escape_dialog_text "$APP_DIR")"
-    set launcherPath to "$(escape_dialog_text "$launcher_path")"
-    set logFile to "$(escape_dialog_text "$log_file")"
-    set logDir to "$(escape_dialog_text "$ROOT_DIR/setup")"
-    set appName to "$(escape_dialog_text "$app_name")"
-    set pathValue to appDir & ":" & appDir & "/.venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-    set logMessage to "+[%Y-%m-%d %H:%M:%S] Abrindo " & appName & " via atalho .app"
-    set shellCommand to "mkdir -p " & quoted form of logDir & "; export PATH=" & quoted form of pathValue & "; cd " & quoted form of appDir & "; chmod +x " & quoted form of launcherPath & " 2>/dev/null || true; echo '' >> " & quoted form of logFile & "; date " & quoted form of logMessage & " >> " & quoted form of logFile & "; exec /bin/zsh " & quoted form of launcherPath & " >> " & quoted form of logFile & " 2>&1"
-    do shell script shellCommand
-on error errMsg number errNum
-    display dialog "Nao consegui abrir " & appName & "." & return & return & errMsg & return & return & "Veja o log em:" & return & logFile buttons {"OK"} default button "OK" with icon stop
+    try
+        set appDir to "$(escape_dialog_text "$APP_DIR")"
+        set launcherPath to "$(escape_dialog_text "$launcher_path")"
+        set logFile to "$(escape_dialog_text "$log_file")"
+        set logDir to "$(escape_dialog_text "$ROOT_DIR/setup")"
+        set appName to "$(escape_dialog_text "$app_name")"
+        set pathValue to appDir & ":" & appDir & "/.venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+        set logMessage to "+[%Y-%m-%d %H:%M:%S] Abrindo " & appName & " via atalho .app"
+        set shellCommand to "mkdir -p " & quoted form of logDir & "; export PATH=" & quoted form of pathValue & "; cd " & quoted form of appDir & "; chmod +x " & quoted form of launcherPath & " 2>/dev/null || true; echo '' >> " & quoted form of logFile & "; date " & quoted form of logMessage & " >> " & quoted form of logFile & "; exec /bin/zsh " & quoted form of launcherPath & " >> " & quoted form of logFile & " 2>&1"
+        do shell script shellCommand
+    on error errMsg number errNum
+        display dialog "Nao consegui abrir " & appName & "." & return & return & errMsg & return & return & "Veja o log em:" & return & logFile buttons {"OK"} default button "OK" with icon stop
+    end try
 end run
 EOF
         osacompile -o "$desktop_app" "$script_file"
