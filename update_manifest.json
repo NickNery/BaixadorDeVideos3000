@@ -1,6 +1,6 @@
 {
-  "version": "1.6.3",
-  "notes": "Corrige a criacao de atalhos no setup Windows para caminhos com espacos, acentos e pastas de servidor.",
+  "version": "1.6.4",
+  "notes": "Corrige o setup macOS baixando o Electron.app oficial diretamente, sem npm, Node.js ou scripts de pos-instalacao.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_macOS.command",
   "files": [

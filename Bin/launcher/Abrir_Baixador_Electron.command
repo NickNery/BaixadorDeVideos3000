@@ -43,44 +43,36 @@ error_dialog() {
     fi
 }
 
-ensure_node() {
-    if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
-        return
-    fi
+download_with_progress() {
+    local url="$1"
+    local target="$2"
+    local label="$3"
+    echo "> $label" | tee -a "$LOG_FILE"
+    curl -L --progress-bar "$url" -o "$target" 2>&1 | tee -a "$LOG_FILE"
+}
 
-    if ! ask_yes_no "A versao Electron precisa do Node.js e npm. Nao encontrei neste Mac. Deseja instalar automaticamente?"; then
-        echo "Node.js nao instalado." | tee -a "$LOG_FILE"
-        exit 1
-    fi
-
-    if [ -f "$RUNTIME_HELPERS" ]; then
-        source "$RUNTIME_HELPERS"
-        ensure_homebrew
-    elif ! command -v brew >/dev/null 2>&1; then
-        open "https://nodejs.org/" || true
-        error_dialog "Nao encontrei Homebrew para instalar Node.js. Abri o site do Node.js para instalacao manual."
-        exit 1
-    fi
-
-    brew install node
+electron_download_url() {
+    local arch_name
+    case "$(uname -m)" in
+        arm64)
+            arch_name="arm64"
+            ;;
+        x86_64|amd64)
+            arch_name="x64"
+            ;;
+        *)
+            arch_name="x64"
+            ;;
+    esac
+    echo "https://github.com/electron/electron/releases/download/v$ELECTRON_VERSION/electron-v$ELECTRON_VERSION-darwin-$arch_name.zip"
 }
 
 electron_binary() {
-    local candidates=(
-        "$ELECTRON_RUNTIME_DIR/Electron.app/Contents/MacOS/Electron"
-        "$ELECTRON_RUNTIME_DIR/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
-        "$ELECTRON_RUNTIME_DIR/node_modules/.bin/electron"
-        "$ELECTRON_DIR/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
-        "$ELECTRON_DIR/node_modules/.bin/electron"
-    )
-
-    for candidate in "${candidates[@]}"; do
-        if [ -x "$candidate" ]; then
-            echo "$candidate"
-            return 0
-        fi
-    done
-
+    local candidate="$ELECTRON_RUNTIME_DIR/Electron.app/Contents/MacOS/Electron"
+    if [ -x "$candidate" ]; then
+        echo "$candidate"
+        return 0
+    fi
     return 1
 }
 
@@ -96,15 +88,30 @@ ensure_dependencies() {
     fi
 
     mkdir -p "$ELECTRON_RUNTIME_DIR"
-    cd "$ELECTRON_RUNTIME_DIR"
-    npm install --no-audit --no-fund --ignore-scripts=false --foreground-scripts --no-save "electron@$ELECTRON_VERSION" 2>&1 | tee -a "$LOG_FILE"
+    local electron_zip="$APP_DIR/electron-runtime-$ELECTRON_VERSION.zip"
+    local extract_dir="$APP_DIR/electron-runtime-extract"
+    local url
+    url="$(electron_download_url)"
 
-    if ! electron_binary >/dev/null 2>&1 && [ -f "$ELECTRON_RUNTIME_DIR/node_modules/electron/install.js" ]; then
-        node "$ELECTRON_RUNTIME_DIR/node_modules/electron/install.js" 2>&1 | tee -a "$LOG_FILE"
+    echo "Instalacao Electron macOS sem npm: usando runtime oficial em $ELECTRON_RUNTIME_DIR" | tee -a "$LOG_FILE"
+    rm -rf "$ELECTRON_RUNTIME_DIR/Electron.app" "$ELECTRON_RUNTIME_DIR/node_modules" "$ELECTRON_RUNTIME_DIR/package.json" "$ELECTRON_RUNTIME_DIR/package-lock.json"
+    rm -rf "$ELECTRON_DIR/node_modules" "$ELECTRON_DIR/package-lock.json"
+    rm -rf "$extract_dir"
+    mkdir -p "$extract_dir"
+
+    download_with_progress "$url" "$electron_zip" "Baixando Electron para macOS"
+    unzip -q -o "$electron_zip" -d "$extract_dir" 2>&1 | tee -a "$LOG_FILE"
+    if [ ! -d "$extract_dir/Electron.app" ]; then
+        error_dialog "O arquivo do Electron foi baixado, mas Electron.app nao foi encontrado dentro dele. Veja o log em: $LOG_FILE"
+        exit 1
     fi
+    mv "$extract_dir/Electron.app" "$ELECTRON_RUNTIME_DIR/Electron.app"
+    chmod +x "$ELECTRON_RUNTIME_DIR/Electron.app/Contents/MacOS/Electron" 2>/dev/null || true
+    xattr -dr com.apple.quarantine "$ELECTRON_RUNTIME_DIR/Electron.app" 2>/dev/null || true
+    rm -rf "$extract_dir" "$electron_zip"
 
     if ! electron_binary >/dev/null 2>&1; then
-        error_dialog "O npm terminou, mas o Electron do macOS nao apareceu. Veja o log em: $LOG_FILE"
+        error_dialog "O Electron do macOS nao apareceu depois da instalacao. Veja o log em: $LOG_FILE"
         exit 1
     fi
 }
@@ -124,7 +131,6 @@ touch "$LOG_FILE"
 echo "" >> "$LOG_FILE"
 echo "[$(date)] Abrindo Electron em $ELECTRON_DIR" >> "$LOG_FILE"
 
-ensure_node
 ensure_dependencies
 
 cd "$ELECTRON_DIR"

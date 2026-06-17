@@ -7,7 +7,7 @@ APP_DIR="$ROOT_DIR/Bin"
 RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
 LOG_FILE="$ROOT_DIR/setup/setup_macos.log"
 DESKTOP_DIR="$HOME/Desktop"
-TOTAL_STEPS=9
+TOTAL_STEPS=8
 CURRENT_STEP=0
 ELECTRON_VERSION="39.8.10"
 ELECTRON_RUNTIME_DIR="$HOME/Library/Application Support/BaixadorDeVideos3000/ElectronRuntime/$ELECTRON_VERSION"
@@ -165,15 +165,6 @@ EOF
     touch "$desktop_app"
 }
 
-ensure_node() {
-    if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
-        echo "Node.js e npm ja estao instalados." | tee -a "$LOG_FILE"
-        return
-    fi
-    ensure_homebrew
-    run_logged "Instalando Node.js" brew install node
-}
-
 ensure_ytdlp_macos() {
     local target="$APP_DIR/release/yt-dlp"
     mkdir -p "$APP_DIR/release"
@@ -185,10 +176,24 @@ ensure_ytdlp_macos() {
     chmod +x "$target"
 }
 
+electron_download_url() {
+    local arch_name
+    case "$(uname -m)" in
+        arm64)
+            arch_name="arm64"
+            ;;
+        x86_64|amd64)
+            arch_name="x64"
+            ;;
+        *)
+            arch_name="x64"
+            ;;
+    esac
+    echo "https://github.com/electron/electron/releases/download/v$ELECTRON_VERSION/electron-v$ELECTRON_VERSION-darwin-$arch_name.zip"
+}
+
 electron_binary_ready() {
-    [ -x "$ELECTRON_RUNTIME_DIR/Electron.app/Contents/MacOS/Electron" ] || \
-    [ -x "$ELECTRON_RUNTIME_DIR/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron" ] || \
-    [ -x "$APP_DIR/electron/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron" ]
+    [ -x "$ELECTRON_RUNTIME_DIR/Electron.app/Contents/MacOS/Electron" ]
 }
 
 electron_build_ready() {
@@ -196,16 +201,33 @@ electron_build_ready() {
 }
 
 prepare_electron() {
-    ensure_node
     if electron_binary_ready; then
         echo "Electron ja esta instalado." | tee -a "$LOG_FILE"
     else
+        local electron_zip="$ROOT_DIR/setup/electron-runtime-$ELECTRON_VERSION.zip"
+        local extract_dir="$ROOT_DIR/setup/electron-runtime-extract"
+        local url
+        url="$(electron_download_url)"
+
+        echo "Instalacao Electron macOS sem npm: usando runtime oficial em $ELECTRON_RUNTIME_DIR" | tee -a "$LOG_FILE"
         mkdir -p "$ELECTRON_RUNTIME_DIR"
-        cd "$ELECTRON_RUNTIME_DIR"
-        run_logged "Instalando runtime Electron" npm install --no-audit --no-fund --ignore-scripts=false --foreground-scripts --no-save "electron@$ELECTRON_VERSION"
-    fi
-    if [ -f "$ELECTRON_RUNTIME_DIR/node_modules/electron/install.js" ] && ! electron_binary_ready; then
-        run_logged "Reparando runtime do Electron" node "$ELECTRON_RUNTIME_DIR/node_modules/electron/install.js"
+        rm -rf "$ELECTRON_RUNTIME_DIR/Electron.app" "$ELECTRON_RUNTIME_DIR/node_modules" "$ELECTRON_RUNTIME_DIR/package.json" "$ELECTRON_RUNTIME_DIR/package-lock.json"
+        rm -rf "$APP_DIR/electron/node_modules" "$APP_DIR/electron/package-lock.json"
+        rm -rf "$extract_dir"
+        mkdir -p "$extract_dir"
+
+        download_with_progress "$url" "$electron_zip" "Baixando Electron para macOS"
+        run_logged "Extraindo Electron" unzip -q -o "$electron_zip" -d "$extract_dir"
+
+        if [ ! -d "$extract_dir/Electron.app" ]; then
+            error_dialog "O arquivo do Electron foi baixado, mas Electron.app nao foi encontrado dentro dele. Veja o log em: $LOG_FILE"
+            exit 1
+        fi
+
+        mv "$extract_dir/Electron.app" "$ELECTRON_RUNTIME_DIR/Electron.app"
+        chmod +x "$ELECTRON_RUNTIME_DIR/Electron.app/Contents/MacOS/Electron" 2>/dev/null || true
+        xattr -dr com.apple.quarantine "$ELECTRON_RUNTIME_DIR/Electron.app" 2>/dev/null || true
+        rm -rf "$extract_dir" "$electron_zip"
     fi
     if ! electron_binary_ready; then
         error_dialog "O Electron nao foi instalado corretamente. Veja o log em: $LOG_FILE"
@@ -214,7 +236,8 @@ prepare_electron() {
     if electron_build_ready; then
         echo "Build Electron ja esta pronto." | tee -a "$LOG_FILE"
     else
-        run_logged "Gerando build Electron" npm run build
+        error_dialog "Nao encontrei o build da interface Electron em: $APP_DIR/electron/dist. Atualize a pasta do programa e rode o setup novamente."
+        exit 1
     fi
 }
 
@@ -256,8 +279,6 @@ main() {
     run_logged "Instalando/verificando dependencias Python" install_app_dependencies "$PYTHON_BIN"
     progress_step "Ajustando permissoes"
     chmod_app_commands "$APP_DIR"
-    progress_step "Verificando Node.js e npm"
-    ensure_node
     progress_step "Verificando Electron"
     prepare_electron
     progress_step "Criando atalhos"
