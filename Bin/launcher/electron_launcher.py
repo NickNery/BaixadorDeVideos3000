@@ -11,6 +11,7 @@ from tkinter import Tk, messagebox
 
 APP_TITLE = "Baixador de Videos 3000 - Electron"
 NODE_URL = "https://nodejs.org/"
+ELECTRON_VERSION = "39.8.10"
 
 
 def find_app_dir():
@@ -118,7 +119,12 @@ def resolve_npm_cli():
 
 
 def resolve_electron_cli():
+    local_base = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA") or os.environ.get("TEMP") or str(Path.home())
+    local_runtime = Path(local_base) / "BaixadorDeVideos3000" / "ElectronRuntime" / ELECTRON_VERSION
     candidates = [
+        local_runtime / "electron.exe",
+        local_runtime / "node_modules" / "electron" / "dist" / "electron.exe",
+        local_runtime / "node_modules" / "electron" / "cli.js",
         ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe",
         ELECTRON_DIR / "node_modules" / "electron" / "cli.js",
     ]
@@ -126,6 +132,11 @@ def resolve_electron_cli():
         if candidate.exists():
             return candidate
     return None
+
+
+def electron_runtime_dir():
+    local_base = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA") or os.environ.get("TEMP") or str(Path.home())
+    return Path(local_base) / "BaixadorDeVideos3000" / "ElectronRuntime" / ELECTRON_VERSION
 
 
 def electron_package_version():
@@ -158,7 +169,7 @@ def prepare_local_electron_exe():
 
 def electron_runtime_ready():
     if os.name == "nt":
-        return (ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe").exists()
+        return resolve_electron_cli() is not None
     return resolve_electron_cli() is not None
 
 
@@ -245,33 +256,42 @@ def ensure_dependencies():
     if electron_runtime_ready():
         return
 
-    has_node_modules = (ELECTRON_DIR / "node_modules").exists()
-    prompt = (
-        "A instalacao do Electron parece incompleta nesta pasta.\n\n"
-        "Deseja reparar agora com npm install?"
-        if has_node_modules
-        else "As dependencias da versao Electron ainda nao estao instaladas nesta pasta.\n\n"
-        "Deseja instalar agora com npm install?"
-    )
+    prompt = "O runtime Electron ainda nao esta preparado neste computador.\n\nDeseja instalar agora?"
     if not ask(
         prompt
     ):
         raise RuntimeError("Dependencias Electron nao instaladas.")
 
-    info("Vou instalar as dependencias Electron agora. Isso pode demorar alguns minutos.")
+    info("Vou instalar o runtime Electron local agora. Isso pode demorar alguns minutos.")
     node_cmd = resolve_node_command()
     npm_cli = resolve_npm_cli()
     if not node_cmd or not npm_cli:
         raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar os arquivos do npm.")
-    run_checked([node_cmd, str(npm_cli), "install"], cwd=ELECTRON_DIR, action="npm install")
+    runtime_dir = electron_runtime_dir()
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    run_checked(
+        [
+            node_cmd,
+            str(npm_cli),
+            "install",
+            "--no-audit",
+            "--no-fund",
+            "--ignore-scripts=false",
+            "--foreground-scripts",
+            "--no-save",
+            f"electron@{ELECTRON_VERSION}",
+        ],
+        cwd=runtime_dir,
+        action="npm install electron",
+    )
 
-    install_js = ELECTRON_DIR / "node_modules" / "electron" / "install.js"
+    install_js = runtime_dir / "node_modules" / "electron" / "install.js"
     if not electron_runtime_ready() and install_js.exists():
-        run_checked([node_cmd, str(install_js)], cwd=ELECTRON_DIR, action="reparo do Electron")
+        run_checked([node_cmd, str(install_js)], cwd=install_js.parent, action="reparo do Electron")
 
     if not electron_runtime_ready():
         raise RuntimeError(
-            "As dependencias foram instaladas, mas o electron.exe nao apareceu.\n\n"
+            "O runtime Electron foi instalado, mas o electron.exe nao apareceu.\n\n"
             "Isso normalmente acontece quando o download do Electron foi bloqueado ou interrompido.\n"
             f"Confira o log em:\n{LOG_FILE}"
         )
@@ -280,33 +300,16 @@ def ensure_dependencies():
 def source_is_newer_than_build():
     main_build = ELECTRON_DIR / "dist" / "main" / "main.js"
     renderer_build = ELECTRON_DIR / "dist" / "renderer" / "index.html"
-    if not main_build.exists() or not renderer_build.exists():
-        return True
-
-    sources = []
-    sources.extend((ELECTRON_DIR / "src").rglob("*"))
-    sources.extend(
-        [
-            ELECTRON_DIR / "package.json",
-            ELECTRON_DIR / "vite.config.ts",
-            ELECTRON_DIR / "tsconfig.json",
-            ELECTRON_DIR / "tsconfig.main.json",
-        ]
-    )
-    newest_source = max(path.stat().st_mtime for path in sources if path.is_file())
-    oldest_build = min(main_build.stat().st_mtime, renderer_build.stat().st_mtime)
-    return newest_source > oldest_build
+    return not (main_build.exists() and renderer_build.exists())
 
 
 def ensure_build():
     if not source_is_newer_than_build():
         return
-    info("Vou preparar a versao Electron local agora.")
-    node_cmd = resolve_node_command()
-    npm_cli = resolve_npm_cli()
-    if not node_cmd or not npm_cli:
-        raise RuntimeError("Encontrei o Node.js, mas nao consegui localizar os arquivos do npm.")
-    run_checked([node_cmd, str(npm_cli), "run", "build"], cwd=ELECTRON_DIR, action="npm run build")
+    raise RuntimeError(
+        "Nao encontrei o build da interface Electron em Bin\\electron\\dist.\n\n"
+        "Atualize a pasta do programa e rode o setup novamente."
+    )
 
 
 def launch_electron():

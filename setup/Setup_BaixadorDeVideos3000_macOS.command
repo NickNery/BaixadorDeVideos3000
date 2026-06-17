@@ -9,6 +9,8 @@ LOG_FILE="$ROOT_DIR/setup/setup_macos.log"
 DESKTOP_DIR="$HOME/Desktop"
 TOTAL_STEPS=9
 CURRENT_STEP=0
+ELECTRON_VERSION="39.8.10"
+ELECTRON_RUNTIME_DIR="$HOME/Library/Application Support/BaixadorDeVideos3000/ElectronRuntime/$ELECTRON_VERSION"
 
 export PATH="$APP_DIR:$APP_DIR/.venv/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
@@ -184,6 +186,8 @@ ensure_ytdlp_macos() {
 }
 
 electron_binary_ready() {
+    [ -x "$ELECTRON_RUNTIME_DIR/Electron.app/Contents/MacOS/Electron" ] || \
+    [ -x "$ELECTRON_RUNTIME_DIR/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron" ] || \
     [ -x "$APP_DIR/electron/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron" ]
 }
 
@@ -193,14 +197,15 @@ electron_build_ready() {
 
 prepare_electron() {
     ensure_node
-    cd "$APP_DIR/electron"
     if electron_binary_ready; then
         echo "Electron ja esta instalado." | tee -a "$LOG_FILE"
     else
-        run_logged "Instalando dependencias Electron" npm install
+        mkdir -p "$ELECTRON_RUNTIME_DIR"
+        cd "$ELECTRON_RUNTIME_DIR"
+        run_logged "Instalando runtime Electron" npm install --no-audit --no-fund --ignore-scripts=false --foreground-scripts --no-save "electron@$ELECTRON_VERSION"
     fi
-    if [ -f "node_modules/electron/install.js" ] && ! electron_binary_ready; then
-        run_logged "Reparando runtime do Electron" node node_modules/electron/install.js
+    if [ -f "$ELECTRON_RUNTIME_DIR/node_modules/electron/install.js" ] && ! electron_binary_ready; then
+        run_logged "Reparando runtime do Electron" node "$ELECTRON_RUNTIME_DIR/node_modules/electron/install.js"
     fi
     if ! electron_binary_ready; then
         error_dialog "O Electron nao foi instalado corretamente. Veja o log em: $LOG_FILE"

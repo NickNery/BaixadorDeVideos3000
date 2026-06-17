@@ -5,6 +5,8 @@ APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 ELECTRON_DIR="$APP_DIR/electron"
 RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
 LOG_FILE="$APP_DIR/BaixadorDeVideos3000_Electron_macOS.log"
+ELECTRON_VERSION="39.8.10"
+ELECTRON_RUNTIME_DIR="$HOME/Library/Application Support/BaixadorDeVideos3000/ElectronRuntime/$ELECTRON_VERSION"
 
 export PATH="$APP_DIR:$APP_DIR/.venv/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
@@ -65,6 +67,9 @@ ensure_node() {
 
 electron_binary() {
     local candidates=(
+        "$ELECTRON_RUNTIME_DIR/Electron.app/Contents/MacOS/Electron"
+        "$ELECTRON_RUNTIME_DIR/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
+        "$ELECTRON_RUNTIME_DIR/node_modules/.bin/electron"
         "$ELECTRON_DIR/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
         "$ELECTRON_DIR/node_modules/.bin/electron"
     )
@@ -85,15 +90,17 @@ ensure_dependencies() {
         return
     fi
 
-    if ! ask_yes_no "As dependencias da versao Electron ainda nao estao instaladas. Deseja rodar npm install agora?"; then
+    if ! ask_yes_no "O runtime Electron ainda nao esta preparado neste Mac. Deseja instalar agora?"; then
         echo "Dependencias Electron nao instaladas." | tee -a "$LOG_FILE"
         exit 1
     fi
 
-    npm install 2>&1 | tee -a "$LOG_FILE"
+    mkdir -p "$ELECTRON_RUNTIME_DIR"
+    cd "$ELECTRON_RUNTIME_DIR"
+    npm install --no-audit --no-fund --ignore-scripts=false --foreground-scripts --no-save "electron@$ELECTRON_VERSION" 2>&1 | tee -a "$LOG_FILE"
 
-    if ! electron_binary >/dev/null 2>&1 && [ -f "$ELECTRON_DIR/node_modules/electron/install.js" ]; then
-        node "$ELECTRON_DIR/node_modules/electron/install.js" 2>&1 | tee -a "$LOG_FILE"
+    if ! electron_binary >/dev/null 2>&1 && [ -f "$ELECTRON_RUNTIME_DIR/node_modules/electron/install.js" ]; then
+        node "$ELECTRON_RUNTIME_DIR/node_modules/electron/install.js" 2>&1 | tee -a "$LOG_FILE"
     fi
 
     if ! electron_binary >/dev/null 2>&1; then
@@ -105,11 +112,7 @@ ensure_dependencies() {
 build_is_old() {
     [ ! -f "$ELECTRON_DIR/dist/main/main.js" ] && return 0
     [ ! -f "$ELECTRON_DIR/dist/renderer/index.html" ] && return 0
-    local newest_source
-    newest_source="$(find "$ELECTRON_DIR/src" "$ELECTRON_DIR/package.json" "$ELECTRON_DIR/vite.config.ts" "$ELECTRON_DIR/tsconfig.json" "$ELECTRON_DIR/tsconfig.main.json" -type f -print0 | xargs -0 stat -f "%m" | sort -nr | head -n 1)"
-    local oldest_build
-    oldest_build="$(stat -f "%m" "$ELECTRON_DIR/dist/main/main.js" "$ELECTRON_DIR/dist/renderer/index.html" | sort -n | head -n 1)"
-    [ "$newest_source" -gt "$oldest_build" ]
+    return 1
 }
 
 if [ ! -d "$ELECTRON_DIR" ]; then
@@ -126,7 +129,8 @@ ensure_dependencies
 
 cd "$ELECTRON_DIR"
 if build_is_old; then
-    npm run build 2>&1 | tee -a "$LOG_FILE"
+    error_dialog "Nao encontrei o build da interface Electron em: $ELECTRON_DIR/dist. Atualize a pasta do programa e rode o setup novamente."
+    exit 1
 fi
 
 ELECTRON_BIN="$(electron_binary)"

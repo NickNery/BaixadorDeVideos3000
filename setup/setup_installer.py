@@ -13,6 +13,7 @@ from tkinter import ttk
 
 APP_TITLE = "Setup - Baixador de Videos 3000"
 NODE_URL = "https://nodejs.org/"
+ELECTRON_VERSION = "39.8.10"
 
 
 def base_dir():
@@ -98,30 +99,31 @@ def resolve_npm_cli():
 
 
 def electron_runtime_ready():
-    return (ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe").exists()
+    return any(path.exists() for path in electron_exe_candidates())
+
+
+def electron_runtime_dir():
+    base = (
+        os.environ.get("LOCALAPPDATA")
+        or os.environ.get("APPDATA")
+        or os.environ.get("TEMP")
+        or str(Path.home())
+    )
+    return Path(base) / "BaixadorDeVideos3000" / "ElectronRuntime" / ELECTRON_VERSION
+
+
+def electron_exe_candidates():
+    return [
+        electron_runtime_dir() / "electron.exe",
+        electron_runtime_dir() / "node_modules" / "electron" / "dist" / "electron.exe",
+        ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe",
+    ]
 
 
 def electron_build_ready():
     main_build = ELECTRON_DIR / "dist" / "main" / "main.js"
     renderer_build = ELECTRON_DIR / "dist" / "renderer" / "index.html"
-    if not main_build.exists() or not renderer_build.exists():
-        return False
-
-    source_files = []
-    source_root = ELECTRON_DIR / "src"
-    if source_root.exists():
-        source_files.extend(path for path in source_root.rglob("*") if path.is_file())
-    for name in ("package.json", "vite.config.ts", "tsconfig.json", "tsconfig.main.json"):
-        path = ELECTRON_DIR / name
-        if path.exists():
-            source_files.append(path)
-
-    if not source_files:
-        return True
-
-    newest_source = max(path.stat().st_mtime for path in source_files)
-    oldest_build = min(main_build.stat().st_mtime, renderer_build.stat().st_mtime)
-    return newest_source <= oldest_build
+    return main_build.exists() and renderer_build.exists()
 
 
 class InstallerApp:
@@ -265,15 +267,9 @@ class InstallerApp:
         env["PATH"] = node_dir + os.pathsep + env.get("PATH", "")
 
         self.log(f"> {action}")
-        command = (
-            f'chcp 65001 >nul && '
-            f'set "PATH={node_dir};%PATH%" && '
-            f'pushd "{ELECTRON_DIR}" && '
-            f'"{node}" "{npm_cli}" {" ".join(args)}'
-        )
         completed = subprocess.run(
-            ["cmd.exe", "/d", "/s", "/c", command],
-            cwd=os.environ.get("TEMP") or os.environ.get("USERPROFILE") or None,
+            [node, str(npm_cli), *[str(arg) for arg in args]],
+            cwd=str(electron_runtime_dir()),
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -287,6 +283,15 @@ class InstallerApp:
                 self.log(line)
         if completed.returncode != 0:
             raise RuntimeError(f"Falha ao executar {action}.")
+
+    def run_node(self, args, cwd, action):
+        node = resolve_node()
+        if not node:
+            raise RuntimeError("Nao consegui localizar Node.js depois da verificacao.")
+        node_dir = str(Path(node).resolve().parent)
+        env = os.environ.copy()
+        env["PATH"] = node_dir + os.pathsep + env.get("PATH", "")
+        self.run([node, *[str(arg) for arg in args]], cwd=cwd, action=action)
 
     def ensure_bin(self):
         self.set_progress(5, "Verificando pasta do programa...")
@@ -329,29 +334,45 @@ class InstallerApp:
 
     def ensure_electron(self):
         self.ensure_node()
-        electron_exe = ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe"
 
         if electron_runtime_ready():
             self.set_progress(68, "Electron ja esta instalado.")
         else:
-            self.set_progress(52, "Instalando dependencias Electron...")
-            self.run_npm(["install"], action="npm install")
+            runtime_dir = electron_runtime_dir()
+            runtime_dir.mkdir(parents=True, exist_ok=True)
+            self.set_progress(52, "Instalando runtime Electron local...")
+            self.run_npm(
+                [
+                    "install",
+                    "--no-audit",
+                    "--no-fund",
+                    "--ignore-scripts=false",
+                    "--foreground-scripts",
+                    "--no-save",
+                    f"electron@{ELECTRON_VERSION}",
+                ],
+                action="npm install electron",
+            )
 
-        install_js = ELECTRON_DIR / "node_modules" / "electron" / "install.js"
-        if not electron_exe.exists() and install_js.exists():
-            node = resolve_node()
+        install_js_candidates = [
+            electron_runtime_dir() / "node_modules" / "electron" / "install.js",
+            ELECTRON_DIR / "node_modules" / "electron" / "install.js",
+        ]
+        install_js = next((path for path in install_js_candidates if path.exists()), None)
+        if not electron_runtime_ready() and install_js:
             self.set_progress(62, "Reparando runtime do Electron...")
-            self.run([node, install_js], cwd=ELECTRON_DIR, action="reparo do Electron")
+            self.run_node([install_js], cwd=install_js.parent, action="reparo do Electron")
 
-        if not electron_exe.exists():
+        if not electron_runtime_ready():
             raise RuntimeError("O Electron nao foi instalado corretamente.")
 
         if electron_build_ready():
             self.set_progress(78, "Build Electron ja esta pronto.")
         else:
-            self.set_progress(70, "Gerando build Electron...")
-            self.run_npm(["run", "build"], action="npm run build")
-            self.set_progress(78, "Build Electron concluido.")
+            raise RuntimeError(
+                "Nao encontrei o build da interface Electron em Bin\\electron\\dist.\n"
+                "Atualize a pasta do programa e rode o setup novamente."
+            )
 
     def ensure_media_tools(self):
         ytdlp = RELEASE_DIR / "yt-dlp.exe"
