@@ -1,6 +1,6 @@
 {
-  "version": "1.6.2",
-  "notes": "Simplifica o setup Electron: usa build pronto, instala apenas o runtime Electron local e evita npm install dentro da pasta do servidor.",
+  "version": "1.6.3",
+  "notes": "Corrige a criacao de atalhos no setup Windows para caminhos com espacos, acentos e pastas de servidor.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_macOS.command",
   "files": [

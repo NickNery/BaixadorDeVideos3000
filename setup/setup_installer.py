@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import urllib.request
 import webbrowser
@@ -459,38 +460,57 @@ class InstallerApp:
 
     def create_shortcut(self, name, target, description):
         desktop = Path(os.path.join(os.environ.get("USERPROFILE", str(Path.home())), "Desktop"))
+        desktop.mkdir(parents=True, exist_ok=True)
         shortcut = desktop / f"{name}.lnk"
         icon = ICON_FILE if ICON_FILE.exists() else target
         ps = r"""
-$shortcutPath = $args[0]
-$targetPath = $args[1]
-$workingDirectory = $args[2]
-$iconPath = $args[3]
-$description = $args[4]
+param(
+    [Parameter(Mandatory=$true)][string]$ShortcutPath,
+    [Parameter(Mandatory=$true)][string]$TargetPath,
+    [Parameter(Mandatory=$true)][string]$WorkingDirectory,
+    [Parameter(Mandatory=$true)][string]$IconPath,
+    [Parameter(Mandatory=$true)][string]$Description
+)
 $shell = New-Object -ComObject WScript.Shell
-$shortcut = $shell.CreateShortcut($shortcutPath)
-$shortcut.TargetPath = $targetPath
-$shortcut.WorkingDirectory = $workingDirectory
-$shortcut.IconLocation = $iconPath
-$shortcut.Description = $description
+$shortcut = $shell.CreateShortcut($ShortcutPath)
+$shortcut.TargetPath = $TargetPath
+$shortcut.WorkingDirectory = $WorkingDirectory
+$shortcut.IconLocation = $IconPath
+$shortcut.Description = $Description
 $shortcut.Save()
 """
-        self.run(
-            [
-                "powershell",
-                "-NoProfile",
-                "-ExecutionPolicy",
-                "Bypass",
-                "-Command",
-                ps,
-                str(shortcut),
-                str(target),
-                str(BIN_DIR),
-                str(icon),
-                description,
-            ],
-            action=f"criacao do atalho {name}",
-        )
+        temp_script = None
+        try:
+            with tempfile.NamedTemporaryFile("w", suffix=".ps1", delete=False, encoding="utf-8") as handle:
+                handle.write(ps)
+                temp_script = handle.name
+            self.run(
+                [
+                    "powershell",
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    temp_script,
+                    "-ShortcutPath",
+                    str(shortcut),
+                    "-TargetPath",
+                    str(target),
+                    "-WorkingDirectory",
+                    str(BIN_DIR),
+                    "-IconPath",
+                    str(icon),
+                    "-Description",
+                    description,
+                ],
+                action=f"criacao do atalho {name}",
+            )
+        finally:
+            if temp_script:
+                try:
+                    Path(temp_script).unlink(missing_ok=True)
+                except Exception:
+                    pass
 
     def create_shortcuts(self):
         self.set_progress(86, "Criando atalhos selecionados...")

@@ -1,6 +1,6 @@
 {
   "name": "baixador-de-videos-3000-electron",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "private": true,
   "description": "Versao Electron + React + TypeScript do BaixadorDeVideos3000.",
   "main": "dist/main/main.js",
