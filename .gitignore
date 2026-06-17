@@ -1,11 +1,17 @@
 __pycache__/
 *.pyc
 build/
+Bin/build/
+Bin/release/ffmpeg.exe
 release/ffmpeg.exe
 _apply_update.py
 ytdlp_gui_config.json
 deno.exe
 doom/
+Bin/electron/node_modules/
+Bin/electron/dist/
+Bin/electron/dist-packages/
+Bin/electron/package-lock.json
 electron/node_modules/
 electron/dist/
 electron/dist-packages/

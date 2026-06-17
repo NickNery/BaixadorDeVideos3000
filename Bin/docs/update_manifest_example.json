@@ -1,0 +1,232 @@
+{
+  "version": "1.6.0",
+  "notes": "Descreva aqui o que mudou nesta versao.",
+  "installer_windows_url": "https://SEU-SITE-OU-GITHUB/setup/Setup_BaixadorDeVideos3000_Windows.exe",
+  "installer_macos_url": "https://SEU-SITE-OU-GITHUB/setup/Setup_BaixadorDeVideos3000_macOS.command",
+  "files": [
+    {
+      "path": "README.md",
+      "url": "https://SEU-SITE-OU-GITHUB/README.md"
+    },
+    {
+      "path": "setup/setup_installer.py",
+      "url": "https://SEU-SITE-OU-GITHUB/setup/setup_installer.py"
+    },
+    {
+      "path": "setup/Setup_BaixadorDeVideos3000_Windows.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/setup/Setup_BaixadorDeVideos3000_Windows.exe"
+    },
+    {
+      "path": "setup/Setup_BaixadorDeVideos3000_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/setup/Setup_BaixadorDeVideos3000_macOS.command"
+    },
+    {
+      "path": "Bin/assets/app_icon.png",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/assets/app_icon.png"
+    },
+    {
+      "path": "Bin/assets/favicon.ico",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/assets/favicon.ico"
+    },
+    {
+      "path": "Bin/docs/argumentosExtras.txt",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/docs/argumentosExtras.txt"
+    },
+    {
+      "path": "Bin/docs/Tutorial_BaixadorDeVideos3000.pdf",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/docs/Tutorial_BaixadorDeVideos3000.pdf"
+    },
+    {
+      "path": "Bin/docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md"
+    },
+    {
+      "path": "Bin/docs/update_manifest_example.json",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/docs/update_manifest_example.json"
+    },
+    {
+      "path": "Bin/electron/index.html",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/index.html"
+    },
+    {
+      "path": "Bin/electron/package.json",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/package.json"
+    },
+    {
+      "path": "Bin/electron/pnpm-lock.yaml",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/pnpm-lock.yaml"
+    },
+    {
+      "path": "Bin/electron/pnpm-workspace.yaml",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/pnpm-workspace.yaml"
+    },
+    {
+      "path": "Bin/electron/README.md",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/README.md"
+    },
+    {
+      "path": "Bin/electron/src/main/main.ts",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/src/main/main.ts"
+    },
+    {
+      "path": "Bin/electron/src/main/preload.ts",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/src/main/preload.ts"
+    },
+    {
+      "path": "Bin/electron/src/renderer/App.tsx",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/src/renderer/App.tsx"
+    },
+    {
+      "path": "Bin/electron/src/renderer/styles.css",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/src/renderer/styles.css"
+    },
+    {
+      "path": "Bin/electron/src/renderer/vite-env.d.ts",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/src/renderer/vite-env.d.ts"
+    },
+    {
+      "path": "Bin/electron/src/shared/types.ts",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/src/shared/types.ts"
+    },
+    {
+      "path": "Bin/electron/tsconfig.json",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/tsconfig.json"
+    },
+    {
+      "path": "Bin/electron/tsconfig.main.json",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/tsconfig.main.json"
+    },
+    {
+      "path": "Bin/electron/vite.config.ts",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/electron/vite.config.ts"
+    },
+    {
+      "path": "Bin/launcher/Abrir_Baixador_Electron.bat",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/Abrir_Baixador_Electron.bat"
+    },
+    {
+      "path": "Bin/launcher/Abrir_Baixador_Electron.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/Abrir_Baixador_Electron.command"
+    },
+    {
+      "path": "Bin/launcher/Abrir_Baixador_Electron.ps1",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/Abrir_Baixador_Electron.ps1"
+    },
+    {
+      "path": "Bin/launcher/Abrir_Baixador_YTDLP.bat",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/Abrir_Baixador_YTDLP.bat"
+    },
+    {
+      "path": "Bin/launcher/Abrir_Baixador_YTDLP.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/Abrir_Baixador_YTDLP.command"
+    },
+    {
+      "path": "Bin/launcher/Abrir_Baixador_YTDLP.vbs",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/Abrir_Baixador_YTDLP.vbs"
+    },
+    {
+      "path": "Bin/launcher/BaixadorDeVideos3000.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/BaixadorDeVideos3000.command"
+    },
+    {
+      "path": "Bin/launcher/BaixadorDeVideos3000.vbs",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/BaixadorDeVideos3000.vbs"
+    },
+    {
+      "path": "Bin/launcher/BaixadorDeVideos3000_Electron.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/BaixadorDeVideos3000_Electron.command"
+    },
+    {
+      "path": "Bin/launcher/BaixadorDeVideos3000_Electron.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/BaixadorDeVideos3000_Electron.exe"
+    },
+    {
+      "path": "Bin/launcher/electron_launcher.py",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/launcher/electron_launcher.py"
+    },
+    {
+      "path": "Bin/python/README.md",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/python/README.md"
+    },
+    {
+      "path": "Bin/python/requirements.txt",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/python/requirements.txt"
+    },
+    {
+      "path": "Bin/python/src/ytdlp_gui_downloader.py",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/python/src/ytdlp_gui_downloader.py"
+    },
+    {
+      "path": "Bin/release/Baixador_YTDLP_Windows_macOS.zip",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/release/Baixador_YTDLP_Windows_macOS.zip"
+    },
+    {
+      "path": "Bin/release/BaixadorDeVideos3000.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/release/BaixadorDeVideos3000.exe"
+    },
+    {
+      "path": "Bin/release/BaixadorDeVideos3000_Electron.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/release/BaixadorDeVideos3000_Electron.exe"
+    },
+    {
+      "path": "Bin/release/BaixadorDeVideos3000_Instalador_macOS.zip",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/release/BaixadorDeVideos3000_Instalador_macOS.zip"
+    },
+    {
+      "path": "Bin/release/BaixadorDeVideos3000_Setup_Windows.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/release/BaixadorDeVideos3000_Setup_Windows.exe"
+    },
+    {
+      "path": "Bin/release/Instalador_Automatico_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/release/Instalador_Automatico_macOS.command"
+    },
+    {
+      "path": "Bin/release/legacy/ytdlp_gui_downloader.py",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/release/legacy/ytdlp_gui_downloader.py"
+    },
+    {
+      "path": "Bin/release/yt-dlp.exe",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/release/yt-dlp.exe"
+    },
+    {
+      "path": "Bin/scripts/Build_Electron_Launcher_Windows.ps1",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Build_Electron_Launcher_Windows.ps1"
+    },
+    {
+      "path": "Bin/scripts/Build_Electron_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Build_Electron_macOS.command"
+    },
+    {
+      "path": "Bin/scripts/Build_Electron_Windows.bat",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Build_Electron_Windows.bat"
+    },
+    {
+      "path": "Bin/scripts/Build_Instalador_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Build_Instalador_macOS.command"
+    },
+    {
+      "path": "Bin/scripts/Build_Instalador_Windows.ps1",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Build_Instalador_Windows.ps1"
+    },
+    {
+      "path": "Bin/scripts/Instalador_Automatico_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Instalador_Automatico_macOS.command"
+    },
+    {
+      "path": "Bin/scripts/Instalar_Dependencias_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Instalar_Dependencias_macOS.command"
+    },
+    {
+      "path": "Bin/scripts/Instalar_Dependencias_Windows.bat",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Instalar_Dependencias_Windows.bat"
+    },
+    {
+      "path": "Bin/scripts/macos_python_runtime.zsh",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/macos_python_runtime.zsh"
+    },
+    {
+      "path": "Bin/scripts/Sincronizar_Release_Servidor_Windows.bat",
+      "url": "https://SEU-SITE-OU-GITHUB/Bin/scripts/Sincronizar_Release_Servidor_Windows.bat"
+    }
+  ]
+}

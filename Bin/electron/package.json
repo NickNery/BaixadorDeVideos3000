@@ -1,0 +1,59 @@
+{
+  "name": "baixador-de-videos-3000-electron",
+  "version": "1.6.0",
+  "private": true,
+  "description": "Versao Electron + React + TypeScript do BaixadorDeVideos3000.",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "dev:renderer": "vite --host 127.0.0.1",
+    "dev:electron": "tsc -p tsconfig.main.json && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .",
+    "build": "tsc -p tsconfig.main.json && vite build",
+    "preview": "npm run build && electron .",
+    "package:win": "npm run build && electron-builder --win nsis",
+    "package:mac": "npm run build && electron-builder --mac dmg"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "cross-env": "^10.1.0",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.2",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3"
+  },
+  "build": {
+    "appId": "br.com.edgesolution.baixadordevideos3000",
+    "productName": "Baixador de Videos 3000",
+    "directories": {
+      "output": "dist-packages"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../assets",
+        "to": "assets"
+      },
+      {
+        "from": "../release/yt-dlp.exe",
+        "to": "yt-dlp.exe"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "../assets/favicon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "../assets/app_icon.png"
+    }
+  }
+}

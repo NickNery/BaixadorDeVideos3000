@@ -1,212 +1,232 @@
 {
-  "version": "1.5.10",
-  "notes": "Corrige a tela vazia da versao Electron ao carregar os arquivos da interface por caminhos relativos.",
-  "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe",
-  "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip",
+  "version": "1.6.0",
+  "notes": "Reorganiza o projeto dentro da pasta Bin, adiciona setup para Windows/macOS com escolha de atalhos e corrige a abertura do Electron no macOS.",
+  "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_Windows.exe",
+  "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_macOS.command",
   "files": [
-    {
-      "path": "ytdlp_gui_downloader.py",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/legacy/ytdlp_gui_downloader.py"
-    },
-    {
-      "path": "python/src/ytdlp_gui_downloader.py",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/python/src/ytdlp_gui_downloader.py"
-    },
     {
       "path": "README.md",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/README.md"
     },
     {
-      "path": "python/requirements.txt",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/python/requirements.txt"
+      "path": "setup/setup_installer.py",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/setup_installer.py"
     },
     {
-      "path": "python/README.md",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/python/README.md"
+      "path": "setup/Setup_BaixadorDeVideos3000_Windows.exe",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_Windows.exe"
     },
     {
-      "path": "electron/package.json",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/package.json"
+      "path": "setup/Setup_BaixadorDeVideos3000_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_macOS.command"
     },
     {
-      "path": "electron/pnpm-lock.yaml",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/pnpm-lock.yaml"
+      "path": "Bin/assets/app_icon.png",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/assets/app_icon.png"
     },
     {
-      "path": "electron/pnpm-workspace.yaml",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/pnpm-workspace.yaml"
+      "path": "Bin/assets/favicon.ico",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/assets/favicon.ico"
     },
     {
-      "path": "electron/README.md",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/README.md"
+      "path": "Bin/docs/argumentosExtras.txt",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/docs/argumentosExtras.txt"
     },
     {
-      "path": "electron/src/main/main.ts",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/main/main.ts"
+      "path": "Bin/docs/Tutorial_BaixadorDeVideos3000.pdf",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/docs/Tutorial_BaixadorDeVideos3000.pdf"
     },
     {
-      "path": "electron/src/main/preload.ts",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/main/preload.ts"
+      "path": "Bin/docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md"
     },
     {
-      "path": "electron/src/renderer/App.tsx",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/renderer/App.tsx"
+      "path": "Bin/docs/update_manifest_example.json",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/docs/update_manifest_example.json"
     },
     {
-      "path": "electron/src/renderer/styles.css",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/renderer/styles.css"
+      "path": "Bin/electron/index.html",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/index.html"
     },
     {
-      "path": "electron/src/shared/types.ts",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/src/shared/types.ts"
+      "path": "Bin/electron/package.json",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/package.json"
     },
     {
-      "path": "electron/index.html",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/index.html"
+      "path": "Bin/electron/pnpm-lock.yaml",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/pnpm-lock.yaml"
     },
     {
-      "path": "electron/vite.config.ts",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/vite.config.ts"
+      "path": "Bin/electron/pnpm-workspace.yaml",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/pnpm-workspace.yaml"
     },
     {
-      "path": "electron/tsconfig.json",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/tsconfig.json"
+      "path": "Bin/electron/README.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/README.md"
     },
     {
-      "path": "electron/tsconfig.main.json",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/electron/tsconfig.main.json"
+      "path": "Bin/electron/src/main/main.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/src/main/main.ts"
     },
     {
-      "path": "assets/favicon.ico",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/favicon.ico"
+      "path": "Bin/electron/src/main/preload.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/src/main/preload.ts"
     },
     {
-      "path": "assets/app_icon.png",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/app_icon.png"
+      "path": "Bin/electron/src/renderer/App.tsx",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/src/renderer/App.tsx"
     },
     {
-      "path": "favicon.ico",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/favicon.ico"
+      "path": "Bin/electron/src/renderer/styles.css",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/src/renderer/styles.css"
     },
     {
-      "path": "app_icon.png",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/assets/app_icon.png"
+      "path": "Bin/electron/src/renderer/vite-env.d.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/src/renderer/vite-env.d.ts"
     },
     {
-      "path": "BaixadorDeVideos3000.vbs",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000.vbs"
+      "path": "Bin/electron/src/shared/types.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/src/shared/types.ts"
     },
     {
-      "path": "BaixadorDeVideos3000.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000.command"
+      "path": "Bin/electron/tsconfig.json",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/tsconfig.json"
     },
     {
-      "path": "BaixadorDeVideos3000_Electron.exe",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000_Electron.exe"
+      "path": "Bin/electron/tsconfig.main.json",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/tsconfig.main.json"
     },
     {
-      "path": "BaixadorDeVideos3000_Electron.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/BaixadorDeVideos3000_Electron.command"
+      "path": "Bin/electron/vite.config.ts",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/electron/vite.config.ts"
     },
     {
-      "path": "docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/TUTORIAL_DISTRIBUICAO_WINDOWS_MACOS.md"
+      "path": "Bin/launcher/Abrir_Baixador_Electron.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/Abrir_Baixador_Electron.bat"
     },
     {
-      "path": "docs/argumentosExtras.txt",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/argumentosExtras.txt"
+      "path": "Bin/launcher/Abrir_Baixador_Electron.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/Abrir_Baixador_Electron.command"
     },
     {
-      "path": "docs/Tutorial_BaixadorDeVideos3000.pdf",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/Tutorial_BaixadorDeVideos3000.pdf"
+      "path": "Bin/launcher/Abrir_Baixador_Electron.ps1",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/Abrir_Baixador_Electron.ps1"
     },
     {
-      "path": "docs/update_manifest_example.json",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/docs/update_manifest_example.json"
+      "path": "Bin/launcher/Abrir_Baixador_YTDLP.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/Abrir_Baixador_YTDLP.bat"
     },
     {
-      "path": "scripts/Abrir_Baixador_YTDLP.bat",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_YTDLP.bat"
+      "path": "Bin/launcher/Abrir_Baixador_YTDLP.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/Abrir_Baixador_YTDLP.command"
     },
     {
-      "path": "scripts/Abrir_Baixador_YTDLP.vbs",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_YTDLP.vbs"
+      "path": "Bin/launcher/Abrir_Baixador_YTDLP.vbs",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/Abrir_Baixador_YTDLP.vbs"
     },
     {
-      "path": "scripts/Abrir_Baixador_YTDLP.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_YTDLP.command"
+      "path": "Bin/launcher/BaixadorDeVideos3000.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/BaixadorDeVideos3000.command"
     },
     {
-      "path": "scripts/Abrir_Baixador_Electron.ps1",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_Electron.ps1"
+      "path": "Bin/launcher/BaixadorDeVideos3000.vbs",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/BaixadorDeVideos3000.vbs"
     },
     {
-      "path": "scripts/Abrir_Baixador_Electron.bat",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_Electron.bat"
+      "path": "Bin/launcher/BaixadorDeVideos3000_Electron.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/BaixadorDeVideos3000_Electron.command"
     },
     {
-      "path": "scripts/Abrir_Baixador_Electron.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Abrir_Baixador_Electron.command"
+      "path": "Bin/launcher/BaixadorDeVideos3000_Electron.exe",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/BaixadorDeVideos3000_Electron.exe"
     },
     {
-      "path": "scripts/electron_launcher.py",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/electron_launcher.py"
+      "path": "Bin/launcher/electron_launcher.py",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/launcher/electron_launcher.py"
     },
     {
-      "path": "scripts/Instalar_Dependencias_Windows.bat",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Instalar_Dependencias_Windows.bat"
+      "path": "Bin/python/README.md",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/python/README.md"
     },
     {
-      "path": "scripts/Instalar_Dependencias_macOS.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Instalar_Dependencias_macOS.command"
+      "path": "Bin/python/requirements.txt",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/python/requirements.txt"
     },
     {
-      "path": "scripts/macos_python_runtime.zsh",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/macos_python_runtime.zsh"
+      "path": "Bin/python/src/ytdlp_gui_downloader.py",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/python/src/ytdlp_gui_downloader.py"
     },
     {
-      "path": "scripts/Sincronizar_Release_Servidor_Windows.bat",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Sincronizar_Release_Servidor_Windows.bat"
+      "path": "Bin/release/Baixador_YTDLP_Windows_macOS.zip",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/release/Baixador_YTDLP_Windows_macOS.zip"
     },
     {
-      "path": "scripts/Instalador_Automatico_macOS.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Instalador_Automatico_macOS.command"
+      "path": "Bin/release/BaixadorDeVideos3000.exe",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/release/BaixadorDeVideos3000.exe"
     },
     {
-      "path": "scripts/Build_Instalador_macOS.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Instalador_macOS.command"
+      "path": "Bin/release/BaixadorDeVideos3000_Electron.exe",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/release/BaixadorDeVideos3000_Electron.exe"
     },
     {
-      "path": "scripts/Build_Instalador_Windows.ps1",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Instalador_Windows.ps1"
+      "path": "Bin/release/BaixadorDeVideos3000_Instalador_macOS.zip",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/release/BaixadorDeVideos3000_Instalador_macOS.zip"
     },
     {
-      "path": "scripts/Build_Electron_Windows.bat",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Electron_Windows.bat"
+      "path": "Bin/release/BaixadorDeVideos3000_Setup_Windows.exe",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/release/BaixadorDeVideos3000_Setup_Windows.exe"
     },
     {
-      "path": "scripts/Build_Electron_Launcher_Windows.ps1",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Electron_Launcher_Windows.ps1"
+      "path": "Bin/release/Instalador_Automatico_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/release/Instalador_Automatico_macOS.command"
     },
     {
-      "path": "scripts/Build_Electron_macOS.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/scripts/Build_Electron_macOS.command"
+      "path": "Bin/release/legacy/ytdlp_gui_downloader.py",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/release/legacy/ytdlp_gui_downloader.py"
     },
     {
-      "path": "release/BaixadorDeVideos3000_Setup_Windows.exe",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Setup_Windows.exe"
+      "path": "Bin/release/yt-dlp.exe",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/release/yt-dlp.exe"
     },
     {
-      "path": "release/BaixadorDeVideos3000_Electron.exe",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Electron.exe"
+      "path": "Bin/scripts/Build_Electron_Launcher_Windows.ps1",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Build_Electron_Launcher_Windows.ps1"
     },
     {
-      "path": "release/Instalador_Automatico_macOS.command",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/Instalador_Automatico_macOS.command"
+      "path": "Bin/scripts/Build_Electron_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Build_Electron_macOS.command"
     },
     {
-      "path": "release/BaixadorDeVideos3000_Instalador_macOS.zip",
-      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/release/BaixadorDeVideos3000_Instalador_macOS.zip"
+      "path": "Bin/scripts/Build_Electron_Windows.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Build_Electron_Windows.bat"
+    },
+    {
+      "path": "Bin/scripts/Build_Instalador_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Build_Instalador_macOS.command"
+    },
+    {
+      "path": "Bin/scripts/Build_Instalador_Windows.ps1",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Build_Instalador_Windows.ps1"
+    },
+    {
+      "path": "Bin/scripts/Instalador_Automatico_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Instalador_Automatico_macOS.command"
+    },
+    {
+      "path": "Bin/scripts/Instalar_Dependencias_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Instalar_Dependencias_macOS.command"
+    },
+    {
+      "path": "Bin/scripts/Instalar_Dependencias_Windows.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Instalar_Dependencias_Windows.bat"
+    },
+    {
+      "path": "Bin/scripts/macos_python_runtime.zsh",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/macos_python_runtime.zsh"
+    },
+    {
+      "path": "Bin/scripts/Sincronizar_Release_Servidor_Windows.bat",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/Bin/scripts/Sincronizar_Release_Servidor_Windows.bat"
     }
   ]
 }

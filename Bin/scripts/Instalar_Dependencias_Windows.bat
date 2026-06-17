@@ -1,0 +1,9 @@
+@echo off
+cd /d "%~dp0.."
+
+python -m pip install --upgrade pip
+python -m pip install --upgrade -r python\requirements.txt
+
+echo.
+echo Dependencias instaladas.
+pause
