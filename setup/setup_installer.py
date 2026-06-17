@@ -7,6 +7,7 @@ import urllib.request
 import webbrowser
 from pathlib import Path
 from tkinter import BooleanVar, Text, Tk, messagebox
+from tkinter import DoubleVar, StringVar
 from tkinter import ttk
 
 
@@ -47,11 +48,25 @@ def add_path_if_exists(path):
 def refresh_path():
     if os.name != "nt":
         return
-    machine = os.environ.get("Path", "")
+    machine_path = os.environ.get("Path", "")
+    machine_env = os.environ.get("PATH", "")
+    registry_machine = ""
+    registry_user = ""
+    try:
+        registry_machine = os.popen(
+            'powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable(\'Path\', \'Machine\')"'
+        ).read().strip()
+        registry_user = os.popen(
+            'powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable(\'Path\', \'User\')"'
+        ).read().strip()
+    except Exception:
+        pass
     add_path_if_exists(Path(os.environ.get("ProgramFiles", "")) / "nodejs")
     add_path_if_exists(Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "nodejs")
-    if machine:
-        os.environ["PATH"] = os.environ.get("PATH", "") + os.pathsep + machine
+    for value in (machine_path, machine_env, registry_machine, registry_user):
+        if value:
+            for item in value.split(os.pathsep):
+                add_path_if_exists(item)
 
 
 def resolve_command(*names):
@@ -82,6 +97,33 @@ def resolve_npm_cli():
     return None
 
 
+def electron_runtime_ready():
+    return (ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe").exists()
+
+
+def electron_build_ready():
+    main_build = ELECTRON_DIR / "dist" / "main" / "main.js"
+    renderer_build = ELECTRON_DIR / "dist" / "renderer" / "index.html"
+    if not main_build.exists() or not renderer_build.exists():
+        return False
+
+    source_files = []
+    source_root = ELECTRON_DIR / "src"
+    if source_root.exists():
+        source_files.extend(path for path in source_root.rglob("*") if path.is_file())
+    for name in ("package.json", "vite.config.ts", "tsconfig.json", "tsconfig.main.json"):
+        path = ELECTRON_DIR / name
+        if path.exists():
+            source_files.append(path)
+
+    if not source_files:
+        return True
+
+    newest_source = max(path.stat().st_mtime for path in source_files)
+    oldest_build = min(main_build.stat().st_mtime, renderer_build.stat().st_mtime)
+    return newest_source <= oldest_build
+
+
 class InstallerApp:
     def __init__(self):
         self.root = Tk()
@@ -92,6 +134,8 @@ class InstallerApp:
 
         self.python_shortcut = BooleanVar(value=True)
         self.electron_shortcut = BooleanVar(value=True)
+        self.progress_value = DoubleVar(value=0)
+        self.status_text = StringVar(value="Aguardando inicio da instalacao.")
         self.installing = False
 
         self.setup_styles()
@@ -129,7 +173,7 @@ class InstallerApp:
 
         self.log_box = Text(
             main,
-            height=14,
+            height=11,
             bg="#101010",
             fg="#f2f2f2",
             insertbackground="#ffffff",
@@ -142,6 +186,12 @@ class InstallerApp:
         self.log("Pronto para instalar.")
         self.log(f"Pasta do programa: {ROOT_DIR}")
 
+        progress_area = ttk.Frame(main)
+        progress_area.pack(fill="x", pady=(14, 0))
+        ttk.Label(progress_area, textvariable=self.status_text, style="Muted.TLabel").pack(anchor="w", pady=(0, 6))
+        self.progress_bar = ttk.Progressbar(progress_area, variable=self.progress_value, maximum=100, mode="determinate")
+        self.progress_bar.pack(fill="x")
+
         actions = ttk.Frame(main)
         actions.pack(fill="x", pady=(16, 0))
         self.install_button = ttk.Button(actions, text="Instalar agora", style="Accent.TButton", command=self.start_install)
@@ -153,6 +203,30 @@ class InstallerApp:
         self.log_box.see("end")
         self.root.update_idletasks()
 
+    def set_progress(self, value, status=None):
+        self.progress_value.set(max(0, min(100, float(value))))
+        if status:
+            self.status_text.set(status)
+            self.log(status)
+        self.root.update_idletasks()
+
+    def download_file(self, url, target, label, start=0, end=100):
+        target = Path(target)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        self.set_progress(start, label)
+
+        def hook(block_count, block_size, total_size):
+            if total_size <= 0:
+                return
+            downloaded = min(block_count * block_size, total_size)
+            fraction = downloaded / total_size
+            self.progress_value.set(start + ((end - start) * fraction))
+            self.status_text.set(f"{label} ({int(fraction * 100)}%)")
+            self.root.update_idletasks()
+
+        urllib.request.urlretrieve(url, target, hook)
+        self.set_progress(end, f"{label} concluido.")
+
     def start_install(self):
         if self.installing:
             return
@@ -162,9 +236,11 @@ class InstallerApp:
 
     def run(self, command, cwd=None, action="comando"):
         self.log(f"> {action}")
+        env = os.environ.copy()
         completed = subprocess.run(
             [str(part) for part in command],
             cwd=str(cwd) if cwd else None,
+            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -178,14 +254,51 @@ class InstallerApp:
         if completed.returncode != 0:
             raise RuntimeError(f"Falha ao executar {action}.")
 
+    def run_npm(self, args, action):
+        node = resolve_node()
+        npm_cli = resolve_npm_cli()
+        if not node or not npm_cli:
+            raise RuntimeError("Nao consegui localizar Node.js/npm depois da verificacao.")
+
+        node_dir = str(Path(node).resolve().parent)
+        env = os.environ.copy()
+        env["PATH"] = node_dir + os.pathsep + env.get("PATH", "")
+
+        self.log(f"> {action}")
+        command = (
+            f'chcp 65001 >nul && '
+            f'set "PATH={node_dir};%PATH%" && '
+            f'pushd "{ELECTRON_DIR}" && '
+            f'"{node}" "{npm_cli}" {" ".join(args)}'
+        )
+        completed = subprocess.run(
+            ["cmd.exe", "/d", "/s", "/c", command],
+            cwd=os.environ.get("TEMP") or os.environ.get("USERPROFILE") or None,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            creationflags=creation_flags(),
+        )
+        if completed.stdout:
+            for line in completed.stdout.splitlines()[-100:]:
+                self.log(line)
+        if completed.returncode != 0:
+            raise RuntimeError(f"Falha ao executar {action}.")
+
     def ensure_bin(self):
+        self.set_progress(5, "Verificando pasta do programa...")
         if not BIN_DIR.exists():
             raise RuntimeError(f"Nao encontrei a pasta Bin em:\n{BIN_DIR}")
         if not ELECTRON_DIR.exists():
             raise RuntimeError(f"Nao encontrei a pasta Electron em:\n{ELECTRON_DIR}")
+        self.set_progress(10, "Pasta Bin encontrada.")
 
     def ensure_node(self):
         if resolve_node() and resolve_npm_cli():
+            self.set_progress(22, "Node.js e npm ja estao instalados.")
             self.log("Node.js e npm encontrados.")
             return
 
@@ -194,6 +307,7 @@ class InstallerApp:
             webbrowser.open(NODE_URL)
             raise RuntimeError("Nao encontrei winget. Abri o site do Node.js para instalacao manual.")
 
+        self.set_progress(18, "Instalando Node.js LTS...")
         self.run(
             [
                 winget,
@@ -211,43 +325,58 @@ class InstallerApp:
         refresh_path()
         if not (resolve_node() and resolve_npm_cli()):
             raise RuntimeError("Node.js foi instalado, mas ainda nao apareceu no PATH. Feche e abra este setup novamente.")
+        self.set_progress(22, "Node.js e npm instalados.")
 
     def ensure_electron(self):
         self.ensure_node()
         electron_exe = ELECTRON_DIR / "node_modules" / "electron" / "dist" / "electron.exe"
-        node = resolve_node()
-        npm_cli = resolve_npm_cli()
-        if not node or not npm_cli:
-            raise RuntimeError("Nao consegui localizar Node.js/npm depois da instalacao.")
 
-        if not electron_exe.exists():
-            self.run([node, npm_cli, "install"], cwd=ELECTRON_DIR, action="npm install")
+        if electron_runtime_ready():
+            self.set_progress(68, "Electron ja esta instalado.")
+        else:
+            self.set_progress(52, "Instalando dependencias Electron...")
+            self.run_npm(["install"], action="npm install")
 
         install_js = ELECTRON_DIR / "node_modules" / "electron" / "install.js"
         if not electron_exe.exists() and install_js.exists():
+            node = resolve_node()
+            self.set_progress(62, "Reparando runtime do Electron...")
             self.run([node, install_js], cwd=ELECTRON_DIR, action="reparo do Electron")
 
         if not electron_exe.exists():
             raise RuntimeError("O Electron nao foi instalado corretamente.")
 
-        self.run([node, npm_cli, "run", "build"], cwd=ELECTRON_DIR, action="npm run build")
+        if electron_build_ready():
+            self.set_progress(78, "Build Electron ja esta pronto.")
+        else:
+            self.set_progress(70, "Gerando build Electron...")
+            self.run_npm(["run", "build"], action="npm run build")
+            self.set_progress(78, "Build Electron concluido.")
 
     def ensure_media_tools(self):
         ytdlp = RELEASE_DIR / "yt-dlp.exe"
         if not ytdlp.exists() and not resolve_command("yt-dlp.exe", "yt-dlp"):
-            self.log("Baixando yt-dlp...")
-            RELEASE_DIR.mkdir(parents=True, exist_ok=True)
-            urllib.request.urlretrieve("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe", ytdlp)
+            self.download_file(
+                "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe",
+                ytdlp,
+                "Baixando yt-dlp",
+                start=12,
+                end=18,
+            )
+        else:
+            self.set_progress(18, "yt-dlp ja esta instalado.")
 
         if (RELEASE_DIR / "ffmpeg.exe").exists() or resolve_command("ffmpeg.exe", "ffmpeg"):
-            self.log("ffmpeg encontrado.")
+            self.set_progress(30, "ffmpeg ja esta instalado.")
             return
 
         winget = resolve_command("winget.exe", "winget")
         if not winget:
             self.log("Nao encontrei ffmpeg nem winget. O app ainda abre, mas conversao de audio pode falhar.")
+            self.set_progress(30, "ffmpeg nao encontrado; etapa ignorada.")
             return
 
+        self.set_progress(24, "Instalando ffmpeg...")
         self.run(
             [
                 winget,
@@ -262,11 +391,12 @@ class InstallerApp:
             ],
             action="instalacao do ffmpeg",
         )
+        self.set_progress(30, "ffmpeg instalado.")
 
     def ensure_python_dependencies(self):
         python_app = RELEASE_DIR / "BaixadorDeVideos3000.exe"
         if python_app.exists():
-            self.log("Executavel Python de release encontrado.")
+            self.set_progress(42, "Executavel Python do app ja existe.")
             return
 
         python = resolve_command("python.exe", "python")
@@ -274,6 +404,7 @@ class InstallerApp:
             winget = resolve_command("winget.exe", "winget")
             if not winget:
                 raise RuntimeError("Nao encontrei Python nem winget para instalar automaticamente.")
+            self.set_progress(34, "Instalando Python...")
             for package_id in ("Python.Python.3.14", "Python.Python.3.13", "Python.Python.3.12"):
                 try:
                     self.run(
@@ -296,10 +427,14 @@ class InstallerApp:
             python = resolve_command("python.exe", "python")
             if not python:
                 raise RuntimeError("Nao consegui instalar/localizar o Python.")
+        else:
+            self.set_progress(34, "Python ja esta instalado.")
 
         if PYTHON_REQUIREMENTS.exists():
+            self.set_progress(38, "Verificando dependencias Python...")
             self.run([python, "-m", "pip", "install", "--upgrade", "pip"], action="atualizacao do pip")
             self.run([python, "-m", "pip", "install", "--upgrade", "-r", PYTHON_REQUIREMENTS], action="dependencias Python")
+        self.set_progress(42, "Dependencias Python prontas.")
 
     def create_shortcut(self, name, target, description):
         desktop = Path(os.path.join(os.environ.get("USERPROFILE", str(Path.home())), "Desktop"))
@@ -337,6 +472,7 @@ $shortcut.Save()
         )
 
     def create_shortcuts(self):
+        self.set_progress(86, "Criando atalhos selecionados...")
         if self.python_shortcut.get():
             target = RELEASE_DIR / "BaixadorDeVideos3000.exe"
             if not target.exists():
@@ -348,6 +484,7 @@ $shortcut.Save()
             if not target.exists():
                 target = LAUNCHER_DIR / "Abrir_Baixador_Electron.bat"
             self.create_shortcut("Baixador de Videos 3000 Electron", target, "Baixador de Videos 3000 Electron")
+        self.set_progress(95, "Atalhos prontos.")
 
     def install(self):
         try:
@@ -356,6 +493,7 @@ $shortcut.Save()
             self.ensure_python_dependencies()
             self.ensure_electron()
             self.create_shortcuts()
+            self.set_progress(100, "Instalacao concluida.")
             self.log("Instalacao concluida.")
             messagebox.showinfo(APP_TITLE, "Instalacao concluida com sucesso.")
         except Exception as exc:

@@ -1,5 +1,5 @@
 #!/bin/zsh
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -7,8 +7,39 @@ APP_DIR="$ROOT_DIR/Bin"
 RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
 LOG_FILE="$ROOT_DIR/setup/setup_macos.log"
 DESKTOP_DIR="$HOME/Desktop"
+TOTAL_STEPS=9
+CURRENT_STEP=0
 
 export PATH="$APP_DIR:$APP_DIR/.venv/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+progress_step() {
+    local message="$1"
+    CURRENT_STEP=$((CURRENT_STEP + 1))
+    local percent=$((CURRENT_STEP * 100 / TOTAL_STEPS))
+    local filled=$((percent / 5))
+    local empty=$((20 - filled))
+    local bar=""
+    local i
+    for ((i = 0; i < filled; i++)); do bar="${bar}#"; done
+    for ((i = 0; i < empty; i++)); do bar="${bar}-"; done
+    echo
+    echo "[$bar] ${percent}% - $message" | tee -a "$LOG_FILE"
+}
+
+run_logged() {
+    local message="$1"
+    shift
+    echo "> $message" | tee -a "$LOG_FILE"
+    "$@" 2>&1 | tee -a "$LOG_FILE"
+}
+
+download_with_progress() {
+    local url="$1"
+    local target="$2"
+    local label="$3"
+    echo "> $label" | tee -a "$LOG_FILE"
+    curl -L --progress-bar "$url" -o "$target" 2>&1 | tee -a "$LOG_FILE"
+}
 
 escape_dialog_text() {
     printf "%s" "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
@@ -94,9 +125,13 @@ create_desktop_app() {
     cat > "$desktop_app/Contents/MacOS/launcher" <<EOF
 #!/bin/zsh
 APP_DIR="$APP_DIR"
+LOG_FILE="$ROOT_DIR/setup/desktop_launchers.log"
 export PATH="\$APP_DIR:\$APP_DIR/.venv/bin:/opt/homebrew/bin:/usr/local/bin:\$PATH"
 cd "\$APP_DIR"
-exec "$launcher_path"
+chmod +x "$launcher_path" 2>/dev/null || true
+echo "" >> "\$LOG_FILE"
+echo "[\$(date)] Abrindo $app_name" >> "\$LOG_FILE"
+exec "$launcher_path" >> "\$LOG_FILE" 2>&1
 EOF
     chmod +x "$desktop_app/Contents/MacOS/launcher"
 
@@ -130,31 +165,52 @@ EOF
 
 ensure_node() {
     if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+        echo "Node.js e npm ja estao instalados." | tee -a "$LOG_FILE"
         return
     fi
     ensure_homebrew
-    brew install node
+    run_logged "Instalando Node.js" brew install node
 }
 
 ensure_ytdlp_macos() {
     local target="$APP_DIR/release/yt-dlp"
     mkdir -p "$APP_DIR/release"
-    if [ ! -x "$target" ]; then
-        curl -L "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos" -o "$target"
-        chmod +x "$target"
+    if [ -x "$target" ]; then
+        echo "yt-dlp ja esta instalado." | tee -a "$LOG_FILE"
+        return
     fi
+    download_with_progress "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos" "$target" "Baixando yt-dlp"
+    chmod +x "$target"
+}
+
+electron_binary_ready() {
+    [ -x "$APP_DIR/electron/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron" ]
+}
+
+electron_build_ready() {
+    [ -f "$APP_DIR/electron/dist/main/main.js" ] && [ -f "$APP_DIR/electron/dist/renderer/index.html" ]
 }
 
 prepare_electron() {
     ensure_node
     cd "$APP_DIR/electron"
-    if [ ! -x "node_modules/electron/dist/Electron.app/Contents/MacOS/Electron" ]; then
-        npm install 2>&1 | tee -a "$LOG_FILE"
+    if electron_binary_ready; then
+        echo "Electron ja esta instalado." | tee -a "$LOG_FILE"
+    else
+        run_logged "Instalando dependencias Electron" npm install
     fi
-    if [ -f "node_modules/electron/install.js" ] && [ ! -x "node_modules/electron/dist/Electron.app/Contents/MacOS/Electron" ]; then
-        node node_modules/electron/install.js 2>&1 | tee -a "$LOG_FILE"
+    if [ -f "node_modules/electron/install.js" ] && ! electron_binary_ready; then
+        run_logged "Reparando runtime do Electron" node node_modules/electron/install.js
     fi
-    npm run build 2>&1 | tee -a "$LOG_FILE"
+    if ! electron_binary_ready; then
+        error_dialog "O Electron nao foi instalado corretamente. Veja o log em: $LOG_FILE"
+        exit 1
+    fi
+    if electron_build_ready; then
+        echo "Build Electron ja esta pronto." | tee -a "$LOG_FILE"
+    else
+        run_logged "Gerando build Electron" npm run build
+    fi
 }
 
 main() {
@@ -178,17 +234,28 @@ main() {
 
     info_dialog "O setup vai preparar as dependencias. Isso pode demorar alguns minutos."
 
+    progress_step "Verificando Python do aplicativo"
     cd "$APP_DIR"
     PYTHON_BIN="$(ensure_app_venv "$APP_DIR")"
 
-    ensure_homebrew
+    progress_step "Verificando ffmpeg"
     if ! command -v ffmpeg >/dev/null 2>&1; then
-        brew install ffmpeg
+        ensure_homebrew
+        run_logged "Instalando ffmpeg" brew install ffmpeg
+    else
+        echo "ffmpeg ja esta instalado." | tee -a "$LOG_FILE"
     fi
+    progress_step "Verificando yt-dlp"
     ensure_ytdlp_macos
-    install_app_dependencies "$PYTHON_BIN"
+    progress_step "Verificando dependencias Python"
+    run_logged "Instalando/verificando dependencias Python" install_app_dependencies "$PYTHON_BIN"
+    progress_step "Ajustando permissoes"
     chmod_app_commands "$APP_DIR"
+    progress_step "Verificando Node.js e npm"
+    ensure_node
+    progress_step "Verificando Electron"
     prepare_electron
+    progress_step "Criando atalhos"
 
     if [[ "$selection" == *"Python"* ]]; then
         create_desktop_app "Baixador de Videos 3000" "$APP_DIR/launcher/Abrir_Baixador_YTDLP.command" "br.com.edgesolution.baixadordevideos3000.python" "$PYTHON_BIN"
@@ -196,6 +263,7 @@ main() {
     if [[ "$selection" == *"Electron"* ]]; then
         create_desktop_app "Baixador de Videos 3000 Electron" "$APP_DIR/launcher/Abrir_Baixador_Electron.command" "br.com.edgesolution.baixadordevideos3000.electron" "$PYTHON_BIN"
     fi
+    progress_step "Finalizando instalacao"
 
     info_dialog "Instalacao concluida. Os atalhos selecionados foram criados na Area de Trabalho."
 }

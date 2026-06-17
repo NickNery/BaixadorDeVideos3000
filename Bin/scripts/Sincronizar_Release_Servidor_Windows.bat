@@ -52,7 +52,7 @@ exit /b 0
 
 :copydir
 echo Sincronizando pasta %~1...
-robocopy "%ROOT%\%~1" "%DESTINO%\%~1" /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD node_modules dist-packages .venv __pycache__ /XF BaixadorDeVideos3000_Setup_Windows.exe.tmp >nul
+robocopy "%ROOT%\%~1" "%DESTINO%\%~1" /E /R:2 /W:2 /NFL /NDL /NJH /NJS /XD build node_modules dist dist-packages .venv __pycache__ /XF package-lock.json BaixadorDeVideos3000_Setup_Windows.exe.tmp >nul
 if %ERRORLEVEL% GEQ 8 (
     echo [ERRO] Falha ao sincronizar a pasta %~1.
     exit /b 1
