@@ -140,13 +140,5 @@ if build_is_old; then
 fi
 
 ELECTRON_BIN="$(electron_binary)"
-"$ELECTRON_BIN" --disable-gpu "$ELECTRON_DIR" >> "$LOG_FILE" 2>&1 &
-PID=$!
-sleep 3
-
-if ! kill -0 "$PID" >/dev/null 2>&1; then
-    error_dialog "O Electron tentou abrir, mas fechou logo em seguida. Veja o log em: $LOG_FILE"
-    exit 1
-fi
-
-info_dialog "Versao Electron aberta."
+echo "[$(date)] Iniciando Electron em primeiro plano" >> "$LOG_FILE"
+exec "$ELECTRON_BIN" --disable-gpu "$ELECTRON_DIR" >> "$LOG_FILE" 2>&1
