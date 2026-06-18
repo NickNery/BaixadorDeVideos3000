@@ -2,12 +2,15 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+SOURCE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SOURCE_APP_DIR="$SOURCE_ROOT/Bin"
+ROOT_DIR="$HOME/Library/Application Support/BaixadorDeVideos3000/App"
 APP_DIR="$ROOT_DIR/Bin"
 RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
-LOG_FILE="$ROOT_DIR/setup/setup_macos.log"
+LOG_DIR="$HOME/Library/Logs/BaixadorDeVideos3000"
+LOG_FILE="$LOG_DIR/setup_macos.log"
 DESKTOP_DIR="$HOME/Desktop"
-TOTAL_STEPS=8
+TOTAL_STEPS=9
 CURRENT_STEP=0
 ELECTRON_VERSION="39.8.10"
 ELECTRON_RUNTIME_DIR="$HOME/Library/Application Support/BaixadorDeVideos3000/ElectronRuntime/$ELECTRON_VERSION"
@@ -78,6 +81,37 @@ OSA
     else
         echo "Python,Electron"
     fi
+}
+
+install_program_files() {
+    if [ ! -d "$SOURCE_APP_DIR" ]; then
+        error_dialog "Nao encontrei a pasta Bin ao lado do setup. Baixe ou extraia o pacote completo e tente novamente."
+        exit 1
+    fi
+
+    mkdir -p "$APP_DIR"
+    if [ "$SOURCE_APP_DIR" = "$APP_DIR" ]; then
+        echo "O programa ja esta na pasta local deste Mac." | tee -a "$LOG_FILE"
+        return
+    fi
+
+    if [ -x /usr/bin/rsync ]; then
+        run_logged "Copiando programa para este Mac" /usr/bin/rsync -rlt --delete \
+            --exclude=.venv/ \
+            --exclude=node_modules/ \
+            --exclude=build/ \
+            --exclude=doom/ \
+            --exclude=ytdlp_gui_config.json \
+            --exclude=release/yt-dlp \
+            --exclude='*.log' \
+            "$SOURCE_APP_DIR/" "$APP_DIR/"
+    else
+        run_logged "Copiando programa para este Mac" /usr/bin/ditto "$SOURCE_APP_DIR" "$APP_DIR"
+    fi
+
+    chmod +x "$APP_DIR/launcher/"*.command 2>/dev/null || true
+    chmod +x "$APP_DIR/scripts/"*.command 2>/dev/null || true
+    chmod +x "$APP_DIR/release/"*.command 2>/dev/null || true
 }
 
 create_app_icon() {
@@ -276,17 +310,7 @@ prepare_electron() {
 }
 
 main() {
-    if [ ! -d "$APP_DIR" ]; then
-        error_dialog "Nao encontrei a pasta Bin. Extraia o ZIP inteiro e rode o setup novamente."
-        exit 1
-    fi
-    if [ ! -f "$RUNTIME_HELPERS" ]; then
-        error_dialog "Nao encontrei $RUNTIME_HELPERS."
-        exit 1
-    fi
-
-    source "$RUNTIME_HELPERS"
-    mkdir -p "$ROOT_DIR/setup"
+    mkdir -p "$LOG_DIR" "$ROOT_DIR"
     touch "$LOG_FILE"
 
     selection="$(choose_shortcuts)"
@@ -295,6 +319,16 @@ main() {
     fi
 
     info_dialog "O setup vai preparar as dependencias. Isso pode demorar alguns minutos."
+
+    progress_step "Instalando o programa neste Mac"
+    install_program_files
+
+    if [ ! -f "$RUNTIME_HELPERS" ]; then
+        error_dialog "Nao encontrei $RUNTIME_HELPERS depois de copiar o programa. Veja o log em: $LOG_FILE"
+        exit 1
+    fi
+    source "$RUNTIME_HELPERS"
+    mkdir -p "$ROOT_DIR/setup"
 
     progress_step "Verificando Python do aplicativo"
     cd "$APP_DIR"
@@ -325,7 +359,7 @@ main() {
     fi
     progress_step "Finalizando instalacao"
 
-    info_dialog "Instalacao concluida. Os atalhos selecionados foram criados na Area de Trabalho."
+    info_dialog "Instalacao concluida. O programa foi instalado neste Mac e os atalhos selecionados foram criados na Area de Trabalho."
 }
 
 main "$@"

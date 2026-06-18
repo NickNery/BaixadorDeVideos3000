@@ -14,6 +14,12 @@ else
     exit 1
 fi
 
+MODERN_SETUP="$APP_DIR/../setup/Setup_BaixadorDeVideos3000_macOS.command"
+if [ -f "$MODERN_SETUP" ]; then
+    chmod +x "$MODERN_SETUP" 2>/dev/null || true
+    exec /bin/zsh "$MODERN_SETUP"
+fi
+
 cd "$APP_DIR"
 
 VENV_DIR="$APP_DIR/.venv"
