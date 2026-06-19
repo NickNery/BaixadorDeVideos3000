@@ -1,5 +1,5 @@
 {
-  "version": "1.6.9",
+  "version": "1.7.0",
   "notes": "Descreva aqui o que mudou nesta versao.",
   "installer_windows_url": "https://SEU-SITE-OU-GITHUB/setup/Setup_BaixadorDeVideos3000_Windows.exe",
   "installer_macos_url": "https://SEU-SITE-OU-GITHUB/setup/Setup_BaixadorDeVideos3000_macOS.command",
@@ -19,6 +19,10 @@
     {
       "path": "setup/Setup_BaixadorDeVideos3000_macOS.command",
       "url": "https://SEU-SITE-OU-GITHUB/setup/Setup_BaixadorDeVideos3000_macOS.command"
+    },
+    {
+      "path": "setup/Limpar_BaixadorDeVideos3000_macOS.command",
+      "url": "https://SEU-SITE-OU-GITHUB/setup/Limpar_BaixadorDeVideos3000_macOS.command"
     },
     {
       "path": "Bin/assets/app_icon.png",

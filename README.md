@@ -32,6 +32,12 @@ setup/Setup_BaixadorDeVideos3000_macOS.command
 
 Os setups preparam as dependencias necessarias e perguntam quais atalhos criar na area de trabalho: Python, Electron ou ambos.
 
+Para remover ZIPs repetidos, logs, temporarios e runtimes antigos no macOS sem apagar a instalacao atual:
+
+```text
+setup/Limpar_BaixadorDeVideos3000_macOS.command
+```
+
 ## Abrir Sem Setup
 
 Python:
@@ -48,7 +54,7 @@ Bin/launcher/BaixadorDeVideos3000_Electron.exe
 Bin/launcher/BaixadorDeVideos3000_Electron.command
 ```
 
-No macOS, se o Electron nao abrir, rode primeiro o setup macOS. Ele instala Node.js/npm, baixa o runtime do Electron e recria a build local.
+No macOS, se o Electron nao abrir, rode primeiro o setup macOS. Ele instala uma copia local do app e baixa o runtime oficial do Electron sem depender de Node.js/npm.
 
 ## Desenvolvimento
 

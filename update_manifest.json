@@ -1,6 +1,6 @@
 {
-  "version": "1.6.9",
-  "notes": "Instala uma copia local no macOS para os atalhos funcionarem sem depender do volume de rede montado.",
+  "version": "1.7.0",
+  "notes": "Adiciona um limpador seguro no macOS para remover downloads repetidos, caches, logs e runtimes antigos sem apagar a instalacao atual.",
   "installer_windows_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_Windows.exe",
   "installer_macos_url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_macOS.command",
   "files": [
@@ -19,6 +19,10 @@
     {
       "path": "setup/Setup_BaixadorDeVideos3000_macOS.command",
       "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Setup_BaixadorDeVideos3000_macOS.command"
+    },
+    {
+      "path": "setup/Limpar_BaixadorDeVideos3000_macOS.command",
+      "url": "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/setup/Limpar_BaixadorDeVideos3000_macOS.command"
     },
     {
       "path": "Bin/assets/app_icon.png",
