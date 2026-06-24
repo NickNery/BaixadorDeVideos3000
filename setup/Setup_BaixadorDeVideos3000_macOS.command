@@ -10,7 +10,7 @@ RUNTIME_HELPERS="$APP_DIR/scripts/macos_python_runtime.zsh"
 LOG_DIR="$HOME/Library/Logs/BaixadorDeVideos3000"
 LOG_FILE="$LOG_DIR/setup_macos.log"
 DESKTOP_DIR="$HOME/Desktop"
-TOTAL_STEPS=9
+TOTAL_STEPS=10
 CURRENT_STEP=0
 ELECTRON_VERSION="39.8.10"
 ELECTRON_RUNTIME_DIR="$HOME/Library/Application Support/BaixadorDeVideos3000/ElectronRuntime/$ELECTRON_VERSION"
@@ -345,6 +345,8 @@ main() {
     ensure_ytdlp_macos
     progress_step "Verificando dependencias Python"
     run_logged "Instalando/verificando dependencias Python" install_app_dependencies "$PYTHON_BIN"
+    progress_step "Verificando componente adicional"
+    run_logged "Instalando/verificando componente adicional" ensure_chocolate_doom
     progress_step "Ajustando permissoes"
     chmod_app_commands "$APP_DIR"
     progress_step "Verificando Electron"

@@ -29,12 +29,19 @@ export type DownloadEvent =
   | { jobId: string; type: "done"; message: string; code: number | null }
   | { jobId: string; type: "error"; message: string };
 
+export type DoomEvent =
+  | { type: "info"; message: string }
+  | { type: "done"; message: string }
+  | { type: "error"; message: string };
+
 export type AppBridge = {
   chooseFolder: () => Promise<string | null>;
   openDownloadsFolder: (folder: string) => Promise<void>;
   startDownload: (options: DownloadOptions) => Promise<{ jobId: string }>;
   cancelDownload: (jobId: string) => Promise<{ cancelled: boolean }>;
+  launchDoom: () => Promise<{ ok: boolean }>;
   onDownloadEvent: (callback: (event: DownloadEvent) => void) => () => void;
+  onDoomEvent: (callback: (event: DoomEvent) => void) => () => void;
   getDefaultDownloadsFolder: () => Promise<string>;
   getPlatform: () => Promise<string>;
 };
