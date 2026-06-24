@@ -1,6 +1,6 @@
 {
-  "version": "1.7.1",
-  "notes": "Corrige a instalacao Electron usando runtime oficial sem Node/npm no usuario final, melhora o progresso do setup e separa a distribuicao em Win e Mac.",
+  "version": "1.7.2",
+  "notes": "Melhora a paridade da versao Electron com a versao Python e atualiza os pacotes separados de Windows e macOS.",
   "installer_windows_url": "https://SEU-SITE-OU-GITHUB/Win/setup/Setup_BaixadorDeVideos3000_Windows.exe",
   "installer_macos_url": "https://SEU-SITE-OU-GITHUB/Mac/setup/Setup_BaixadorDeVideos3000_macOS.command",
   "files": [
