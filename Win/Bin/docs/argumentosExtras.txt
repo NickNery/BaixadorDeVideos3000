@@ -1,0 +1,243 @@
+ARGUMENTOS EXTRAS DO YT-DLP
+===========================
+
+Use estes comandos no campo "Argumentos extras" do programa.
+Voce pode combinar varios comandos no mesmo campo, separados por espaco.
+
+Exemplo:
+--write-thumbnail --embed-metadata --ignore-errors
+
+IMPORTANTE
+----------
+O yt-dlp possui muitas opcoes. Este arquivo lista as mais uteis para uso no aplicativo.
+Para ver a lista completa oficial, abra o terminal na pasta do programa e rode:
+
+Windows:
+yt-dlp.exe --help
+
+macOS/Linux:
+yt-dlp --help
+
+
+GERAL
+-----
+--ignore-errors
+Continua tentando baixar outros links mesmo se algum link falhar.
+
+--no-playlist
+Baixa somente o video informado, mesmo se o link fizer parte de uma playlist.
+
+--yes-playlist
+Baixa a playlist inteira quando o link for playlist.
+
+--playlist-start NUMERO
+Comeca uma playlist a partir de um item especifico.
+Exemplo: --playlist-start 3
+
+--playlist-end NUMERO
+Para uma playlist em um item especifico.
+Exemplo: --playlist-end 10
+
+--max-downloads NUMERO
+Limita a quantidade maxima de downloads.
+Exemplo: --max-downloads 5
+
+
+QUALIDADE E FORMATO
+-------------------
+-f best
+Baixa o melhor formato disponivel.
+
+-f worst
+Baixa o pior formato disponivel, util para economizar espaco.
+
+-f best[ext=mp4]
+Tenta baixar o melhor arquivo MP4 pronto.
+
+-f "bestvideo+bestaudio/best"
+Tenta baixar melhor video + melhor audio. Normalmente precisa de ffmpeg.
+
+--merge-output-format mp4
+Quando o yt-dlp junta audio e video, tenta gerar arquivo final MP4.
+
+--remux-video mp4
+Converte o container para MP4 sem reencodar, quando possivel. Normalmente precisa de ffmpeg.
+
+--recode-video mp4
+Reencoda o video para MP4. Pode demorar bastante e precisa de ffmpeg.
+
+
+AUDIO
+-----
+-x
+Extrai apenas o audio.
+
+--audio-format mp3
+Converte o audio para MP3. Precisa de ffmpeg.
+
+--audio-format m4a
+Converte ou salva o audio como M4A. Precisa de ffmpeg em alguns casos.
+
+--audio-quality 0
+Melhor qualidade de audio.
+
+--audio-quality 5
+Qualidade intermediaria.
+
+--audio-quality 9
+Menor qualidade, arquivo menor.
+
+
+MINIATURA, METADADOS E LEGENDAS
+-------------------------------
+--write-thumbnail
+Baixa a miniatura do video.
+
+--embed-thumbnail
+Coloca a miniatura dentro do arquivo final. Normalmente precisa de ffmpeg.
+
+--write-info-json
+Salva um arquivo JSON com informacoes do video.
+
+--embed-metadata
+Coloca metadados no arquivo, como titulo e autor. Normalmente precisa de ffmpeg.
+
+--write-description
+Salva a descricao do video em um arquivo de texto.
+
+--write-subs
+Baixa legendas manuais, se existirem.
+
+--write-auto-subs
+Baixa legendas automaticas, se existirem.
+
+--sub-langs pt,en
+Escolhe idiomas das legendas.
+Exemplo: --write-subs --sub-langs pt,en
+
+--embed-subs
+Coloca as legendas dentro do video. Normalmente precisa de ffmpeg.
+
+
+NOME E ORGANIZACAO
+------------------
+-o "%(title)s.%(ext)s"
+Define o nome do arquivo usando o titulo do video.
+
+-o "%(uploader)s/%(title)s.%(ext)s"
+Cria uma pasta com o nome do canal/perfil e salva o video dentro dela.
+
+-o "%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s"
+Organiza downloads de playlist em pasta e numera os arquivos.
+
+--windows-filenames
+Evita caracteres invalidos no Windows.
+
+--restrict-filenames
+Usa nomes mais simples, com menos caracteres especiais.
+
+
+REDE E TENTATIVAS
+-----------------
+--socket-timeout 20
+Tempo maximo de espera por resposta da rede.
+
+--retries 10
+Quantidade de tentativas quando o download falhar.
+
+--fragment-retries 10
+Tentativas para baixar partes/fragmentos do video.
+
+--concurrent-fragments 4
+Baixa varios fragmentos ao mesmo tempo. Pode acelerar alguns downloads.
+
+--limit-rate 2M
+Limita a velocidade do download.
+Exemplo: --limit-rate 2M
+
+--sleep-interval 5
+Espera 5 segundos entre downloads.
+
+--max-sleep-interval 20
+Usado junto com --sleep-interval para variar o tempo de espera.
+
+
+LOGIN, COOKIES E ACESSO
+-----------------------
+--cookies caminho/para/cookies.txt
+Usa um arquivo cookies.txt.
+No app, prefira usar a opcao "Usar arquivo cookies.txt" em Cookies/login.
+
+--cookies-from-browser chrome
+Usa cookies do Chrome.
+No app, prefira marcar "Usar cookies do Chrome".
+
+--cookies-from-browser edge
+Usa cookies do Edge.
+
+--cookies-from-browser firefox
+Usa cookies do Firefox.
+
+--username USUARIO
+Usuario para sites que aceitam login via yt-dlp.
+
+--password SENHA
+Senha para sites que aceitam login via yt-dlp.
+Evite usar senha no campo de argumentos extras em computadores compartilhados.
+
+
+ARQUIVOS EXISTENTES
+-------------------
+--no-overwrites
+Nao substitui arquivos existentes.
+
+--force-overwrites
+Substitui arquivos existentes.
+
+--continue
+Continua downloads incompletos, quando possivel.
+
+--no-continue
+Nao tenta continuar downloads parciais.
+
+
+DIAGNOSTICO
+-----------
+--verbose
+Mostra informacoes detalhadas. Util para descobrir por que um download falhou.
+
+--dump-json
+Mostra dados do video em JSON, sem baixar.
+
+--simulate
+Simula o download, sem baixar arquivo.
+
+--list-formats
+Lista os formatos disponiveis para o link.
+
+--print "%(title)s"
+Mostra apenas o titulo do video.
+
+
+EXEMPLOS PRONTOS
+----------------
+Baixar miniatura e metadados:
+--write-thumbnail --embed-metadata
+
+Baixar legenda em portugues:
+--write-subs --write-auto-subs --sub-langs pt
+
+Tentar baixar uma playlist inteira:
+--yes-playlist
+
+Ignorar erros em varios links:
+--ignore-errors
+
+Diagnosticar erro:
+--verbose
+
+Economizar espaco:
+-f worst
+
+Organizar por canal/perfil:
+-o "%(uploader)s/%(title)s.%(ext)s"
