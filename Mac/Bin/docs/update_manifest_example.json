@@ -1,5 +1,5 @@
 {
-  "version": "1.7.3",
+  "version": "1.7.4",
   "notes": "Melhora a paridade da versao Electron com a versao Python e atualiza os pacotes separados de Windows e macOS.",
   "installer_windows_url": "https://SEU-SITE-OU-GITHUB/Win/setup/Setup_BaixadorDeVideos3000_Windows.exe",
   "installer_macos_url": "https://SEU-SITE-OU-GITHUB/Mac/setup/Setup_BaixadorDeVideos3000_macOS.command",

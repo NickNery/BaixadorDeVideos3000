@@ -247,7 +247,7 @@ async function extractZip(archivePath: string, destination: string, window: Brow
         "-ExecutionPolicy",
         "Bypass",
         "-Command",
-        "Expand-Archive -LiteralPath $args[0] -DestinationPath $args[1] -Force",
+        "& { param([string]$ArchivePath, [string]$DestinationPath) Expand-Archive -LiteralPath $ArchivePath -DestinationPath $DestinationPath -Force }",
         archivePath,
         destination
       ],

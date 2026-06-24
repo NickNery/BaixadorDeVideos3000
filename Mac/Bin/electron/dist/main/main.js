@@ -204,7 +204,7 @@ async function extractZip(archivePath, destination, window, status) {
             "-ExecutionPolicy",
             "Bypass",
             "-Command",
-            "Expand-Archive -LiteralPath $args[0] -DestinationPath $args[1] -Force",
+            "& { param([string]$ArchivePath, [string]$DestinationPath) Expand-Archive -LiteralPath $ArchivePath -DestinationPath $DestinationPath -Force }",
             archivePath,
             destination
         ], { timeoutMs: 180000 });
