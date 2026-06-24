@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import type { DoomEvent, DownloadEvent, DownloadFormat, FileNameMode, ThemeConfig } from "../shared/types";
 import "./styles.css";
 
-const APP_VERSION = "1.7.4";
+const APP_VERSION = "1.7.5";
 
 const defaultTheme: ThemeConfig = {
   title: "Edge Solutions Downloader",

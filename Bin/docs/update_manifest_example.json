@@ -1,6 +1,6 @@
 {
-  "version": "1.7.4",
-  "notes": "Melhora a paridade da versao Electron com a versao Python e atualiza os pacotes separados de Windows e macOS.",
+  "version": "1.7.5",
+  "notes": "Corrige a preparacao do Freedoom no easter egg, refazendo automaticamente downloads ou extracoes incompletas.",
   "installer_windows_url": "https://SEU-SITE-OU-GITHUB/Win/setup/Setup_BaixadorDeVideos3000_Windows.exe",
   "installer_macos_url": "https://SEU-SITE-OU-GITHUB/Mac/setup/Setup_BaixadorDeVideos3000_macOS.command",
   "files": [

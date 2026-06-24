@@ -84,9 +84,10 @@ function findFileRecursive(root, fileName) {
     if (!node_fs_1.default.existsSync(root)) {
         return null;
     }
+    const expectedName = fileName.toLowerCase();
     for (const entry of node_fs_1.default.readdirSync(root, { withFileTypes: true })) {
         const fullPath = node_path_1.default.join(root, entry.name);
-        if (entry.isFile() && entry.name === fileName) {
+        if (entry.isFile() && entry.name.toLowerCase() === expectedName) {
             return fullPath;
         }
         if (entry.isDirectory()) {
@@ -219,16 +220,30 @@ async function ensureFreedoom(window) {
         return existing;
     }
     const archivePath = node_path_1.default.join(root, `freedoom-${FREEDOOM_VERSION}.zip`);
-    if (!node_fs_1.default.existsSync(archivePath)) {
-        await downloadFile(FREEDOOM_URL, archivePath, window, "Baixando Freedoom...");
-    }
     const extractDir = node_path_1.default.join(root, "freedoom");
-    await extractZip(archivePath, extractDir, window, "Extraindo Freedoom...");
-    const wadPath = findFileRecursive(extractDir, "freedoom1.wad") || findFileRecursive(root, "freedoom1.wad");
-    if (!wadPath) {
-        throw new Error("O arquivo freedoom1.wad nao foi encontrado depois da extracao.");
+    let lastError = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+        if (attempt > 0) {
+            sendDoomEvent(window, "info", "Refazendo download do Freedoom...");
+            node_fs_1.default.rmSync(archivePath, { force: true });
+        }
+        node_fs_1.default.rmSync(extractDir, { recursive: true, force: true });
+        try {
+            if (!node_fs_1.default.existsSync(archivePath)) {
+                await downloadFile(FREEDOOM_URL, archivePath, window, "Baixando Freedoom...");
+            }
+            await extractZip(archivePath, extractDir, window, "Extraindo Freedoom...");
+            const wadPath = findFileRecursive(extractDir, "freedoom1.wad") || findFileRecursive(root, "freedoom1.wad");
+            if (wadPath) {
+                return wadPath;
+            }
+            lastError = new Error("O arquivo freedoom1.wad nao foi encontrado depois da extracao.");
+        }
+        catch (error) {
+            lastError = error instanceof Error ? error : new Error(String(error));
+        }
     }
-    return wadPath;
+    throw lastError || new Error("O arquivo freedoom1.wad nao foi encontrado depois da extracao.");
 }
 async function ensureWindowsChocolateDoom(window) {
     const root = doomDir();
@@ -237,16 +252,30 @@ async function ensureWindowsChocolateDoom(window) {
         return existing;
     }
     const archivePath = node_path_1.default.join(root, `chocolate-doom-${CHOCOLATE_DOOM_VERSION}-win64.zip`);
-    if (!node_fs_1.default.existsSync(archivePath)) {
-        await downloadFile(CHOCOLATE_DOOM_WINDOWS_URL, archivePath, window, "Baixando Chocolate Doom...");
-    }
     const extractDir = node_path_1.default.join(root, "chocolate-doom");
-    await extractZip(archivePath, extractDir, window, "Extraindo Chocolate Doom...");
-    const enginePath = findFileRecursive(extractDir, "chocolate-doom.exe") || findFileRecursive(root, "chocolate-doom.exe");
-    if (!enginePath) {
-        throw new Error("O motor chocolate-doom.exe nao foi encontrado depois da extracao.");
+    let lastError = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+        if (attempt > 0) {
+            sendDoomEvent(window, "info", "Refazendo download do Chocolate Doom...");
+            node_fs_1.default.rmSync(archivePath, { force: true });
+        }
+        node_fs_1.default.rmSync(extractDir, { recursive: true, force: true });
+        try {
+            if (!node_fs_1.default.existsSync(archivePath)) {
+                await downloadFile(CHOCOLATE_DOOM_WINDOWS_URL, archivePath, window, "Baixando Chocolate Doom...");
+            }
+            await extractZip(archivePath, extractDir, window, "Extraindo Chocolate Doom...");
+            const enginePath = findFileRecursive(extractDir, "chocolate-doom.exe") || findFileRecursive(root, "chocolate-doom.exe");
+            if (enginePath) {
+                return enginePath;
+            }
+            lastError = new Error("O motor chocolate-doom.exe nao foi encontrado depois da extracao.");
+        }
+        catch (error) {
+            lastError = error instanceof Error ? error : new Error(String(error));
+        }
     }
-    return enginePath;
+    throw lastError || new Error("O motor chocolate-doom.exe nao foi encontrado depois da extracao.");
 }
 function findMacChocolateDoom() {
     return firstExisting([

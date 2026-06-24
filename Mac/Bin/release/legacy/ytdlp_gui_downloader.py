@@ -53,7 +53,7 @@ else:
     if APP_DIR.name == "python":
         APP_DIR = APP_DIR.parent
 CONFIG_FILE = APP_DIR / "ytdlp_gui_config.json"
-APP_VERSION = "1.7.4"
+APP_VERSION = "1.7.5"
 APP_USER_MODEL_ID = "EdgeSolutions.BaixadorDeVideos3000"
 DEFAULT_UPDATE_MANIFEST_URL = "https://raw.githubusercontent.com/NickNery/BaixadorDeVideos3000/main/update_manifest.json"
 UPDATE_CHECK_TIMEOUT_SECONDS = 25
@@ -933,21 +933,37 @@ class FreedoomLauncherWindow:
             return existing
 
         archive_path = DOOM_DIR / f"freedoom-{FREEDOOM_VERSION}.zip"
-        self.download_file(
-            FREEDOOM_URL,
-            archive_path,
-            "Baixando Freedoom...",
-            "Isso baixa somente dados livres do jogo, sem usar arquivos originais pagos do DOOM.",
-        )
         extract_dir = DOOM_DIR / "freedoom"
-        extract_dir.mkdir(parents=True, exist_ok=True)
-        self.set_status("Extraindo Freedoom...", "Preparando o arquivo freedoom1.wad.")
-        self.safe_extract_zip(archive_path, extract_dir)
 
-        wad_path = self.find_file(extract_dir, "freedoom1.wad") or self.find_file(DOOM_DIR, "freedoom1.wad")
-        if not wad_path:
-            raise RuntimeError("O arquivo freedoom1.wad nao foi encontrado depois da extracao.")
-        return wad_path
+        last_error = None
+        for attempt in range(2):
+            if attempt:
+                self.set_status("Refazendo download do Freedoom...", "Limpando arquivo antigo e baixando novamente.")
+                archive_path.unlink(missing_ok=True)
+
+            if extract_dir.exists():
+                shutil.rmtree(extract_dir, ignore_errors=True)
+
+            try:
+                if not archive_path.exists():
+                    self.download_file(
+                        FREEDOOM_URL,
+                        archive_path,
+                        "Baixando Freedoom...",
+                        "Isso baixa somente dados livres do jogo, sem usar arquivos originais pagos do DOOM.",
+                    )
+                extract_dir.mkdir(parents=True, exist_ok=True)
+                self.set_status("Extraindo Freedoom...", "Preparando o arquivo freedoom1.wad.")
+                self.safe_extract_zip(archive_path, extract_dir)
+
+                wad_path = self.find_file(extract_dir, "freedoom1.wad") or self.find_file(DOOM_DIR, "freedoom1.wad")
+                if wad_path:
+                    return wad_path
+                last_error = RuntimeError("O arquivo freedoom1.wad nao foi encontrado depois da extracao.")
+            except Exception as exc:
+                last_error = exc
+
+        raise last_error or RuntimeError("O arquivo freedoom1.wad nao foi encontrado depois da extracao.")
 
     def ensure_engine(self):
         if os.name == "nt":
@@ -960,21 +976,37 @@ class FreedoomLauncherWindow:
             return existing
 
         archive_path = DOOM_DIR / f"chocolate-doom-{CHOCOLATE_DOOM_VERSION}-win64.zip"
-        self.download_file(
-            CHOCOLATE_DOOM_WINDOWS_URL,
-            archive_path,
-            "Baixando Chocolate Doom...",
-            "O motor e usado para rodar o Freedoom no Windows.",
-        )
         extract_dir = DOOM_DIR / "chocolate-doom"
-        extract_dir.mkdir(parents=True, exist_ok=True)
-        self.set_status("Extraindo Chocolate Doom...", "Preparando o motor do jogo.")
-        self.safe_extract_zip(archive_path, extract_dir)
 
-        engine_path = self.find_file(extract_dir, "chocolate-doom.exe") or self.find_file(DOOM_DIR, "chocolate-doom.exe")
-        if not engine_path:
-            raise RuntimeError("O motor chocolate-doom.exe nao foi encontrado depois da extracao.")
-        return engine_path
+        last_error = None
+        for attempt in range(2):
+            if attempt:
+                self.set_status("Refazendo download do Chocolate Doom...", "Limpando arquivo antigo e baixando novamente.")
+                archive_path.unlink(missing_ok=True)
+
+            if extract_dir.exists():
+                shutil.rmtree(extract_dir, ignore_errors=True)
+
+            try:
+                if not archive_path.exists():
+                    self.download_file(
+                        CHOCOLATE_DOOM_WINDOWS_URL,
+                        archive_path,
+                        "Baixando Chocolate Doom...",
+                        "O motor e usado para rodar o Freedoom no Windows.",
+                    )
+                extract_dir.mkdir(parents=True, exist_ok=True)
+                self.set_status("Extraindo Chocolate Doom...", "Preparando o motor do jogo.")
+                self.safe_extract_zip(archive_path, extract_dir)
+
+                engine_path = self.find_file(extract_dir, "chocolate-doom.exe") or self.find_file(DOOM_DIR, "chocolate-doom.exe")
+                if engine_path:
+                    return engine_path
+                last_error = RuntimeError("O motor chocolate-doom.exe nao foi encontrado depois da extracao.")
+            except Exception as exc:
+                last_error = exc
+
+        raise last_error or RuntimeError("O motor chocolate-doom.exe nao foi encontrado depois da extracao.")
 
     def ensure_macos_engine(self):
         existing = self.find_macos_chocolate_doom()
@@ -1076,8 +1108,9 @@ class FreedoomLauncherWindow:
 
     def find_file(self, root, filename):
         try:
-            for candidate in root.rglob(filename):
-                if candidate.is_file():
+            expected_name = filename.lower()
+            for candidate in root.rglob("*"):
+                if candidate.is_file() and candidate.name.lower() == expected_name:
                     return candidate
         except Exception:
             return None
